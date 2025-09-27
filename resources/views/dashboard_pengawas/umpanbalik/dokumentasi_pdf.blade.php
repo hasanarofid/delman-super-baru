@@ -36,6 +36,7 @@
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $row['tanggal'] }}</td>
                 <td>
+                    
                     <img src="{{ route('umpanbalikfoto', $row['foto'])}}" alt="Foto Bukti 1" width="100px">
                 </td>
                 <td>{{ $row['nama_sekolah'] }}</td>
