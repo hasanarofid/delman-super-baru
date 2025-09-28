@@ -18,7 +18,7 @@
     <meta name="description" content="" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('logo_simodip_new.jpeg') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('delmansupernew.png') }}" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -96,7 +96,7 @@
           <div class="container-xxl">
             
             <a href="#" class="app-brand-link ">
-              <img src="{{ asset('logo_simodip_new.jpeg') }}" style="margin-top:-20px"   height="70px" width="70px" alt="Image placeholder" class="">
+              <img src="{{ asset('delmansupernew.png') }}" style="margin-top:-20px"   height="70px" width="70px" alt="Image placeholder" class="">
               <span class="app-brand-text demo menu-text fw-bold">Sistem Modip | Umpan Balik</span>
             </a>
 

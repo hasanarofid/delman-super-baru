@@ -8,8 +8,8 @@
                 <!-- Login -->
                 <div class="card">
                     <div class="card-body">
-                        <img src="{{ asset('logo_simodip_new.jpeg') }}" height="150px" alt="Image placeholder" class="card-img">
-                        <h4 class="mb-1 pt-3 text-center">Admin Simodip Login</h4>
+                        <img src="{{ asset('delmansupernew.png') }}" height="150px" alt="Image placeholder" class="card-img">
+                        <h4 class="mb-1 pt-3 text-center">Admin DelmanSuper Login</h4>
                         <hr>
                         <form role="form" method="POST" action="{{ route('login') }}">
                             @csrf

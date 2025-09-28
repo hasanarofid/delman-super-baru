@@ -1,7 +1,7 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo" style="height: 190px !important;">
         <a href="{{ route('admin.index') }}" class="app-brand-link">
-            <img src="{{ asset('logo_simodip_new.jpeg') }}" height="200px" width="200px" alt="Image placeholder" class="">
+            <img src="{{ asset('delmansupernew.png') }}" height="200px" width="200px" alt="Image placeholder" class="">
         </a>
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
             <i class="ti menu-toggle-icon d-none d-xl-block ti-sm align-middle"></i>
@@ -50,11 +50,11 @@
           </li>
            <!-- end master data -->
 
-            <!-- master simodip -->
+            <!-- master delmansuper -->
           <li class="menu-item {{ ( request()->is('superadmin/masterpengawas*') || request()->is('superadmin/sekolah*')  || request()->is('superadmin/guru*')   ) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
               <i class="menu-icon tf-icons fa-solid fas fa-person"></i>
-              <div data-i18n="Master Data">Master Simodip</div>
+              <div data-i18n="Master Data">Master DelmanSuper</div>
             </a>
 
             <ul class="menu-sub">
@@ -83,7 +83,7 @@
             </ul>
           </li>
 
-          <!-- master simodip -->
+          <!-- master delmansuper -->
 
         
 

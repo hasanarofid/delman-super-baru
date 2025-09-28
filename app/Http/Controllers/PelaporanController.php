@@ -171,7 +171,7 @@ class PelaporanController extends Controller
                 
             //     Terimakasih
                 
-            //     Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengawas (SiMODiP) KCD Kabupaten Tangerang
+            //     Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengawas (DelmanSuper) KCD Kabupaten Tangerang
 
             $pesan = 'Yth Bapak / Ibu ' . $user->nama . ' Kepala <<nama sekolah>>, 
 Pada bulan <<bulan>> <<tahun>> pengawas << nama pengawas>> akan melakukan kegiatan pendampingan <<nama rencana kerja>>  ke sekolah. 
@@ -185,7 +185,7 @@ Mohon dapat mengisi formulir Monev pada link berikut :
                 
     Terimakasih
                 
-Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengawas (SiMODiP) KCD Kabupaten Tangerang';
+Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengawas (DelmanSuper) KCD Kabupaten Tangerang';
         
             // Inisialisasi curl
             $curl = curl_init();

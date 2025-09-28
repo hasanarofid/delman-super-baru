@@ -271,7 +271,7 @@ class PerencanaanController extends Controller
             2. Sertakan 1 bukti pendampingan berupa foto kegiatan bersama pengawas.
 
             Terimakasih
-            Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengawas (SiMODiP) KCD Kabupaten Tangerang";
+            Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengawas (DelmanSuper) KCD Kabupaten Tangerang";
 
             $this->sendWhatsAppMessage($no_telp, $pesan,$nama_kepala_sekolah_id,$model);
 
