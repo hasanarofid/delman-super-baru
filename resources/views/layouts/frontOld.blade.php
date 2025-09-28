@@ -11,7 +11,7 @@
 
     <title>@yield('title')  | {{ $profile->title }}</title>
 
-    <link rel="icon" href="{{ asset('logogita.jpeg') }}" type="image/x-icon"/>
+    <link rel="icon" href="{{ asset('delmansupernew.png') }}" type="image/x-icon"/>
        <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
   <!-- Nucleo Icons -->

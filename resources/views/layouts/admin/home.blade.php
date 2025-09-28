@@ -52,6 +52,10 @@
     <link rel="stylesheet" href="{{ asset('theme/assets/vendor/libs/select2/select2.css') }}" />
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ asset('theme/assets/vendor/css/pages/page-profile.css') }}" />
+    
+    <!-- Custom Admin CSS -->
+    <link rel="stylesheet" href="{{ asset('css/custom-admin.css') }}" />
+    
     <!-- Helpers -->
     <script src="{{ asset('theme/assets/vendor/js/helpers.js') }}"></script>
 
@@ -83,7 +87,14 @@
                     </div>
 
                     <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-                      <h4 style="margin-top: 15px">@yield('titelcard')</h4>
+                      <!-- Dashboard Admin Identifier -->
+                      <div class="d-flex align-items-center me-3">
+                        <div class="badge bg-primary me-2">
+                          <i class="ti ti-shield-check me-1"></i>
+                          ADMIN
+                        </div>
+                        <h4 style="margin-top: 15px; margin-bottom: 0;">@yield('titelcard')</h4>
+                      </div>
                         <ul class="navbar-nav flex-row align-items-center ms-auto">
                             @php
                                 if (Auth::user()->foto_profile == 'userdefault.jpg') {

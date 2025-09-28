@@ -53,6 +53,8 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
     <link rel="stylesheet" href="{{ asset('theme/assets/vendor/libs/select2/select2.css') }}" />
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ asset('theme/assets/vendor/css/pages/page-profile.css') }}" />
+    <!-- Custom CSS for Pengawas -->
+    <link rel="stylesheet" href="{{ asset('css/custom-admin.css') }}" />
     <!-- Helpers -->
     <script src="{{ asset('theme/assets/vendor/js/helpers.js') }}" ></script>
 
@@ -73,14 +75,9 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
           <aside  id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
           
             <div class="app-brand demo" style="height: 190px !important;" >
-              
-
-              <a href="{{ route('pengawas.index') }}" class="app-brand-link" >
-                <img src="{{ asset('delmansupernew.png') }}"   height="200px" width="200px" alt="Image placeholder" class="">
-
-
+              <a href="{{ route('pengawas.index') }}" class="app-brand-link">
+                <img src="{{ asset('delmansupernew.png') }}" height="200px" width="200px" alt="DelmanSuper Logo" class="brand-logo">
               </a>
-  
               <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
                 <i class="ti menu-toggle-icon d-none d-xl-block ti-sm align-middle"></i>
                 <i class="ti ti-x d-block d-xl-none ti-sm align-middle"></i>
@@ -88,6 +85,12 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
             </div>
   
             <div class="menu-inner-shadow"></div>
+            
+            <!-- Brand Info -->
+            <div class="brand-info text-center mb-3">
+                <h6 class="text-white mb-1" style="font-weight: 600; font-size: 0.9rem;">Sistem Pengawas</h6>
+                <small class="text-white-50">DelmanSuper Platform</small>
+            </div>
 
   
             <ul class="menu-inner py-1" style="margin-top: 10px">
@@ -228,8 +231,14 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
               </div>
   
               <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-                
-                <h4 style="margin-top: 15px">@yield('titelcard')</h4>
+                <!-- Dashboard Pengawas Identifier -->
+                <div class="d-flex align-items-center me-3">
+                  <div class="badge bg-success me-2">
+                    <i class="ti ti-user-check me-1"></i>
+                    PENGAWAS
+                  </div>
+                  <h4 style="margin-top: 15px; margin-bottom: 0;">@yield('titelcard')</h4>
+                </div>
 
                 <ul class="navbar-nav flex-row align-items-center ms-auto">
                  

@@ -19,6 +19,11 @@ class RedirectIfAuthenticated
     public function handle($request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->check()) {
+            // Jika user sudah login dan mengakses halaman pengawas login, redirect ke dashboard pengawas
+            if ($request->is('pengawas/login')) {
+                return redirect()->route('pengawas.index');
+            }
+            // Default redirect ke home
             return redirect(RouteServiceProvider::HOME);
         }
 

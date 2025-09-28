@@ -18,6 +18,8 @@ Route::get('/clear-view', function(){
     Artisan::call('view:clear');
     Artisan::call('config:cache');
     Artisan::call('clear-compiled');
+    Artisan::call('config:cache');
+    Artisan::call('clear-compiled');
     return 'clear all cache config route';
 });
 Route::get('/config-cache', function(){
@@ -462,7 +464,7 @@ Route::middleware(['web', 'pengawas'])->group(function () {
 
 
     // login logout pengawas
-    Route::get('/pengawas/login', 'Auth\LoginController@showPengawasLoginForm');
+    Route::get('/pengawas/login', 'Auth\LoginController@showPengawasLoginForm')->name('pengawas.login');
     Route::post('/pengawas/login', 'Auth\LoginController@superPengawasLogin')->name('superPengawasLogin');
     Route::post('/pengawas/logout', 'Auth\LoginController@logoutpengawas')->name('pengawas.logout');
 });

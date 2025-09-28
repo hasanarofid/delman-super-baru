@@ -1,7 +1,7 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo" style="height: 190px !important;">
         <a href="{{ route('admin.index') }}" class="app-brand-link">
-            <img src="{{ asset('delmansupernew.png') }}" height="200px" width="200px" alt="Image placeholder" class="">
+            <img src="{{ asset('delmansupernew.png') }}" height="200px" width="200px" alt="DelmanSuper Logo" class="brand-logo">
         </a>
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
             <i class="ti menu-toggle-icon d-none d-xl-block ti-sm align-middle"></i>
@@ -9,6 +9,13 @@
         </a>
     </div>
     <div class="menu-inner-shadow"></div>
+    
+    <!-- Brand Info -->
+    <div class="brand-info text-center mb-3">
+        <h6 class="text-white mb-1" style="font-weight: 600; font-size: 0.9rem;">Sistem Administrasi</h6>
+        <small class="text-white-50">DelmanSuper Platform</small>
+    </div>
+    
     <ul class="menu-inner py-1" style="margin-top: 10px">
         <li class="menu-item {{ request()->is('dashboard') ? 'active' : '' }}">
             <a href="{{ route('admin.index') }}" class="menu-link">

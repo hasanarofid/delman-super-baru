@@ -6,7 +6,7 @@
         <div class="container-xxl flex-grow-1 container-p-y">
             <div class="row">
                 <div class="col-xl-3 col-md-4 col-6 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100 dashboard-card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h5 class="card-title mb-1 pt-2">Total Sekolah</h5>
@@ -17,11 +17,17 @@
                                 </div>
                             </div>
                             <h4 class="mb-0">{{ $total_sekolah }}</h4>
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="ti ti-trending-up me-1"></i>
+                                    Data sekolah terdaftar
+                                </small>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-4 col-6 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100 dashboard-card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h5 class="card-title mb-1 pt-2">Total Pengawas</h5>
@@ -32,11 +38,17 @@
                                 </div>
                             </div>
                             <h4 class="mb-0">{{ $total_pengawas }}</h4>
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="ti ti-users me-1"></i>
+                                    Pengawas aktif
+                                </small>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-4 col-6 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100 dashboard-card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h5 class="card-title mb-1 pt-2">Total Rencana Kerja</h5>
@@ -47,11 +59,17 @@
                                 </div>
                             </div>
                             <h4 class="mb-0">{{ $total_rencankerja }}</h4>
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="ti ti-calendar me-1"></i>
+                                    Rencana kerja aktif
+                                </small>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-4 col-6 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100 dashboard-card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h5 class="card-title mb-1 pt-2">Total Umpan Balik</h5>
@@ -62,6 +80,12 @@
                                 </div>
                             </div>
                             <h4 class="mb-0">{{ $total_umpanbalik }}</h4>
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="ti ti-message-circle me-1"></i>
+                                    Umpan balik diterima
+                                </small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -70,9 +94,12 @@
             <div class="row mt-4">
 
                 <div class="col-lg-12 mb-3">
-                  <div class="card">
+                  <div class="card chart-card">
                     <div class="card-header pb-0 p-3">
-                      <h6 class="mb-0">Grafik Jumlah Rencana per pengawas </h6>
+                      <h6 class="mb-0">
+                        <i class="ti ti-chart-bar me-2"></i>
+                        Grafik Jumlah Rencana per pengawas
+                      </h6>
                     </div>
                         <div class="card-body p-3">
                             <button id="export-pdf" class="btn btn-primary">Export PDF</button> <!-- Export button -->
@@ -498,7 +525,8 @@ $('#filter-pengawas3').change(function() {
     //chart terkonfirmasi
 $('#filter-bln3').select2();
 $('#filter-tahun3').select2();
-let terkomfrimChartInstance = null;
+    
+    let terkomfrimChartInstance = null;
 function fetchChartTerkonfrim(month = 'all', year = 'all') {
     fetch(`{{ route('admin.chartTerkonfirmasi') }}?bln=${month}&tahun=${year}`)
         .then(response => response.json())

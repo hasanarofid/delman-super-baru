@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash; // Tambahkan ini
+use Illuminate\Support\Facades\Session;
 class LoginController extends Controller
 {
     /*
@@ -53,11 +54,11 @@ class LoginController extends Controller
         } else {
             Auth::logout();
             Session::flash('error', 'Anda tidak punya akses untuk halaman ini.');
-            return redirect()->route('login');
+            return redirect()->route('pengawas.login');
         }
     } else {
-        return redirect()->route('login')->withErrors([
-            'identifier' => 'Email/NIP atau password salah.',
+        return redirect()->route('pengawas.login')->withErrors([
+            'identifier' => 'NIP atau password salah.',
         ]);
     }
 }
