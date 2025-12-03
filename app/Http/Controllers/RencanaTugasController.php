@@ -24,11 +24,12 @@ use Illuminate\Support\Facades\Auth;
 class RencanaTugasController extends Controller
 {
     //index
-    public function index(){
+    public function index()
+    {
         $currentMonth = date('n'); // Numeric representation of the current month (1-12)
         $currentYear = date('Y');  // Current year
         $years = range($currentYear - 5, $currentYear + 5);
-         $months = [];
+        $months = [];
 
         // Array of month names in Indonesian
         $monthNamesIndo = [
@@ -56,16 +57,20 @@ class RencanaTugasController extends Controller
             ];
         }
 
-        $listPengawas = User::where('role','pengawas')->get();
-        return view('rencanakerja.index',
-        compact('listPengawas',
-        'months',
-        'currentYear',
-        'years',
-    ));
+        $listPengawas = User::where('role', 'pengawas')->get();
+        return view(
+            'rencanakerja.index',
+            compact(
+                'listPengawas',
+                'months',
+                'currentYear',
+                'years'
+            )
+        );
     }
 
-    public function getdata(Request $request) {
+    public function getdata(Request $request)
+    {
         if ($request->ajax()) {
             // Base query with eager loading
             $query = RencanaKerjaT::with('kategoriprogram', 'jenisprogram', 'aspekprogram', 'pengawasnama')->latest();
@@ -88,25 +93,25 @@ class RencanaTugasController extends Controller
             // Return data for DataTables
             return Datatables::of($query->get())
                 ->addIndexColumn()
-                ->addColumn('pengawas', function($row) {
+                ->addColumn('pengawas', function ($row) {
                     return $row->pengawasnama->nip . ' - ' . $row->pengawasnama->name;
                 })
-                ->addColumn('tanggal', function($row) {
+                ->addColumn('tanggal', function ($row) {
                     return $row->created_at->format('d M Y h:i:s');
                 })
-                ->addColumn('nama_kategori', function($row) {
+                ->addColumn('nama_kategori', function ($row) {
                     return $row->kategoriprogram->nama;
                 })
-                ->addColumn('nama_jenis', function($row) {
+                ->addColumn('nama_jenis', function ($row) {
                     return !empty($row->jenisprogram->nama) ? $row->jenisprogram->nama : '-';
                 })
-                ->addColumn('nama_aspek', function($row) {
+                ->addColumn('nama_aspek', function ($row) {
                     return !empty($row->aspekprogram->nama) ? $row->aspekprogram->nama : '-';
                 })
-                ->addColumn('bulan_tahun', function($row) {
+                ->addColumn('bulan_tahun', function ($row) {
                     return $row->bulan . ' - ' . $row->tahun_ajaran;
                 })
-                ->addColumn('nama_sekolah', function($row) {
+                ->addColumn('nama_sekolah', function ($row) {
                     $sekolahIds = explode(',', $row->sekolah_id);
                     $sekolahs = SekolahM::whereIn('id', $sekolahIds)->get();
 
@@ -116,12 +121,12 @@ class RencanaTugasController extends Controller
                     }
                     return $nama_sekolah;
                 })
-                ->addColumn('status', function($row) {
+                ->addColumn('status', function ($row) {
                     return $row->status == 1
                         ? '<span class="badge bg-label-success m-1">Sudah Kirim WA Blast</span>'
                         : '<span class="badge bg-label-danger m-1">Belum Kirim WA Blast</span>';
                 })
-                ->addColumn('action', function($row) {
+                ->addColumn('action', function ($row) {
                     $user = Auth::user();
                     if ($user && $user->role == 'Super Admin') {
                         return '<a id="sendWaButton-' . $row->id . '" onclick="kirimWaBlast(' . $row->id . ')" class="btn btn-sm bg-success text-white">
@@ -130,8 +135,6 @@ class RencanaTugasController extends Controller
                     } else {
                         return ''; // Tidak menampilkan tombol aksi jika bukan Super Admin
                     }
-
-
                 })
                 ->rawColumns(['pengawas', 'nama_kategori', 'nama_jenis', 'nama_aspek', 'nama_sekolah', 'status', 'action'])
                 ->make(true);
@@ -168,20 +171,21 @@ class RencanaTugasController extends Controller
     }
 
     //kirimwakepalasekolah
-    public function kirimWaSekolah($id,$id_user){
+    public function kirimWaSekolah($id, $id_user)
+    {
         // dd($id_user);
         try {
-            $umpan = UmpanBalikT::where('id_pelaporan',$id)
-            ->where('id_user',$id_user)->first();
+            $umpan = UmpanBalikT::where('id_pelaporan', $id)
+                ->where('id_user', $id_user)->first();
 
             $model = RencanaKerjaT::findOrFail($id);
             $kepalaSekolah = GuruM::findOrFail($id_user);
-                $nama_sekolah = $kepalaSekolah->sekolah->nama_sekolah;
-                     $nama_kepala_sekolah = $kepalaSekolah->nama;
-                    $nama_kepala_sekolah_id = $kepalaSekolah->id;
-                    $no_telp = $kepalaSekolah->no_telp;
+            $nama_sekolah = $kepalaSekolah->sekolah->nama_sekolah;
+            $nama_kepala_sekolah = $kepalaSekolah->nama;
+            $nama_kepala_sekolah_id = $kepalaSekolah->id;
+            $no_telp = $kepalaSekolah->no_telp;
 
-                    $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+            $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
 
 
             $model->status = 1;
@@ -198,28 +202,28 @@ class RencanaTugasController extends Controller
 
 
 
-            $checkUmpanBalik = UmpanbalikT::where('id_user',$nama_kepala_sekolah_id)
-            ->where('id_pelaporan',$model->id)
-            ->where('id_pengawas',$model->id_pengawas)
-            ->first();
-                if($checkUmpanBalik){
-                    $umpanBalik = $checkUmpanBalik;
-                    $umpanBalik->id_updated_by = Auth::user()->id;
-                    $umpanBalik->save();
-                    $fullUrl = url('umpan-balik/' . $umpanBalik->generate_url);
-                }else{
-                    $uniqueUrl = Str::uuid()->getHex();
-                    $umpanBalik = new UmpanbalikT();
-                    $umpanBalik->generate_url = $uniqueUrl;
-                    $umpanBalik->id_updated_by = Auth::user()->id; // Set the updated_by field
-                    $umpanBalik->id_pelaporan = $model->id;
-                    $umpanBalik->id_user = $nama_kepala_sekolah_id;
-                    $umpanBalik->id_pengawas = $model->id_pengawas;
-                    $umpanBalik->generate_url = $uniqueUrl;
-                    $umpanBalik->id_created_by = Auth::user()->id;
-                    $umpanBalik->save();
-                    $fullUrl = url('umpan-balik/' . $uniqueUrl);
-                }
+            $checkUmpanBalik = UmpanbalikT::where('id_user', $nama_kepala_sekolah_id)
+                ->where('id_pelaporan', $model->id)
+                ->where('id_pengawas', $model->id_pengawas)
+                ->first();
+            if ($checkUmpanBalik) {
+                $umpanBalik = $checkUmpanBalik;
+                $umpanBalik->id_updated_by = Auth::user()->id;
+                $umpanBalik->save();
+                $fullUrl = url('umpan-balik/' . $umpanBalik->generate_url);
+            } else {
+                $uniqueUrl = Str::uuid()->getHex();
+                $umpanBalik = new UmpanbalikT();
+                $umpanBalik->generate_url = $uniqueUrl;
+                $umpanBalik->id_updated_by = Auth::user()->id; // Set the updated_by field
+                $umpanBalik->id_pelaporan = $model->id;
+                $umpanBalik->id_user = $nama_kepala_sekolah_id;
+                $umpanBalik->id_pengawas = $model->id_pengawas;
+                $umpanBalik->generate_url = $uniqueUrl;
+                $umpanBalik->id_created_by = Auth::user()->id;
+                $umpanBalik->save();
+                $fullUrl = url('umpan-balik/' . $uniqueUrl);
+            }
 
 
 
@@ -241,8 +245,7 @@ class RencanaTugasController extends Controller
             Terimakasih
             Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengawas (DelmanSuper) KCD Kabupaten Tangerang";
 
-            $this->sendWhatsAppMessage($no_telp, $pesan,$nama_kepala_sekolah_id,$model);
-
+            $this->sendWhatsAppMessage($no_telp, $pesan, $nama_kepala_sekolah_id, $model);
         } catch (\Exception $e) {
             Log::error("Failed to create or send feedback link: " . $e->getMessage());
         }

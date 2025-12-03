@@ -1,8 +1,11 @@
 /* Custom Admin Dashboard Styles - DelmanSuper Brand Colors */
 :root {
-    --delman-blue: #2563eb;
+    /* --delman-blue: #2563eb;
     --delman-blue-light: #3b82f6;
-    --delman-blue-dark: #1d4ed8;
+    --delman-blue-dark: #1d4ed8; */
+    --delman-blue: #28589c;       
+    --delman-blue-light: #6C84B8; 
+    --delman-blue-dark: #0c2447;   
     --delman-orange: #f97316;
     --delman-orange-light: #fb923c;
     --delman-orange-dark: #ea580c;
@@ -464,7 +467,7 @@ h4.mb-0 {
     width: 100% !important;
     margin: 0 !important;
     display: inline-block !important;
-    position: relative !important;
+    /* position: relative !important; */
     vertical-align: middle !important;
     box-sizing: border-box !important;
     z-index: 1000 !important;
@@ -785,7 +788,7 @@ h4.mb-0 {
     margin-top: 4px !important;
 }
 
-.select2-container--default .select2-results__option {
+/* .select2-container--default .select2-results__option {
     padding: 12px 16px !important;
     color: var(--delman-gray-dark) !important;
     font-weight: 500 !important;
@@ -793,7 +796,7 @@ h4.mb-0 {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
     margin: 0 !important;
     border-radius: 0 !important;
-}
+} */
 
 .select2-container--default .select2-results__option:last-child {
     border-bottom: none !important;
@@ -912,7 +915,7 @@ h4.mb-0 {
 
 /* Force Select2 to be interactive */
 .select2-container {
-    position: relative !important;
+    /* position: relative !important; */
     z-index: 9999 !important;
     pointer-events: auto !important;
     cursor: pointer !important;
@@ -983,7 +986,7 @@ h4.mb-0 {
 
 /* Ensure no elements block Select2 */
 .select2-container {
-    position: relative !important;
+    /* position: relative !important; */
     z-index: 1000 !important;
 }
 
@@ -1039,12 +1042,12 @@ h4.mb-0 {
     pointer-events: auto !important;
     cursor: pointer !important;
     z-index: 99999 !important;
-    position: relative !important;
+    /* position: relative !important; */
 }
 
 /* Override any potential blocking from other CSS */
 .select2-container {
-    position: relative !important;
+    /* position: relative !important; */
     z-index: 99999 !important;
     pointer-events: auto !important;
     cursor: pointer !important;
