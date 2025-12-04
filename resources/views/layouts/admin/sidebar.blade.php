@@ -8,7 +8,7 @@
             <i class="ti ti-x d-block d-xl-none ti-sm align-middle"></i>
         </a>
     </div>
-    <div class="menu-inner-shadow"></div>
+    {{-- <div class="menu-inner-shadow"></div> --}}
     
     <!-- Brand Info -->
     <div class="brand-info text-center mb-3">
