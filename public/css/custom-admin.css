@@ -96,11 +96,11 @@
 }
 
 /* Menu Items */
-.menu-inner {
+/* .menu-inner {
     padding: 0 20px;
     position: relative;
     z-index: 1;
-}
+} */
 
 .menu-item {
     margin-bottom: 6px;
@@ -131,27 +131,22 @@
 
 .menu-item:hover {
     transform: translateX(5px);
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.1) 0%, 
-        rgba(255, 255, 255, 0.05) 100%);
+    background: rgba(255, 255, 255, 0.9) !important;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .menu-item.active {
-    background: linear-gradient(135deg, 
-        var(--delman-orange) 0%, 
-        var(--delman-orange-light) 100%) !important;
-    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
     transform: translateX(3px) !important;
     position: relative;
     z-index: 2;
 }
 
 .menu-item.active:hover {
-    background: linear-gradient(135deg, 
-        var(--delman-orange) 0%, 
-        var(--delman-orange-light) 100%) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
     transform: translateX(3px) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
 }
 
 .menu-item.active::after {
@@ -162,9 +157,9 @@
     transform: translateY(-50%);
     width: 3px;
     height: 50%;
-    background: white;
+    background: var(--delman-orange);
     border-radius: 2px;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 8px rgba(249, 115, 22, 0.5);
     z-index: 2;
 }
 
@@ -181,22 +176,22 @@
     text-decoration: none;
 }
 
-.menu-link:hover {
-    color: white !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+.menu-item:hover .menu-link {
+    color: #1a1a1a !important;
+    text-shadow: none !important;
 }
 
 .menu-item.active .menu-link {
-    color: white !important;
+    color: #1a1a1a !important;
     font-weight: 700 !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    text-shadow: none !important;
     position: relative;
     z-index: 4;
 }
 
-.menu-item.active .menu-link:hover {
-    color: white !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+.menu-item.active:hover .menu-link {
+    color: #1a1a1a !important;
+    text-shadow: none !important;
 }
 
 .menu-icon {
@@ -209,23 +204,23 @@
 }
 
 .menu-item:hover .menu-icon {
-    color: white !important;
+    color: #1a1a1a !important;
     transform: scale(1.1);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    text-shadow: none !important;
 }
 
 .menu-item.active .menu-icon {
-    color: white !important;
+    color: #1a1a1a !important;
     transform: scale(1.05) !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    text-shadow: none !important;
     position: relative;
     z-index: 4;
 }
 
-.menu-item.active .menu-icon:hover {
-    color: white !important;
+.menu-item.active:hover .menu-icon {
+    color: #1a1a1a !important;
     transform: scale(1.05) !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    text-shadow: none !important;
 }
 
 /* Sub Menu */
@@ -247,9 +242,16 @@
 
 .menu-sub .menu-item:hover {
     transform: translateX(3px);
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.08) 0%, 
-        rgba(255, 255, 255, 0.03) 100%);
+    background: rgba(255, 255, 255, 0.9) !important;
+}
+
+.menu-sub .menu-item.active {
+    background: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+.menu-sub .menu-item.active:hover {
+    background: rgba(255, 255, 255, 0.9) !important;
 }
 
 .menu-sub .menu-link {
@@ -257,6 +259,23 @@
     font-size: 0.9rem;
     position: relative;
     z-index: 3;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.menu-sub .menu-item:hover .menu-link {
+    color: #1a1a1a !important;
+    text-shadow: none !important;
+}
+
+.menu-sub .menu-item.active .menu-link {
+    color: #1a1a1a !important;
+    font-weight: 600 !important;
+    text-shadow: none !important;
+}
+
+.menu-sub .menu-item.active:hover .menu-link {
+    color: #1a1a1a !important;
+    text-shadow: none !important;
 }
 
 .menu-sub .menu-link::before {
@@ -274,9 +293,40 @@
 }
 
 .menu-sub .menu-item:hover .menu-link::before {
-    background: white;
+    background: #1a1a1a;
     transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 6px rgba(26, 26, 26, 0.3);
+}
+
+.menu-sub .menu-item.active .menu-link::before {
+    background: #1a1a1a;
+    transform: translateY(-50%) scale(1.2);
+    box-shadow: 0 0 8px rgba(26, 26, 26, 0.4);
+}
+
+.menu-sub .menu-item.active:hover .menu-link::before {
+    background: #1a1a1a;
+    transform: translateY(-50%) scale(1.2);
+    box-shadow: 0 0 8px rgba(26, 26, 26, 0.4);
+}
+
+.menu-sub .menu-icon {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.menu-sub .menu-item:hover .menu-icon {
+    color: #1a1a1a !important;
+    text-shadow: none !important;
+}
+
+.menu-sub .menu-item.active .menu-icon {
+    color: #1a1a1a !important;
+    text-shadow: none !important;
+}
+
+.menu-sub .menu-item.active:hover .menu-icon {
+    color: #1a1a1a !important;
+    text-shadow: none !important;
 }
 
 /* Navbar Styling */
@@ -1820,10 +1870,6 @@ canvas {
 .menu-item:nth-child(5) { animation-delay: 0.5s; }
 .menu-item:nth-child(6) { animation-delay: 0.6s; }
 
-.menu-item.active {
-    /* Removed pulse animation to prevent conflicts */
-}
-
 /* Smooth transitions for all interactive elements */
 .menu-item,
 .menu-link,
@@ -1836,22 +1882,20 @@ canvas {
 
 /* Prevent hover conflicts */
 .menu-item.active:hover {
-    background: linear-gradient(135deg, 
-        var(--delman-orange) 0%, 
-        var(--delman-orange-light) 100%) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
     transform: translateX(3px) !important;
-    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
 }
 
 .menu-item.active:hover .menu-link {
-    color: white !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    color: #1a1a1a !important;
+    text-shadow: none !important;
 }
 
 .menu-item.active:hover .menu-icon {
-    color: white !important;
+    color: #1a1a1a !important;
     transform: scale(1.05) !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    text-shadow: none !important;
 }
 
 /* Removed ripple effect to prevent conflicts */

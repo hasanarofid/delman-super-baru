@@ -53,7 +53,7 @@ class DokumentasipendampinganController extends Controller
         return view('dashboard_pengawas.umpanbalik.dokumentasi',compact('listPengawas',
         'months',
         'currentYear',
-        'years',
+        'years'
     ));
     }
 
@@ -98,7 +98,7 @@ class DokumentasipendampinganController extends Controller
         return view('dokumentasipendampingan.index',compact('listPengawas',
         'months',
         'currentYear',
-        'years',
+        'years'
     ));
     }
 
