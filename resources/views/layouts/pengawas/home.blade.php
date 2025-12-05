@@ -84,7 +84,7 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
               </a>
             </div>
   
-            <div class="menu-inner-shadow"></div>
+            {{-- <div class="menu-inner-shadow"></div> --}}
             
             <!-- Brand Info -->
             <div class="brand-info text-center mb-3">
