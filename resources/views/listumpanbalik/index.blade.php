@@ -92,6 +92,7 @@
                                 <th>Kepala Sekolah </th>
                                 <th>Program Kerja</th>
                                 <th>Status</th>
+                                <th>Rencana Tindak Lanjut (RTL)</th>
                                 <th>Preview</th>
                                 {{-- <th>#</th> --}}
                             </tr>
@@ -148,7 +149,7 @@
  $('#dataTable').DataTable({
 
         processing: true,
-        serverSide: false,
+        serverSide: true,
         ajax: {
                 url: "{{ route('listumpanbalik.getdata') }}",
                 data: function(d) {
@@ -164,7 +165,18 @@
             {data: 'nama_sekolah', name: 'nama_sekolah'},
             {data: 'kepala_sekolah', name: 'kepala_sekolah'},
             {data: 'sasaran', name: 'sasaran'},
-            {data: 'tanggapan', name: 'tanggapan'},
+            {data: 'tanggapan_status', name: 'tanggapan_status', orderable: false, searchable: false},
+            {
+                data: null,
+                name: 'rtl_status',
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row) {
+                    var rtlStatus = row.is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan';
+                    var rtlDate = row.tgl_rtl ? ` (${row.tgl_rtl})` : '';
+                    return `${rtlStatus}${rtlDate}`;
+                }
+            },
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
             dom: 'Bfrtip', // Enables the buttons at the top of the DataTable
@@ -177,7 +189,7 @@
                     orientation: 'landscape',
                     pageSize: 'A4',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5,6],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
                     },
                     customize: function (doc) {
                         doc.styles.tableHeader.alignment = 'left';

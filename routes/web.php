@@ -370,6 +370,7 @@ Route::middleware(['web', 'pengawas'])->group(function () {
     Route::prefix('pengawas/listumpanbalik')->group(function () { // tambahkan prefix pengawas
         Route::get('/', 'ListumpanbalikController@indexpengawas')->name('pengawas.listumpanbalik.index');
         Route::get('/get-listumpanbalik', 'ListumpanbalikController@getdatapengawas')->name('pengawas.listumpanbalik.getdata');
+        Route::post('/update-rtl', 'ListumpanbalikController@updateRTL')->name('pengawas.updateRTL');
     });
 
     Route::prefix('pengawas/dokumentasipendampingan')->group(function () {

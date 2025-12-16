@@ -11,6 +11,9 @@ use App\User;
 use Illuminate\Http\Request;
 use Auth;
 use DataTables;
+use \Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+
 class ListumpanbalikController extends Controller
 {
     public function index(){
@@ -144,7 +147,7 @@ class ListumpanbalikController extends Controller
                         $rencana = RencanaKerjaT::find($row->id_pelaporan);
                         return !empty($rencana) ? $rencana->nama_program_kerja : '-';
                     })
-                    ->addColumn('tanggapan', function($row){
+                    ->addColumn('tanggapan_status', function($row){
                         $tanggapan = TanggapanUmpanbalikT::where('id_umpanbalik',$row->id)->first();
                         if($tanggapan){
                             $btn = '<span class="badge bg-label-success m-1" > Sudah diberi tanggapan </span>';
@@ -153,6 +156,12 @@ class ListumpanbalikController extends Controller
                         }
                         return $btn;
 
+                    })
+                    ->addColumn('is_rtl', function($row){
+                        return $row->is_rtl;
+                    })
+                    ->addColumn('tgl_rtl', function($row){
+                        return $row->is_rtl == 1 && $row->tgl_rtl ? \Carbon\Carbon::parse($row->tgl_rtl)->format('d M Y H:i:s') : '';
                     })
                     ->addColumn('nama_sekolah', function($row) {
                         $cariguru = GuruM::findorFail($row->id_user);
@@ -175,7 +184,7 @@ class ListumpanbalikController extends Controller
                             return $btn;
                        })
 
-                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan'])
+                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl'])
                        ->make(true);
            }
     }
@@ -220,7 +229,7 @@ class ListumpanbalikController extends Controller
                         $rencana = RencanaKerjaT::find($row->id_pelaporan);
                         return !empty($rencana) ? $rencana->nama_program_kerja : '-';
                     })
-                    ->addColumn('tanggapan', function($row){
+                    ->addColumn('tanggapan_status', function($row){
                         $tanggapan = TanggapanUmpanbalikT::where('id_umpanbalik',$row->id)->first();
                         if($tanggapan){
                             $btn = '<span class="badge bg-label-success m-1" > Sudah diberi tanggapan </span>';
@@ -229,6 +238,12 @@ class ListumpanbalikController extends Controller
                         }
                         return $btn;
 
+                    })
+                    ->addColumn('is_rtl', function($row){
+                        return $row->is_rtl;
+                    })
+                    ->addColumn('tgl_rtl', function($row){
+                        return $row->is_rtl == 1 && $row->tgl_rtl ? \Carbon\Carbon::parse($row->tgl_rtl)->format('d M Y H:i:s') : '';
                     })
                     ->addColumn('nama_sekolah', function($row) {
                         $cariguru = GuruM::findorFail($row->id_user);
@@ -251,9 +266,22 @@ class ListumpanbalikController extends Controller
     return $btn;
                        })
 
-                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan'])
+                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl'])
                        ->make(true);
            }
+    }
+
+    public function updateRTL(Request $request)
+    {
+        Log::info('Update RTL Request:', $request->all());
+        $umpanbalik = UmpanbalikT::find($request->id);
+        if ($umpanbalik) {
+            $umpanbalik->is_rtl = $request->is_rtl;
+            $umpanbalik->tgl_rtl = now(); // Set current date and time
+            $umpanbalik->save();
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['success' => false]);
     }
 
 }

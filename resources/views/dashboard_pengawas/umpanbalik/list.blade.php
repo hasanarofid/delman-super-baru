@@ -77,7 +77,8 @@
                                 <th>Sekolah </th>
                                 <th>Kepala Sekolah </th>
                                 <th>Program Kerja</th>
-                                <th>Status</th>
+                                <th>Status Tanggapan</th>
+                                <th>Rencana Tindak Lanjut (RTL)</th>
                             </tr>
                           </thead>
                       </table>
@@ -127,7 +128,7 @@
     $('#dataTable').DataTable({
 
         processing: true,
-        serverSide: false,
+        serverSide: true,
         ajax: {
                 url: "{{ route('pengawas.listumpanbalik.getdata') }}",
                 data: function(d) {
@@ -142,7 +143,19 @@
             {data: 'nama_sekolah', name: 'nama_sekolah'},
             {data: 'kepala_sekolah', name: 'kepala_sekolah'},
             {data: 'sasaran', name: 'sasaran'},
-            {data: 'tanggapan', name: 'tanggapan'}
+            {data: 'tanggapan_status', name: 'tanggapan_status', orderable: false, searchable: false},
+            {
+                data: null,
+                name: 'rtl_action',
+                orderable: false,
+                searchable: false,
+                render: function (data, type, row) {
+                    var isRtlChecked = row.is_rtl == 1 ? 'checked' : '';
+                    var isDisabled = row.is_rtl == 1 ? 'disabled' : '';
+                    var rtlDate = row.tgl_rtl ? ` (${row.tgl_rtl})` : '';
+                    return `<input type="checkbox" class="form-check-input rtl-checkbox" data-id="${row.id}" ${isRtlChecked} ${isDisabled}>${rtlDate}`;
+                }
+            }
         ],
             dom: 'Bfrtip', // Enables the buttons at the top of the DataTable
             buttons: [
@@ -154,13 +167,70 @@
                     orientation: 'landscape',
                     pageSize: 'A4',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5,6],
+                        columns: [0, 1, 2, 3, 4, 5,6,7,8],
                     },
                     customize: function (doc) {
                         doc.styles.tableHeader.alignment = 'left';
                     }
                 }
             ]
+    });
+
+    $(document).on('change', '.rtl-checkbox', function() {
+        var id = $(this).data('id');
+        var isChecked = $(this).is(':checked') ? 1 : 0;
+
+        if (isChecked == 1) {
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: "Apakah Anda yakin ingin menandai RTL ini?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, tandai!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('pengawas.updateRTL') }}", // Adjust this route to your actual update route
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            id: id,
+                            is_rtl: isChecked
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire(
+                                    'Berhasil!',
+                                    'RTL berhasil ditandai.',
+                                    'success'
+                                );
+                                $('#dataTable').DataTable().ajax.reload();
+                            } else {
+                                Swal.fire(
+                                    'Error!',
+                                    'Terjadi kesalahan saat memperbarui RTL.',
+                                    'error'
+                                );
+                                $('#dataTable').DataTable().ajax.reload(); // Reload to reflect original state
+                            }
+                        },
+                        error: function(xhr) {
+                            Swal.fire(
+                                'Error!',
+                                'Terjadi kesalahan saat berkomunikasi dengan server.',
+                                'error'
+                            );
+                            $('#dataTable').DataTable().ajax.reload(); // Reload to reflect original state
+                        }
+                    });
+                } else {
+                    $(this).prop('checked', false); // Revert checkbox if not confirmed
+                }
+            });
+        }
     });
   });
 

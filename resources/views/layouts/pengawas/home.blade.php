@@ -51,6 +51,7 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
     <!-- Row Group CSS -->
     <link rel="stylesheet" href="{{ asset('theme/assets/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css') }}" />
     <link rel="stylesheet" href="{{ asset('theme/assets/vendor/libs/select2/select2.css') }}" />
+    <link rel="stylesheet" href="{{ asset('theme/assets/vendor/libs/sweetalert2/sweetalert2.css') }}" />
     <!-- Page CSS -->
     <link rel="stylesheet" href="{{ asset('theme/assets/vendor/css/pages/page-profile.css') }}" />
     <!-- Custom CSS for Pengawas -->
@@ -371,6 +372,8 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
 
     <!-- Page JS -->
     <script src="{{ asset('theme/assets/js/tables-datatables-basic.js') }}"></script>
+        <script src="{{ asset('theme/assets/vendor/libs/sweetalert2/sweetalert2.js') }}"></script>
+    <script src="{{ asset('theme/assets/js/extended-ui-sweetalert2.js') }}"></script>
     @yield('script')
 
   </body>
