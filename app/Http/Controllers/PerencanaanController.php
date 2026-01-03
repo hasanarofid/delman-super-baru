@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
 use DataTables;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use App\Models\UmpanbalikCategory;
 class PerencanaanController extends Controller
 {
     //index
@@ -58,11 +59,12 @@ class PerencanaanController extends Controller
         }
         $jenisProgram = JenisProgram::where('status',true)->get();
         $aspekProgram = AspekProgram::where('status',true)->get();
+        $umpanbalikCategories = UmpanbalikCategory::where('status', true)->get();
 
         return view('dashboard_pengawas.perencanaan.index',
         compact('kegiatan'
         ,'kategory','subkategory','binaan','months',
-        'jenisProgram','aspekProgram'
+        'jenisProgram','aspekProgram','umpanbalikCategories'
 
     ));
     }
@@ -149,8 +151,9 @@ class PerencanaanController extends Controller
         $model->sekolah_id = $sekolah_ids;
         $model->deskripsi_permasalahan = $request->post('deskripsi_permasalahan');
         $model->target_capaian = $request->post('target_capaian');
-        $model->tenggat_waktu = $request->post('tenggat_waktu');
-        $model->save();
+                $model->tenggat_waktu = $request->post('tenggat_waktu');
+                $model->id_umpanbalik_category = $request->post('id_umpanbalik_category');
+                $model->save();
         $this->kirimWa($model->id);
         return redirect()->route('pengawas.perencanaan')->with('success', 'Perencanaan berhasil disimpan!');
     }
@@ -171,8 +174,9 @@ class PerencanaanController extends Controller
         $data->bulan = $request->post('bulan');
         $data->deskripsi_permasalahan = $request->post('deskripsi_permasalahan');
         $data->target_capaian = $request->post('target_capaian');
-        $data->tenggat_waktu = $request->post('tenggat_waktu');
-        $data->save();
+                $data->tenggat_waktu = $request->post('tenggat_waktu');
+                $data->id_umpanbalik_category = $request->post('id_umpanbalik_category');
+                $data->save();
         return redirect()->route('pengawas.perencanaan')->with('success', 'Perencanaan berhasil diedit!');
     }
 
@@ -180,9 +184,13 @@ class PerencanaanController extends Controller
     public function edit($id)
     {
         // Ambil data dari model berdasarkan ID atau yang lain sesuai kebutuhan
-        $data = RencanaKerjaT::findOrFail($id); // Gantilah YourModel dengan model yang sesuai
+        $data = RencanaKerjaT::findOrFail($id);
+        $umpanbalikCategories = UmpanbalikCategory::where('status', true)->get();
 
-        return response()->json($data);
+        return response()->json([
+            'data' => $data,
+            'umpanbalikCategories' => $umpanbalikCategories
+        ]);
     }
 
 

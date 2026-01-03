@@ -136,6 +136,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
         Route::get('/edit-rencanatugas/{id}', 'RencanaTugasController@edit')->name('rencanatugas.edit');
         Route::post('/update-rencanatugas/{id}', 'RencanaTugasController@update')->name('rencanatugas.update');
         Route::get('/kirim-wa/{id}', 'RencanaTugasController@kirimWa')->name('rencanatugas.kirimwa');
+        Route::get('/kirim-wa-with-category/{id}/{id_category}', 'RencanaTugasController@kirimWaWithCategory')->name('rencanatugas.kirimwa.withcategory');
         Route::get('/kirim-wa-sekolah/{id}/{id_sekolah}', 'RencanaTugasController@kirimWaSekolah')->name('rencanatugas.kirimWaSekolah');
     });
 
@@ -272,6 +273,19 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
     });
 
     // end route menu admin
+        Route::resource('umpanbalik-categories', 'UmpanbalikCategoryController')->names('umpanbalik.categories');
+
+    Route::get('umpan-balik-view/{category_slug}/{generate_url}', 'DynamicUmpanbalikController@showSuperadminView')->name('superadmin.dynamic.umpanbalik.view');
+    
+    // Explicitly define routes for UmpanbalikQuestionController
+    Route::get('umpanbalik-questions', 'UmpanbalikQuestionController@index')->name('umpanbalik.questions.index');
+    Route::get('umpanbalik-questions/create', 'UmpanbalikQuestionController@create')->name('umpanbalik.questions.create');
+    Route::post('umpanbalik-questions', 'UmpanbalikQuestionController@store')->name('umpanbalik.questions.store');
+    Route::get('umpanbalik-questions/{umpanbalik_question}', 'UmpanbalikQuestionController@show')->name('umpanbalik.questions.show');
+    Route::get('umpanbalik-questions/{umpanbalik_question}/edit', 'UmpanbalikQuestionController@edit')->name('umpanbalik.questions.edit');
+    Route::put('umpanbalik-questions/{umpanbalik_question}', 'UmpanbalikQuestionController@update')->name('umpanbalik.questions.update');
+    Route::delete('umpanbalik-questions/{umpanbalik_question}', 'UmpanbalikQuestionController@destroy')->name('umpanbalik.questions.destroy');
+
 });
 // end route penel dashboard for superadmin
 
@@ -347,8 +361,432 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
 //         Route::get('/excelcontoh-stakeholder', 'StakeholderController@excelcontoh')->name('stakeholder.excelcontoh');
 //     });
 //     // end route panel menu stakeholder
-// });
-// end
+
+//     // route wablasthistory
+
+//     // end wablasthistory
+//     Route::prefix('wablasthistory')->group(function () {
+//         Route::get('/', 'WablasthistoryController@index')->name('wablasthistory.index');
+//         Route::get('/get-history', 'WablasthistoryController@getdata')->name('wablasthistory.getdata');
+//     });
+
+// end route penel dashboard for superadmin
+
+// route penel dashboard for admin
+// Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+//     // route menu pengawas
+//     Route::prefix('masterpengawas')->group(function () {
+//         // route panel menu pengawas
+//         Route::get('/', 'PegawasMController@index')->name('masterpengawas.index');
+//         Route::get('/get-pengawas', 'PegawasMController@getdata')->name('masterpengawas.getdata');
+//         Route::get('/add-pengawas', 'PegawasMController@add')->name('masterpengawas.add');
+//         Route::get('/edit-pengawas/{id}', 'PegawasMController@edit')->name('masterpengawas.edit');
+//         Route::post('/update-pengawas', 'PegawasMController@update')->name('masterpengawas.update');
+//         Route::get('/import-pengawas', 'PegawasMController@import')->name('masterpengawas.import');
+//         Route::post('/importfile-pengawas', 'PegawasMController@importfile')->name('masterpengawas.importfile');
+//         Route::post('/store-pengawas', 'PegawasMController@store')->name('masterpengawas.store');
+//         Route::post('/store_sekolah', 'PegawasMController@store_sekolah')->name('masterpengawas.store_sekolah');
+//         Route::get('/hapus-pengawas/{id}', 'PegawasMController@hapus')->name('masterpengawas.hapus');
+//         Route::get('/excelcontoh-pengawas', 'PegawasMController@excelcontoh')->name('masterpengawas.excelcontoh');
+//         Route::get('/getpangkat', 'PegawasMController@getpangkat')->name('masterpengawas.getpangkat');
+//         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
+//         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
+//         Route::get('/setSekolahBinaan/{id}', 'PegawasMController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
+
+
+
+
+//         // end route panel menu pengawas
+//     });
+
+//     // route menu pengawas
+//     Route::prefix('sekolah')->group(function () {
+//     // route panel menu sekolah
+//         Route::get('/', 'SekolahMController@index')->name('sekolah.index');
+//         Route::get('/get-sekolah', 'SekolahMController@getdata')->name('sekolah.getdata');
+//         Route::get('/add-sekolah', 'SekolahMController@add')->name('sekolah.add');
+//         Route::get('/edit-sekolah/{id}', 'SekolahMController@edit')->name('sekolah.edit');
+//         Route::post('/update-sekolah', 'SekolahMController@update')->name('sekolah.update');
+//         Route::get('/import-sekolah', 'SekolahMController@import')->name('sekolah.import');
+//         Route::post('/importfile-sekolah', 'SekolahMController@importfile')->name('sekolah.importfile');
+//         Route::post('/store-sekolah', 'SekolahMController@store')->name('sekolah.store');
+//         Route::get('/hapus-sekolah/{id}', 'SekolahMController@hapus')->name('sekolah.hapus');
+//         Route::get('/excelcontoh-sekolah', 'SekolahMController@excelcontoh')->name('sekolah.excelcontoh');
+//     // end route panel menu sekolah
+//     });
+
+//     // route panel menu guru
+//       Route::prefix('guru')->group(function () {
+//         Route::get('/', 'GuruMController@index')->name('guru.index');
+//         Route::get('/get-guru', 'GuruMController@getdata')->name('guru.getdata');
+//         Route::get('/add-guru', 'GuruMController@add')->name('guru.add');
+//         Route::get('/edit-guru/{id}', 'GuruMController@edit')->name('guru.edit');
+//         Route::post('/update-guru', 'GuruMController@update')->name('guru.update');
+//         Route::get('/import-guru', 'GuruMController@import')->name('guru.import');
+//         Route::post('/importfile-guru', 'GuruMController@importfile')->name('guru.importfile');
+//         Route::post('/store-guru', 'GuruMController@store')->name('guru.store');
+//         Route::get('/hapus-guru/{id}', 'GuruMController@hapus')->name('guru.hapus');
+//         Route::get('/excelcontoh-guru', 'GuruMController@excelcontoh')->name('guru.excelcontoh');
+//     });
+//     // end route panel menu guru
+
+//     // route panel menu stakeholder
+//       Route::prefix('stakeholder')->group(function () {
+//         Route::get('/', 'StakeholderController@index')->name('stakeholder.index');
+//         Route::get('/get-stakeholder', 'StakeholderController@getdata')->name('stakeholder.getdata');
+//         Route::get('/add-stakeholder', 'StakeholderController@add')->name('stakeholder.add');
+//         Route::get('/edit-stakeholder/{id}', 'StakeholderController@edit')->name('stakeholder.edit');
+//         Route::post('/update-stakeholder/{id}', 'StakeholderController@update')->name('stakeholder.update');
+//         Route::get('/import-stakeholder', 'StakeholderController@import')->name('stakeholder.import');
+//         Route::post('/importfile-stakeholder', 'StakeholderController@importfile')->name('stakeholder.importfile');
+//         Route::post('/store-stakeholder', 'StakeholderController@store')->name('stakeholder.store');
+//         Route::get('/hapus-stakeholder/{id}', 'StakeholderController@hapus')->name('stakeholder.hapus');
+//         Route::get('/excelcontoh-stakeholder', 'StakeholderController@excelcontoh')->name('stakeholder.excelcontoh');
+//     });
+//     // end route panel menu stakeholder
+
+//     // route wablasthistory
+
+//     // end wablasthistory
+//     Route::prefix('wablasthistory')->group(function () {
+//         Route::get('/', 'WablasthistoryController@index')->name('wablasthistory.index');
+//         Route::get('/get-history', 'WablasthistoryController@getdata')->name('wablasthistory.getdata');
+//     });
+
+// end route penel dashboard for superadmin
+
+// route penel dashboard for admin
+// Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+//     // route menu pengawas
+//     Route::prefix('masterpengawas')->group(function () {
+//         // route panel menu pengawas
+//         Route::get('/', 'PegawasMController@index')->name('masterpengawas.index');
+//         Route::get('/get-pengawas', 'PegawasMController@getdata')->name('masterpengawas.getdata');
+//         Route::get('/add-pengawas', 'PegawasMController@add')->name('masterpengawas.add');
+//         Route::get('/edit-pengawas/{id}', 'PegawasMController@edit')->name('masterpengawas.edit');
+//         Route::post('/update-pengawas', 'PegawasMController@update')->name('masterpengawas.update');
+//         Route::get('/import-pengawas', 'PegawasMController@import')->name('masterpengawas.import');
+//         Route::post('/importfile-pengawas', 'PegawasMController@importfile')->name('masterpengawas.importfile');
+//         Route::post('/store-pengawas', 'PegawasMController@store')->name('masterpengawas.store');
+//         Route::post('/store_sekolah', 'PegawasMController@store_sekolah')->name('masterpengawas.store_sekolah');
+//         Route::get('/hapus-pengawas/{id}', 'PegawasMController@hapus')->name('masterpengawas.hapus');
+//         Route::get('/excelcontoh-pengawas', 'PegawasMController@excelcontoh')->name('masterpengawas.excelcontoh');
+//         Route::get('/getpangkat', 'PegawasMController@getpangkat')->name('masterpengawas.getpangkat');
+//         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
+//         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
+//         Route::get('/setSekolahBinaan/{id}', 'PegawasMController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
+
+
+
+
+//         // end route panel menu pengawas
+//     });
+
+//     // route menu pengawas
+//     Route::prefix('sekolah')->group(function () {
+//     // route panel menu sekolah
+//         Route::get('/', 'SekolahMController@index')->name('sekolah.index');
+//         Route::get('/get-sekolah', 'SekolahMController@getdata')->name('sekolah.getdata');
+//         Route::get('/add-sekolah', 'SekolahMController@add')->name('sekolah.add');
+//         Route::get('/edit-sekolah/{id}', 'SekolahMController@edit')->name('sekolah.edit');
+//         Route::post('/update-sekolah', 'SekolahMController@update')->name('sekolah.update');
+//         Route::get('/import-sekolah', 'SekolahMController@import')->name('sekolah.import');
+//         Route::post('/importfile-sekolah', 'SekolahMController@importfile')->name('sekolah.importfile');
+//         Route::post('/store-sekolah', 'SekolahMController@store')->name('sekolah.store');
+//         Route::get('/hapus-sekolah/{id}', 'SekolahMController@hapus')->name('sekolah.hapus');
+//         Route::get('/excelcontoh-sekolah', 'SekolahMController@excelcontoh')->name('sekolah.excelcontoh');
+//     // end route panel menu sekolah
+//     });
+
+//     // route panel menu guru
+//       Route::prefix('guru')->group(function () {
+//         Route::get('/', 'GuruMController@index')->name('guru.index');
+//         Route::get('/get-guru', 'GuruMController@getdata')->name('guru.getdata');
+//         Route::get('/add-guru', 'GuruMController@add')->name('guru.add');
+//         Route::get('/edit-guru/{id}', 'GuruMController@edit')->name('guru.edit');
+//         Route::post('/update-guru', 'GuruMController@update')->name('guru.update');
+//         Route::get('/import-guru', 'GuruMController@import')->name('guru.import');
+//         Route::post('/importfile-guru', 'GuruMController@importfile')->name('guru.importfile');
+//         Route::post('/store-guru', 'GuruMController@store')->name('guru.store');
+//         Route::get('/hapus-guru/{id}', 'GuruMController@hapus')->name('guru.hapus');
+//         Route::get('/excelcontoh-guru', 'GuruMController@excelcontoh')->name('guru.excelcontoh');
+//     });
+//     // end route panel menu guru
+
+//     // route panel menu stakeholder
+//       Route::prefix('stakeholder')->group(function () {
+//         Route::get('/', 'StakeholderController@index')->name('stakeholder.index');
+//         Route::get('/get-stakeholder', 'StakeholderController@getdata')->name('stakeholder.getdata');
+//         Route::get('/add-stakeholder', 'StakeholderController@add')->name('stakeholder.add');
+//         Route::get('/edit-stakeholder/{id}', 'StakeholderController@edit')->name('stakeholder.edit');
+//         Route::post('/update-stakeholder/{id}', 'StakeholderController@update')->name('stakeholder.update');
+//         Route::get('/import-stakeholder', 'StakeholderController@import')->name('stakeholder.import');
+//         Route::post('/importfile-stakeholder', 'StakeholderController@importfile')->name('stakeholder.importfile');
+//         Route::post('/store-stakeholder', 'StakeholderController@store')->name('stakeholder.store');
+//         Route::get('/hapus-stakeholder/{id}', 'StakeholderController@hapus')->name('stakeholder.hapus');
+//         Route::get('/excelcontoh-stakeholder', 'StakeholderController@excelcontoh')->name('stakeholder.excelcontoh');
+//     });
+//     // end route panel menu stakeholder
+
+//     // route wablasthistory
+
+//     // end wablasthistory
+//     Route::prefix('wablasthistory')->group(function () {
+//         Route::get('/', 'WablasthistoryController@index')->name('wablasthistory.index');
+//         Route::get('/get-history', 'WablasthistoryController@getdata')->name('wablasthistory.getdata');
+//     });
+
+// end route penel dashboard for superadmin
+
+// route penel dashboard for admin
+// Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+//     // route menu pengawas
+//     Route::prefix('masterpengawas')->group(function () {
+//         // route panel menu pengawas
+//         Route::get('/', 'PegawasMController@index')->name('masterpengawas.index');
+//         Route::get('/get-pengawas', 'PegawasMController@getdata')->name('masterpengawas.getdata');
+//         Route::get('/add-pengawas', 'PegawasMController@add')->name('masterpengawas.add');
+//         Route::get('/edit-pengawas/{id}', 'PegawasMController@edit')->name('masterpengawas.edit');
+//         Route::post('/update-pengawas', 'PegawasMController@update')->name('masterpengawas.update');
+//         Route::get('/import-pengawas', 'PegawasMController@import')->name('masterpengawas.import');
+//         Route::post('/importfile-pengawas', 'PegawasMController@importfile')->name('masterpengawas.importfile');
+//         Route::post('/store-pengawas', 'PegawasMController@store')->name('masterpengawas.store');
+//         Route::post('/store_sekolah', 'PegawasMController@store_sekolah')->name('masterpengawas.store_sekolah');
+//         Route::get('/hapus-pengawas/{id}', 'PegawasMController@hapus')->name('masterpengawas.hapus');
+//         Route::get('/excelcontoh-pengawas', 'PegawasMController@excelcontoh')->name('masterpengawas.excelcontoh');
+//         Route::get('/getpangkat', 'PegawasMController@getpangkat')->name('masterpengawas.getpangkat');
+//         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
+//         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
+//         Route::get('/setSekolahBinaan/{id}', 'PegawasMController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
+
+
+
+
+//         // end route panel menu pengawas
+//     });
+
+//     // route menu pengawas
+//     Route::prefix('sekolah')->group(function () {
+//     // route panel menu sekolah
+//         Route::get('/', 'SekolahMController@index')->name('sekolah.index');
+//         Route::get('/get-sekolah', 'SekolahMController@getdata')->name('sekolah.getdata');
+//         Route::get('/add-sekolah', 'SekolahMController@add')->name('sekolah.add');
+//         Route::get('/edit-sekolah/{id}', 'SekolahMController@edit')->name('sekolah.edit');
+//         Route::post('/update-sekolah', 'SekolahMController@update')->name('sekolah.update');
+//         Route::get('/import-sekolah', 'SekolahMController@import')->name('sekolah.import');
+//         Route::post('/importfile-sekolah', 'SekolahMController@importfile')->name('sekolah.importfile');
+//         Route::post('/store-sekolah', 'SekolahMController@store')->name('sekolah.store');
+//         Route::get('/hapus-sekolah/{id}', 'SekolahMController@hapus')->name('sekolah.hapus');
+//         Route::get('/excelcontoh-sekolah', 'SekolahMController@excelcontoh')->name('sekolah.excelcontoh');
+//     // end route panel menu sekolah
+//     });
+
+//     // route panel menu guru
+//       Route::prefix('guru')->group(function () {
+//         Route::get('/', 'GuruMController@index')->name('guru.index');
+//         Route::get('/get-guru', 'GuruMController@getdata')->name('guru.getdata');
+//         Route::get('/add-guru', 'GuruMController@add')->name('guru.add');
+//         Route::get('/edit-guru/{id}', 'GuruMController@edit')->name('guru.edit');
+//         Route::post('/update-guru', 'GuruMController@update')->name('guru.update');
+//         Route::get('/import-guru', 'GuruMController@import')->name('guru.import');
+//         Route::post('/importfile-guru', 'GuruMController@importfile')->name('guru.importfile');
+//         Route::post('/store-guru', 'GuruMController@store')->name('guru.store');
+//         Route::get('/hapus-guru/{id}', 'GuruMController@hapus')->name('guru.hapus');
+//         Route::get('/excelcontoh-guru', 'GuruMController@excelcontoh')->name('guru.excelcontoh');
+//     });
+//     // end route panel menu guru
+
+//     // route panel menu stakeholder
+//       Route::prefix('stakeholder')->group(function () {
+//         Route::get('/', 'StakeholderController@index')->name('stakeholder.index');
+//         Route::get('/get-stakeholder', 'StakeholderController@getdata')->name('stakeholder.getdata');
+//         Route::get('/add-stakeholder', 'StakeholderController@add')->name('stakeholder.add');
+//         Route::get('/edit-stakeholder/{id}', 'StakeholderController@edit')->name('stakeholder.edit');
+//         Route::post('/update-stakeholder/{id}', 'StakeholderController@update')->name('stakeholder.update');
+//         Route::get('/import-stakeholder', 'StakeholderController@import')->name('stakeholder.import');
+//         Route::post('/importfile-stakeholder', 'StakeholderController@importfile')->name('stakeholder.importfile');
+//         Route::post('/store-stakeholder', 'StakeholderController@store')->name('stakeholder.store');
+//         Route::get('/hapus-stakeholder/{id}', 'StakeholderController@hapus')->name('stakeholder.hapus');
+//         Route::get('/excelcontoh-stakeholder', 'StakeholderController@excelcontoh')->name('stakeholder.excelcontoh');
+//     });
+//     // end route panel menu stakeholder
+
+//     // route wablasthistory
+
+//     // end wablasthistory
+//     Route::prefix('wablasthistory')->group(function () {
+//         Route::get('/', 'WablasthistoryController@index')->name('wablasthistory.index');
+//         Route::get('/get-history', 'WablasthistoryController@getdata')->name('wablasthistory.getdata');
+//     });
+
+// end route penel dashboard for superadmin
+
+// route penel dashboard for admin
+// Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+//     // route menu pengawas
+//     Route::prefix('masterpengawas')->group(function () {
+//         // route panel menu pengawas
+//         Route::get('/', 'PegawasMController@index')->name('masterpengawas.index');
+//         Route::get('/get-pengawas', 'PegawasMController@getdata')->name('masterpengawas.getdata');
+//         Route::get('/add-pengawas', 'PegawasMController@add')->name('masterpengawas.add');
+//         Route::get('/edit-pengawas/{id}', 'PegawasMController@edit')->name('masterpengawas.edit');
+//         Route::post('/update-pengawas', 'PegawasMController@update')->name('masterpengawas.update');
+//         Route::get('/import-pengawas', 'PegawasMController@import')->name('masterpengawas.import');
+//         Route::post('/importfile-pengawas', 'PegawasMController@importfile')->name('masterpengawas.importfile');
+//         Route::post('/store-pengawas', 'PegawasMController@store')->name('masterpengawas.store');
+//         Route::post('/store_sekolah', 'PegawasMController@store_sekolah')->name('masterpengawas.store_sekolah');
+//         Route::get('/hapus-pengawas/{id}', 'PegawasMController@hapus')->name('masterpengawas.hapus');
+//         Route::get('/excelcontoh-pengawas', 'PegawasMController@excelcontoh')->name('masterpengawas.excelcontoh');
+//         Route::get('/getpangkat', 'PegawasMController@getpangkat')->name('masterpengawas.getpangkat');
+//         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
+//         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
+//         Route::get('/setSekolahBinaan/{id}', 'MasterpengawasController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
+
+
+
+
+//         // end route panel menu pengawas
+//     });
+
+//     // route menu pengawas
+//     Route::prefix('sekolah')->group(function () {
+//     // route panel menu sekolah
+//         Route::get('/', 'SekolahMController@index')->name('sekolah.index');
+//         Route::get('/get-sekolah', 'SekolahMController@getdata')->name('sekolah.getdata');
+//         Route::get('/add-sekolah', 'SekolahMController@add')->name('sekolah.add');
+//         Route::get('/edit-sekolah/{id}', 'SekolahMController@edit')->name('sekolah.edit');
+//         Route::post('/update-sekolah', 'SekolahMController@update')->name('sekolah.update');
+//         Route::get('/import-sekolah', 'SekolahMController@import')->name('sekolah.import');
+//         Route::post('/importfile-sekolah', 'SekolahMController@importfile')->name('sekolah.importfile');
+//         Route::post('/store-sekolah', 'SekolahMController@store')->name('sekolah.store');
+//         Route::get('/hapus-sekolah/{id}', 'SekolahMController@hapus')->name('sekolah.hapus');
+//         Route::get('/excelcontoh-sekolah', 'SekolahMController@excelcontoh')->name('sekolah.excelcontoh');
+//     // end route panel menu sekolah
+//     });
+
+//     // route panel menu guru
+//       Route::prefix('guru')->group(function () {
+//         Route::get('/', 'GuruMController@index')->name('guru.index');
+//         Route::get('/get-guru', 'GuruMController@getdata')->name('guru.getdata');
+//         Route::get('/add-guru', 'GuruMController@add')->name('guru.add');
+//         Route::get('/edit-guru/{id}', 'GuruMController@edit')->name('guru.edit');
+//         Route::post('/update-guru', 'GuruMController@update')->name('guru.update');
+//         Route::get('/import-guru', 'GuruMController@import')->name('guru.import');
+//         Route::post('/importfile-guru', 'GuruMController@importfile')->name('guru.importfile');
+//         Route::post('/store-guru', 'GuruMController@store')->name('guru.store');
+//         Route::get('/hapus-guru/{id}', 'GuruMController@hapus')->name('guru.hapus');
+//         Route::get('/excelcontoh-guru', 'GuruMController@excelcontoh')->name('guru.excelcontoh');
+//     });
+//     // end route panel menu guru
+
+//     // route panel menu stakeholder
+//       Route::prefix('stakeholder')->group(function () {
+//         Route::get('/', 'StakeholderController@index')->name('stakeholder.index');
+//         Route::get('/get-stakeholder', 'StakeholderController@getdata')->name('stakeholder.getdata');
+//         Route::get('/add-stakeholder', 'StakeholderController@add')->name('stakeholder.add');
+//         Route::get('/edit-stakeholder/{id}', 'StakeholderController@edit')->name('stakeholder.edit');
+//         Route::post('/update-stakeholder/{id}', 'StakeholderController@update')->name('stakeholder.update');
+//         Route::get('/import-stakeholder', 'StakeholderController@import')->name('stakeholder.import');
+//         Route::post('/importfile-stakeholder', 'StakeholderController@importfile')->name('stakeholder.importfile');
+//         Route::post('/store-stakeholder', 'StakeholderController@store')->name('stakeholder.store');
+//         Route::get('/hapus-stakeholder/{id}', 'StakeholderController@hapus')->name('stakeholder.hapus');
+//         Route::get('/excelcontoh-stakeholder', 'StakeholderController@excelcontoh')->name('stakeholder.excelcontoh');
+//     });
+//     // end route panel menu stakeholder
+
+//     // route wablasthistory
+
+//     // end wablasthistory
+//     Route::prefix('wablasthistory')->group(function () {
+//         Route::get('/', 'WablasthistoryController@index')->name('wablasthistory.index');
+//         Route::get('/get-history', 'WablasthistoryController@getdata')->name('wablasthistory.getdata');
+//     });
+
+// end route penel dashboard for superadmin
+
+// route penel dashboard for admin
+// Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+//     // route menu pengawas
+//     Route::prefix('masterpengawas')->group(function () {
+//         // route panel menu pengawas
+//         Route::get('/', 'PegawasMController@index')->name('masterpengawas.index');
+//         Route::get('/get-pengawas', 'PegawasMController@getdata')->name('masterpengawas.getdata');
+//         Route::get('/add-pengawas', 'PegawasMController@add')->name('masterpengawas.add');
+//         Route::get('/edit-pengawas/{id}', 'PegawasMController@edit')->name('masterpengawas.edit');
+//         Route::post('/update-pengawas', 'PegawasMController@update')->name('masterpengawas.update');
+//         Route::get('/import-pengawas', 'PegawasMController@import')->name('masterpengawas.import');
+//         Route::post('/importfile-pengawas', 'PegawasMController@importfile')->name('masterpengawas.importfile');
+//         Route::post('/store-pengawas', 'PegawasMController@store')->name('masterpengawas.store');
+//         Route::post('/store_sekolah', 'PegawasMController@store_sekolah')->name('masterpengawas.store_sekolah');
+//         Route::get('/hapus-pengawas/{id}', 'PegawasMController@hapus')->name('masterpengawas.hapus');
+//         Route::get('/excelcontoh-pengawas', 'PegawasMController@excelcontoh')->name('masterpengawas.excelcontoh');
+//         Route::get('/getpangkat', 'PegawasMController@getpangkat')->name('masterpengawas.getpangkat');
+//         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
+//         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
+//         Route::get('/setSekolahBinaan/{id}', 'MasterpengawasController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
+
+
+
+
+//         // end route panel menu pengawas
+//     });
+
+//     // route menu pengawas
+//     Route::prefix('sekolah')->group(function () {
+//     // route panel menu sekolah
+//         Route::get('/', 'SekolahMController@index')->name('sekolah.index');
+//         Route::get('/', 'SekolahMController@index')->name('sekolah.index');
+//         Route::get('/get-sekolah', 'SekolahMController@getdata')->name('sekolah.getdata');
+//         Route::get('/add-sekolah', 'SekolahMController@add')->name('sekolah.add');
+//         Route::get('/edit-sekolah/{id}', 'SekolahMController@edit')->name('sekolah.edit');
+//         Route::post('/update-sekolah', 'SekolahMController@update')->name('sekolah.update');
+//         Route::get('/import-sekolah', 'SekolahMController@import')->name('sekolah.import');
+//         Route::post('/importfile-sekolah', 'SekolahMController@importfile')->name('sekolah.importfile');
+//         Route::post('/store-sekolah', 'SekolahMController@store')->name('sekolah.store');
+//         Route::get('/hapus-sekolah/{id}', 'SekolahMController@hapus')->name('sekolah.hapus');
+//         Route::get('/excelcontoh-sekolah', 'SekolahMController@excelcontoh')->name('sekolah.excelcontoh');
+//     // end route panel menu sekolah
+//     });
+
+//     // route panel menu guru
+//       Route::prefix('guru')->group(function () {
+//         Route::get('/', 'GuruMController@index')->name('guru.index');
+//         Route::get('/get-guru', 'GuruMController@getdata')->name('guru.getdata');
+//         Route::get('/add-guru', 'GuruMController@add')->name('guru.add');
+//         Route::get('/edit-guru/{id}', 'GuruMController@edit')->name('guru.edit');
+//         Route::post('/update-guru', 'GuruMController@update')->name('guru.update');
+//         Route::get('/import-guru', 'GuruMController@import')->name('guru.import');
+//         Route::post('/importfile-guru', 'GuruMController@importfile')->name('guru.importfile');
+//         Route::post('/store-guru', 'GuruMController@store')->name('guru.store');
+//         Route::get('/hapus-guru/{id}', 'GuruMController@hapus')->name('guru.hapus');
+//         Route::get('/excelcontoh-guru', 'GuruMController@excelcontoh')->name('guru.excelcontoh');
+//     });
+//     // end route panel menu guru
+
+//     // route panel menu stakeholder
+//       Route::prefix('stakeholder')->group(function () {
+//         Route::get('/', 'StakeholderController@index')->name('stakeholder.index');
+//         Route::get('/get-stakeholder', 'StakeholderController@getdata')->name('stakeholder.getdata');
+//         Route::get('/add-stakeholder', 'StakeholderController@add')->name('stakeholder.add');
+//         Route::get('/edit-stakeholder/{id}', 'StakeholderController@edit')->name('stakeholder.edit');
+//         Route::post('/update-stakeholder/{id}', 'StakeholderController@update')->name('stakeholder.update');
+//         Route::get('/import-stakeholder', 'StakeholderController@import')->name('stakeholder.import');
+//         Route::post('/importfile-stakeholder', 'StakeholderController@importfile')->name('stakeholder.importfile');
+//         Route::post('/store-stakeholder', 'StakeholderController@store')->name('stakeholder.store');
+//         Route::get('/hapus-stakeholder/{id}', 'StakeholderController@hapus')->name('stakeholder.hapus');
+//         Route::get('/excelcontoh-stakeholder', 'StakeholderController@excelcontoh')->name('stakeholder.excelcontoh');
+//     });
+//     // end route panel menu stakeholder
+
+//     // route wablasthistory
+
+//     // end wablasthistory
+//     Route::prefix('wablasthistory')->group(function () {
+//         Route::get('/', 'WablasthistoryController@index')->name('wablasthistory.index');
+//         Route::get('/get-history', 'WablasthistoryController@getdata')->name('wablasthistory.getdata');
+//     });
+
+// end route penel dashboard for admin
 
 // route halaman pengawas
 Route::middleware(['web', 'pengawas'])->group(function () {
@@ -464,6 +902,8 @@ Route::middleware(['web', 'pengawas'])->group(function () {
     // end route panel menu pengawas umpanbalik
 
 
+
+
     // login logout pengawas
     Route::get('/pengawas/login', 'Auth\LoginController@showPengawasLoginForm')->name('pengawas.login');
     Route::post('/pengawas/login', 'Auth\LoginController@superPengawasLogin')->name('superPengawasLogin');
@@ -474,6 +914,13 @@ Route::middleware(['web', 'pengawas'])->group(function () {
 
 // });
 // end route halaman pengawas
+
+Route::get('/dynamic-umpanbalik/{generate_url}', 'DynamicUmpanbalikController@showForm')->name('dynamic.umpanbalik.form');
+Route::post('/dynamic-umpanbalik/{generate_url}', 'DynamicUmpanbalikController@saveForm')->name('dynamic.umpanbalik.save');
+
+Route::get('/umpanbalik-done', function () {
+    return view('umpanbalik.done');
+})->name('umpanbalik.done');
 
 Auth::routes();
 Route::get('laporan/{filename}', function ($filename) {

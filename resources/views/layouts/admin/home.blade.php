@@ -208,7 +208,7 @@
     <script src="{{ asset('theme/assets/js/main.js') }}"></script>
 
     <!-- Page JS -->
-    <script src="{{ asset('theme/assets/js/tables-datatables-basic.js') }}"></script>
+    {{-- <script src="{{ asset('theme/assets/js/tables-datatables-basic.js') }}"></script> --}}
     @yield('script')
 
 </body>

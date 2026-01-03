@@ -8,6 +8,7 @@ class CreateWhatsappMessagesLogTable extends Migration
 {
     public function up()
     {
+        return;
         Schema::create('whatsapp_messages_log', function (Blueprint $table) {
             $table->id();
             $table->foreignId('rencana_kerja_id')->constrained('rencakakerja_t')->onDelete('cascade');

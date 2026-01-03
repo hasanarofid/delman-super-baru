@@ -87,7 +87,7 @@ label {
 
         <nav class="layout-navbar navbar navbar-expand-xl align-items-center bg-navbar-theme" id="layout-navbar">
           <div class="container-xxl">
-            
+
             <a href="#" class="app-brand-link ">
               <img src="{{ asset('delmansupernew.png') }}" style="margin-top:-20px"   height="70px" width="70px" alt="Image placeholder" class="">
               <span class="app-brand-text demo menu-text fw-bold">Sistem Modip | Umpan Balik view</span>
@@ -115,10 +115,10 @@ label {
               <h3 class="text-center">Umpan Balik Pelaksanaan Pendampingan / Supervisi Pengawas Sekolah Provinsi Banten</h3>
 
               <div class="container">
-                <form id="multiStepForm" action="#" method="POST">
+                <form id="multiStepForm" action="{{ route('kirimumpanbalik') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="id_umpanbalik" value="{{ $model->id }}">
-                    
+
                     <!-- Form Step 1 -->
                     <div id="form1" class="formStep">
                         <div class="card">
@@ -134,12 +134,12 @@ label {
                             <div class="card-body">
                                 <div class="form-group">
                                     <label for="email1">Tanggal Kedatangan Pengawas</label>
-                                    <input type="date" disabled class="form-control" value="{{ $tangapan->tanggal_kedatangan }}">
+                                    <input type="date" disabled class="form-control" value="{{ $tangapan->tanggal_kedatangan ?? '' }}">
                                 </div>
                             </div>
                         </div>
                     </div>
-            
+
                     <!-- Form Step 2 (Aspek Pelaksanaan Pendampingan) -->
                     <div id="form2" class="formStep" style="display: none;">
                         <div class="card">
@@ -158,16 +158,17 @@ label {
                                     <div class="form-group">
                                         <label>{{ $item->pertanyaan }}</label>
                                         @if($item->type_input === 'radiobutton')
-                                            <?php $options = explode(';', $item->jawaban); ?>
-                                            @foreach($options as $option)
+                                            @foreach($item->options as $option)
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->id }}" value="{{ $option }}"
-                                                        @if($tangapan && $tangapan->{'jawaban_' . $item->id} == $option) checked @endif>
+                                                    <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->urutan }}" value="{{ $option }}"
+                                                        {{ ($tangapan && $tangapan->{'jawaban_' . $item->urutan} == $option) ? 'checked' : '' }} {{ $tangapan ? 'disabled' : '' }}>
                                                     <label class="form-check-label">{{ $option }}</label>
                                                 </div>
                                             @endforeach
-                                        @else
-                                            <textarea class="form-control" name="{{ 'jawaban_' . $item->id }}">{{ $tangapan->{'jawaban_' . $item->id} ?? '' }}</textarea>
+                                        @elseif($item->type_input === 'textarea')
+                                            <textarea class="form-control" name="{{ 'jawaban_' . $item->urutan }}" {{ $tangapan ? 'disabled' : '' }}>{{ $tangapan->{'jawaban_' . $item->urutan} ?? '' }}</textarea>
+                                        @else {{-- Default to text input --}}
+                                            <input type="text" class="form-control" name="{{ 'jawaban_' . $item->urutan }}" value="{{ $tangapan->{'jawaban_' . $item->urutan} ?? '' }}" {{ $tangapan ? 'disabled' : '' }}>
                                         @endif
                                     </div>
                                 </div>
@@ -175,7 +176,7 @@ label {
                             <br>
                         @endforeach
                     </div>
-            
+
                     <!-- Form Step 3 (Aspek Kompetensi Supervisor) -->
                     <div id="form3" class="formStep" style="display: none;">
                         <div class="card">
@@ -194,16 +195,17 @@ label {
                                     <div class="form-group">
                                         <label>{{ $item->pertanyaan }}</label>
                                         @if($item->type_input === 'radiobutton')
-                                            <?php $options = explode(';', $item->jawaban); ?>
-                                            @foreach($options as $option)
+                                            @foreach($item->options as $option)
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->id }}" value="{{ $option }}"
-                                                        @if($tangapan && $tangapan->{'jawaban_' . $item->id} == $option) checked @endif>
+                                                    <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->urutan }}" value="{{ $option }}"
+                                                        {{ ($tangapan && $tangapan->{'jawaban_' . $item->urutan} == $option) ? 'checked' : '' }} {{ $tangapan ? 'disabled' : '' }}>
                                                     <label class="form-check-label">{{ $option }}</label>
                                                 </div>
                                             @endforeach
-                                        @else
-                                            <textarea class="form-control" name="{{ 'jawaban_' . $item->id }}">{{ $tangapan->{'jawaban_' . $item->id} ?? '' }}</textarea>
+                                        @elseif($item->type_input === 'textarea')
+                                            <textarea class="form-control" name="{{ 'jawaban_' . $item->urutan }}" {{ $tangapan ? 'disabled' : '' }}>{{ $tangapan->{'jawaban_' . $item->urutan} ?? '' }}</textarea>
+                                        @else {{-- Default to text input --}}
+                                            <input type="text" class="form-control" name="{{ 'jawaban_' . $item->urutan }}" value="{{ $tangapan->{'jawaban_' . $item->urutan} ?? '' }}" {{ $tangapan ? 'disabled' : '' }}>
                                         @endif
                                     </div>
                                 </div>
@@ -211,7 +213,7 @@ label {
                             <br>
                         @endforeach
                     </div>
-            
+
                     <!-- Form Step 4 (Aspek Lainnya) -->
                     <div id="form4" class="formStep" style="display: none;">
                         <div class="card">
@@ -230,36 +232,41 @@ label {
                                     <div class="form-group">
                                         <label>{{ $item->pertanyaan }}</label>
                                         @if($item->type_input === 'radiobutton')
-                                            <?php $options = explode(';', $item->jawaban); ?>
-                                            @foreach($options as $option)
+                                            @foreach($item->options as $option)
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->id }}" value="{{ $option }}"
-                                                        @if($tangapan && $tangapan->{'jawaban_' . $item->id} == $option) checked @endif>
+                                                    <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->urutan }}" value="{{ $option }}"
+                                                        {{ ($tangapan && $tangapan->{'jawaban_' . $item->urutan} == $option) ? 'checked' : '' }} {{ $tangapan ? 'disabled' : '' }}>
                                                     <label class="form-check-label">{{ $option }}</label>
                                                 </div>
                                             @endforeach
-                                        @else
-                                            <textarea class="form-control" name="{{ 'jawaban_' . $item->id }}">{{ $tangapan->{'jawaban_' . $item->id} ?? '' }}</textarea>
+                                        @elseif($item->type_input === 'textarea')
+                                            <textarea class="form-control" name="{{ 'jawaban_' . $item->urutan }}" {{ $tangapan ? 'disabled' : '' }}>{{ $tangapan->{'jawaban_' . $item->urutan} ?? '' }}</textarea>
+                                        @else {{-- Default to text input --}}
+                                            <input type="text" class="form-control" name="{{ 'jawaban_' . $item->urutan }}" value="{{ $tangapan->{'jawaban_' . $item->urutan} ?? '' }}" {{ $tangapan ? 'disabled' : '' }}>
                                         @endif
                                     </div>
                                 </div>
                             </div>
                             <br>
                         @endforeach
-            
+
                         <!-- Photo -->
                         <div class="card">
                             <div class="card-body">
                                 <div class="form-group">
                                     <label for="foto">Uploaded Foto</label>
                                     <br>
-                                    <img id="imagePreview" class="img-fluid" style="max-width: 500px;" 
+                                    @if($tangapan && $tangapan->foto)
+                                    <img id="imagePreview" class="img-fluid" style="max-width: 500px;"
                                     src="{{ route('umpanbalikfoto', $tangapan->foto) }}" alt="Uploaded Foto" />
+                                    @else
+                                    <p>Tidak ada foto yang diunggah.</p>
+                                    @endif
                                 </div>
                             </div>
                         </div>
                     </div>
-            
+
                     <!-- Navigation Buttons -->
                     <div class="row mt-3">
                         <div class="col text-left">
@@ -271,8 +278,8 @@ label {
                     </div>
                 </form>
             </div>
-            
-                  
+
+
             </div>
             <!--/ Content -->
 
@@ -369,10 +376,13 @@ label {
 
     if (currentStep === totalSteps - 1) {
         $('#nextBtn').addClass('hide'); // Menambahkan kelas CSS 'hide'
-        // $('#submitBtn').removeClass('hide'); // Menghapus kelas CSS 'hide'
+        @if(!$tangapan)
+        // Jika ini adalah langkah terakhir dan belum disubmit, tampilkan tombol submit
+        $('#multiStepForm').append('<button type="submit" class="btn btn-success mt-4" id="submitBtn">Kirim Umpan Balik</button>');
+        @endif
     } else {
         $('#nextBtn').removeClass('hide'); // Menghapus kelas CSS 'hide'
-        // $('#submitBtn').addClass('hide'); // Menambahkan kelas CSS 'hide'
+        $('#submitBtn').remove(); // Hapus tombol submit jika bukan langkah terakhir
     }
 }
       });

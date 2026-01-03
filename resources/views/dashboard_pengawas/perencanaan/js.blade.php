@@ -28,21 +28,22 @@
         type: 'GET',
         success: function(response) {
             // Populate the fields in the modal
-            $('#editPerencanaan #id').val(response.id); 
-            $('#editPerencanaan #bulan_edit').val(response.bulan); 
-            $('#editPerencanaan #tahun_ajaran_edit').val(response.tahun_ajaran); 
-            $('#editPerencanaan #nama_program_kerja_edit').val(response.nama_program_kerja); 
-            $('#editPerencanaan #kategoriprogram_id_edit').val(response.kategoriprogram_id).trigger('change');
-            $('#editPerencanaan #jenisprogram_id_edit').val(response.jenisprogram_id).trigger('change');
-            $('#editPerencanaan #aspekprogram_id_edit').val(response.aspekprogram_id).trigger('change');
+            $('#editPerencanaan #id').val(response.data.id); 
+            $('#editPerencanaan #bulan_edit').val(response.data.bulan); 
+            $('#editPerencanaan #tahun_ajaran_edit').val(response.data.tahun_ajaran); 
+            $('#editPerencanaan #nama_program_kerja_edit').val(response.data.nama_program_kerja); 
+            $('#editPerencanaan #kategoriprogram_id_edit').val(response.data.kategoriprogram_id).trigger('change');
+            $('#editPerencanaan #jenisprogram_id_edit').val(response.data.jenisprogram_id).trigger('change');
+            $('#editPerencanaan #aspekprogram_id_edit').val(response.data.aspekprogram_id).trigger('change');
+            $('#editPerencanaan #id_umpanbalik_category_edit').val(response.data.id_umpanbalik_category).trigger('change');
             
-            var selectedValues = response.sekolah_id.split(',').map(Number); // Convert string to array of integers
+            var selectedValues = response.data.sekolah_id.split(',').map(Number); // Convert string to array of integers
             $('#editPerencanaan #sekolah_id_edit').val(selectedValues).trigger('change');
 
             // Create CKEditor instance after receiving response data
             ClassicEditor.create(document.querySelector('#deskripsi_permasalahan_edit'))
                 .then(editor => {
-                    editor.setData(response.deskripsi_permasalahan); // Set data from response
+                    editor.setData(response.data.deskripsi_permasalahan); // Set data from response
                 })
                 .catch(error => {
                     console.error(error);

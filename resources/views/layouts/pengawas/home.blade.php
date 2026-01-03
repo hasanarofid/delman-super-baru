@@ -105,7 +105,7 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
               <li class="menu-item {{ ( request()->is('dashboard') ) ? 'active' : '' }}">
                 <a href="{{ route('pengawas.dashboard') }}" class="menu-link">
                   <i class="menu-icon tf-icons ti ti-smart-home"></i>
-                  <div data-i18n="Profile">Dashboards</div>
+                  <div data-i18n="Dashboards">Dashboards</div>
                 </a>
               </li>
               <!-- Dashboards -->
@@ -180,14 +180,14 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
                             <a href="{{ route('pengawas.listumpanbalik.index') }}" class="menu-link">
                                 {{-- <i class="menu-icon tf-icons ti ti-user"></i> --}}
                                 <i class="menu-icon tf-icons fa-solid fas fa-thumbs-up"></i>
-                                <div data-i18n="Profile">List Umpan Balik</div>
+                                <div data-i18n="List Umpan Balik">List Umpan Balik</div>
                             </a>
                         </li>
                         <li class="menu-item {{ (request()->is('pengawas/dokumentasipendampingan*')) ? 'active' : '' }}">
                             <a href="{{ route('pengawas.dokumentasipendampingan.index') }}" class="menu-link">
                                 {{-- <i class="menu-icon tf-icons ti ti-user"></i> --}}
                                 <i class="menu-icon tf-icons fa-solid fas fa-thumbs-up"></i>
-                                <div data-i18n="Profile">Dokumentasi Pendampingan</div>
+                                <div data-i18n="Dokumentasi Pendampingan">Dokumentasi Pendampingan</div>
                             </a>
                         </li>
         
@@ -195,7 +195,7 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
                             <a href="{{ route('pengawas.layanandibutuhkan.index') }}" class="menu-link">
                                 {{-- <i class="menu-icon tf-icons ti ti-user"></i> --}}
                                 <i class="menu-icon tf-icons fa-solid fas fa-thumbs-up"></i>
-                                <div data-i18n="Profile">Layanan yang dibutuhkan</div>
+                                <div data-i18n="Layanan yang dibutuhkan">Layanan yang dibutuhkan</div>
                             </a>
                         </li>
                         

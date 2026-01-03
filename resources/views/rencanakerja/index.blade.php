@@ -104,46 +104,145 @@
         </div>
     </div>
 </div>
+
+<!-- Kategori Modal -->
+<div class="modal fade" id="categorySelectionModal" tabindex="-1" aria-labelledby="categorySelectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categorySelectionModalLabel">Pilih Kategori Umpan Balik</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="sendWaWithCategoryForm">
+                    @csrf
+                    <input type="hidden" id="rencanaKerjaId" name="rencana_kerj-id">
+                    <div class="mb-3">
+                        <label for="umpanbalikCategorySelect" class="form-label">Kategori:</label>
+                        <select class="form-select" id="umpanbalikCategorySelect" name="id_category" required>
+                            <option value="">Pilih Kategori</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Kirim WA dengan Kategori</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script> <!-- Include SweetAlert2 -->
 @section('script')
 <script>
 
-function kirimWaBlast(id) {
-    let button = $('#sendWaButton-' + id);  // Reference to the specific button
+// function kirimWaBlast(id) {
+//     let button = $('#sendWaButton-' + id);  // Reference to the specific button
 
-    // Disable button and add a loading state
+//     // Disable button and add a loading state
+//     button.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Sending...');
+
+//     $.ajax({
+//         url: '{{ route("rencanatugas.kirimwa", ":id") }}'.replace(':id', id),
+//         type: 'GET',
+//         success: function(response) {
+//             // Show success message with SweetAlert and re-enable button
+//             Swal.fire({
+//                 icon: 'success',
+//                 title: 'Success',
+//                 text: 'WA message sent successfully!',
+//                 confirmButtonText: 'OK'
+//             }).then(() => {
+//                 // Reload DataTable after successful WA blast
+//                 $('#data-table').DataTable().ajax.reload();
+//             });
+//             button.prop('disabled', false).html('<i class="fa fa-envelope"></i> Kirim Wa');
+//         },
+//         error: function(xhr, status, error) {
+//             console.error(xhr.responseText);
+//             // Show error message with SweetAlert and re-enable button
+//             Swal.fire({
+//                 icon: 'error',
+//                 title: 'Error',
+//                 text: 'Failed to send WA message. Please try again.',
+//                 confirmButtonText: 'OK'
+//             });
+//             button.prop('disabled', false).html('<i class="fa fa-envelope"></i> Kirim Wa');
+//         }
+//     });
+// }
+
+function kirimWaBlast(id) {
+    $('#rencanaKerjaId').val(id);
+    $('#categorySelectionModal').modal('show');
+    loadUmpanbalikCategories();
+}
+
+function loadUmpanbalikCategories() {
+    $.ajax({
+        url: '{{ route("umpanbalik.categories.index") }}',
+        type: 'GET',
+        success: function(response) {
+            let select = $('#umpanbalikCategorySelect');
+            select.empty();
+            select.append('<option value="">Pilih Kategori</option>');
+            select.append('<option value="0">Umpan Balik Default (Statis)</option>');
+            // Assuming response.categories is an array of objects {id: ..., name: ...}
+            response.categories.forEach(function(category) {
+                select.append('<option value="' + category.id + '">' + category.name + '</option>');
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error("Failed to load categories: " + xhr.responseText);
+        }
+    });
+}
+
+$('#sendWaWithCategoryForm').submit(function(e) {
+    e.preventDefault();
+    let rencanaKerjaId = $('#rencanaKerjaId').val();
+    let selectedCategoryId = $('#umpanbalikCategorySelect').val();
+    let button = $('#sendWaButton-' + rencanaKerjaId); // Get the original button
+
+    if (!selectedCategoryId) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Peringatan',
+            text: 'Silakan pilih kategori umpan balik.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    $('#categorySelectionModal').modal('hide');
+
     button.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Sending...');
 
     $.ajax({
-        url: '{{ route("rencanatugas.kirimwa", ":id") }}'.replace(':id', id),
+        url: '{{ route("rencanatugas.kirimwa.withcategory", [":id", ":id_category"]) }}'.replace(':id', rencanaKerjaId).replace(':id_category', selectedCategoryId),
         type: 'GET',
         success: function(response) {
-            // Show success message with SweetAlert and re-enable button
             Swal.fire({
                 icon: 'success',
                 title: 'Success',
-                text: 'WA message sent successfully!',
+                text: 'WA message with dynamic feedback sent successfully!',
                 confirmButtonText: 'OK'
             }).then(() => {
-                // Reload DataTable after successful WA blast
                 $('#data-table').DataTable().ajax.reload();
             });
             button.prop('disabled', false).html('<i class="fa fa-envelope"></i> Kirim Wa');
         },
         error: function(xhr, status, error) {
             console.error(xhr.responseText);
-            // Show error message with SweetAlert and re-enable button
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Failed to send WA message. Please try again.',
+                text: 'Failed to send WA message with dynamic feedback. Please try again.',
                 confirmButtonText: 'OK'
             });
             button.prop('disabled', false).html('<i class="fa fa-envelope"></i> Kirim Wa');
         }
     });
-}
+});
 
 
     $(document).ready(function () {

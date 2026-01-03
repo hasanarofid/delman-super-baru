@@ -91,6 +91,7 @@
                                 <th>Sekolah </th>
                                 <th>Kepala Sekolah </th>
                                 <th>Program Kerja</th>
+                                <th>Kategori</th>
                                 <th>Status</th>
                                 <th>Rencana Tindak Lanjut (RTL)</th>
                                 <th>Preview</th>
@@ -165,6 +166,7 @@
             {data: 'nama_sekolah', name: 'nama_sekolah'},
             {data: 'kepala_sekolah', name: 'kepala_sekolah'},
             {data: 'sasaran', name: 'sasaran'},
+            {data: 'kategori', name: 'kategori'},
             {data: 'tanggapan_status', name: 'tanggapan_status', orderable: false, searchable: false},
             {
                 data: null,
@@ -189,7 +191,7 @@
                     orientation: 'landscape',
                     pageSize: 'A4',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
                     },
                     customize: function (doc) {
                         doc.styles.tableHeader.alignment = 'left';

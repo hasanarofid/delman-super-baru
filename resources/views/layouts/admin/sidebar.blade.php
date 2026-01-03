@@ -20,7 +20,7 @@
         <li class="menu-item {{ request()->is('dashboard') ? 'active' : '' }}">
             <a href="{{ route('admin.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons fas fa-home"></i>
-                <div data-i18n="Profile">Dashboard</div>
+                <div data-i18n="Dashboard">Dashboard</div>
             </a>
         </li>
         @if (Auth::user()->role == 'Super Admin' || Auth::user()->role == 'Stakeholder')
@@ -37,19 +37,19 @@
                 <li class="menu-item {{ (request()->is('superadmin/mastertupoksi*')) ? 'active' : '' }}">
                     <a href="{{ route('mastertupoksi.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons fas fa-list-alt"></i>
-                        <div data-i18n="Profile">Kategori Program</div>
+                        <div data-i18n="Kategori Program">Kategori Program</div>
                     </a>
                 </li>
                 <li class="menu-item {{ (request()->is('superadmin/jenisprogram*')) ? 'active' : '' }}">
                     <a href="{{ route('jenisprogram.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons fas fa-table"></i>
-                        <div data-i18n="Profile">Jenis Program</div>
+                        <div data-i18n="Jenis Program">Jenis Program</div>
                     </a>
                 </li>
                 <li class="menu-item {{ (request()->is('superadmin/aspekprogram*')) ? 'active' : '' }}">
                     <a href="{{ route('aspekprogram.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons fas fa-list"></i>
-                        <div data-i18n="Profile">Aspek Raport Pendidikan</div>
+                        <div data-i18n="Aspek Raport Pendidikan">Aspek Raport Pendidikan</div>
                     </a>
                 </li>
                 
@@ -61,7 +61,7 @@
           <li class="menu-item {{ ( request()->is('superadmin/masterpengawas*') || request()->is('superadmin/sekolah*')  || request()->is('superadmin/guru*')   ) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
               <i class="menu-icon tf-icons fa-solid fas fa-person"></i>
-              <div data-i18n="Master Data">Master DelmanSuper</div>
+              <div data-i18n="Master DelmanSuper">Master DelmanSuper</div>
             </a>
 
             <ul class="menu-sub">
@@ -70,20 +70,20 @@
                     <a href="{{ route('masterpengawas.index') }}" class="menu-link">
                         {{-- <i class="menu-icon tf-icons ti ti-user"></i> --}}
                         <i class="menu-icon tf-icons fa-solid fas fa-person"></i>
-                        <div data-i18n="Profile">Pengawas</div>
+                        <div data-i18n="Pengawas">Pengawas</div>
                     </a>
                 </li>
                 <li class="menu-item {{ (request()->is('superadmin/sekolah*')) ? 'active' : '' }}">
                     <a href="{{ route('sekolah.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons fas fa-school"></i>
-                        <div data-i18n="Profile">Sekolah</div>
+                        <div data-i18n="Sekolah">Sekolah</div>
                     </a>
                 </li>
                 <li class="menu-item {{ (request()->is('superadmin/guru*')) ? 'active' : '' }}">
                     <a href="{{ route('guru.index') }}" class="menu-link">
                         {{-- <i class="menu-icon tf-icons ti ti-users"></i> --}}
                         <i class="menu-icon tf-icons fa-solid fas fa-users-line"></i>
-                        <div data-i18n="Profile"> Kepala Sekolah</div>
+                        <div data-i18n="Kepala Sekolah"> Kepala Sekolah</div>
                     </a>
                 </li>
                 
@@ -91,24 +91,44 @@
           </li>
 
           <!-- master delmansuper -->
+          <li class="menu-item {{ ( request()->is('superadmin/umpanbalik-categories*') || request()->is('superadmin/umpanbalik-questions*')   ) ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+              <i class="menu-icon tf-icons fa-solid fas fa-thumbs-up"></i>
+              <div data-i18n="Master Umpan Balik">Master Umpan Balik</div>
+            </a>
+            <ul class="menu-sub">
+              <li class="menu-item {{ (request()->is('superadmin/umpanbalik-categories*')) ? 'active' : '' }}">
+                <a href="{{ route('umpanbalik.categories.index') }}" class="menu-link">
+                  <i class="menu-icon tf-icons fas fa-th-list"></i>
+                  <div data-i18n="Kategori Umpan Balik">Kategori Umpan Balik</div>
+                </a>
+              </li>
+              <li class="menu-item {{ (request()->is('superadmin/umpanbalik-questions*')) ? 'active' : '' }}">
+                <a href="{{ route('umpanbalik.questions.index') }}" class="menu-link">
+                  <i class="menu-icon tf-icons fas fa-question-circle"></i>
+                  <div data-i18n="Pertanyaan Umpan Balik">Pertanyaan Umpan Balik</div>
+                </a>
+              </li>
+            </ul>
+          </li>
 
-        
 
         <li class="menu-item {{ (request()->is('superadmin/rencanatugas*')) ? 'active' : '' }}">
             <a href="{{ route('rencanatugas.index') }}" class="menu-link">
                 {{-- <i class="menu-icon tf-icons ti ti-user"></i> --}}
                 <i class="menu-icon tf-icons fa-solid fas fa-list-ol"></i>
-                <div data-i18n="Profile">List Rencana Kerja</div>
+                <div data-i18n="List Rencana Kerja">List Rencana Kerja</div>
             </a>
         </li>
 
         <li class="menu-item {{ ( request()->is('superadmin/listumpanbalik*') 
         || request()->is('superadmin/dokumentasipendampingan*') 
          || request()->is('superadmin/saranperbaikan*') 
-          || request()->is('superadmin/layanandibutuhkan*')   ) ? 'active open' : '' }}">
+          || request()->is('superadmin/layanandibutuhkan*') 
+             ) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
               <i class="menu-icon tf-icons fa-solid fas fa-thumbs-up"></i>
-              <div data-i18n="Master Data">Umpan Balik</div>
+              <div data-i18n="Umpan Balik">Umpan Balik</div>
             </a>
 
             <ul class="menu-sub">
@@ -118,14 +138,16 @@
                     <a href="{{ route('listumpanbalik.index') }}" class="menu-link">
                         {{-- <i class="menu-icon tf-icons ti ti-user"></i> --}}
                         <i class="menu-icon tf-icons fa-solid fas fa-thumbs-up"></i>
-                        <div data-i18n="Profile">List Umpan Balik</div>
+                        <div data-i18n="List Umpan Balik">List Umpan Balik</div>
                     </a>
                 </li>
+
+
                 <li class="menu-item {{ (request()->is('superadmin/dokumentasipendampingan*')) ? 'active' : '' }}">
                     <a href="{{ route('dokumentasipendampingan.index') }}" class="menu-link">
                         {{-- <i class="menu-icon tf-icons ti ti-user"></i> --}}
                         <i class="menu-icon tf-icons fa-solid fas fa-thumbs-up"></i>
-                        <div data-i18n="Profile">Dokumentasi Pendampingan</div>
+                        <div data-i18n="Dokumentasi Pendampingan">Dokumentasi Pendampingan</div>
                     </a>
                 </li>
 
@@ -133,7 +155,7 @@
                     <a href="{{ route('saranperbaikan.index') }}" class="menu-link">
                         {{-- <i class="menu-icon tf-icons ti ti-user"></i> --}}
                         <i class="menu-icon tf-icons fa-solid fas fa-thumbs-up"></i>
-                        <div data-i18n="Profile">Saran Perbaikan</div>
+                        <div data-i18n="Saran Perbaikan">Saran Perbaikan</div>
                     </a>
                 </li>
 
@@ -141,7 +163,7 @@
                     <a href="{{ route('layanandibutuhkan.index') }}" class="menu-link">
                         {{-- <i class="menu-icon tf-icons ti ti-user"></i> --}}
                         <i class="menu-icon tf-icons fa-solid fas fa-thumbs-up"></i>
-                        <div data-i18n="Profile">Layanan yang dibutuhkan</div>
+                        <div data-i18n="Layanan yang dibutuhkan">Layanan yang dibutuhkan</div>
                     </a>
                 </li>
                 
@@ -154,7 +176,7 @@
         {{-- <li class="menu-item {{ (request()->is('superadmin/stakeholder*')) ? 'active' : '' }}">
             <a href="{{ route('stakeholder.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons fa-solid fa-user-tie"></i>
-                <div data-i18n="Profile">Stakeholder</div>
+                <div data-i18n="Stakeholder">Stakeholder</div>
             </a>
         </li> --}}
 
@@ -162,7 +184,7 @@
             <a href="{{ route('wablasthistory.index') }}" class="menu-link">
                 {{-- <i class="menu-icon tf-icons ti ti-users"></i> --}}
                 <i class="menu-icon tf-icons fa-solid fa-envelope"></i>
-                <div data-i18n="Profile">Histori Wa Blast</div>
+                <div data-i18n="Histori Wa Blast">Histori Wa Blast</div>
             </a>
         </li>
         @endif
@@ -171,26 +193,26 @@
         <li class="menu-item {{ (request()->is('admin/masterpengawas*')) ? 'active' : '' }}">
             <a href="{{ route('masterpengawas.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-user"></i>
-                <div data-i18n="Profile">Pengawas</div>
+                <div data-i18n="Pengawas">Pengawas</div>
             </a>
         </li>
         <li class="menu-item {{ (request()->is('admin/sekolah*')) ? 'active' : '' }}">
             <a href="{{ route('sekolah.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-list"></i>
-                <div data-i18n="Profile">Sekolah</div>
+                <div data-i18n="Sekolah">Sekolah</div>
             </a>
         </li>
         <li class="menu-item {{ (request()->is('admin/guru*')) ? 'active' : '' }}">
             <a href="{{ route('guru.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-users"></i>
-                <div data-i18n="Profile">Guru / Kepala Sekolah</div>
+                <div data-i18n="Guru / Kepala Sekolah">Guru / Kepala Sekolah</div>
             </a>
         </li>
 
         <li class="menu-item {{ (request()->is('admin/stakeholder*')) ? 'active' : '' }}">
             <a href="{{ route('stakeholder.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-users"></i>
-                <div data-i18n="Profile">Stakeholder</div>
+                <div data-i18n="Stakeholder">Stakeholder</div>
             </a>
         </li>
         

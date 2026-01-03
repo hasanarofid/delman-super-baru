@@ -13,6 +13,7 @@ use Auth;
 use DataTables;
 use \Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str; // Add Str for slug generation
 
 class ListumpanbalikController extends Controller
 {
@@ -92,6 +93,7 @@ class ListumpanbalikController extends Controller
             ];
         }
 
+
         return view('dashboard_pengawas.umpanbalik.list',compact(
             'listPengawas',
             'months',
@@ -101,12 +103,9 @@ class ListumpanbalikController extends Controller
     }
 
 
-
     public function getdata(Request $request){
         if ($request->ajax()) {
-
-
-            $query = UmpanbalikT::with('rencanakerja')->latest();
+            $query = UmpanbalikT::with(['rencanakerja', 'category'])->latest();
 
              // Filter berdasarkan pengawas
             if ($request->has('pengawas') && $request->pengawas !== 'all') {
@@ -160,20 +159,30 @@ class ListumpanbalikController extends Controller
                     ->addColumn('is_rtl', function($row){
                         return $row->is_rtl;
                     })
+                    ->addColumn('kategori', function($row){ // Add this column
+                        if ($row->id_category == 0) {
+                            return 'Default Feedback (Statis)';
+                        } else {
+                            return $row->category->name ?? 'N/A';
+                        }
+                    })
                     ->addColumn('tgl_rtl', function($row){
-                        return $row->is_rtl == 1 && $row->tgl_rtl ? \Carbon\Carbon::parse($row->tgl_rtl)->format('d M Y H:i:s') : '';
+                        return $row->is_rtl == 1 && $row->tgl_rtl ? Carbon::parse($row->tgl_rtl)->format('d M Y H:i:s') : '';
                     })
                     ->addColumn('nama_sekolah', function($row) {
                         $cariguru = GuruM::findorFail($row->id_user);
                         $sekolahs = SekolahM::findorFail($cariguru->sekolah_id);
                         return $sekolahs->nama_sekolah;
                     })
-
-                    ->addColumn('action', function($row){
-
-                                        // Check if the response has been given
+                       ->addColumn('action', function($row){
                             $tanggapan = TanggapanUmpanbalikT::where('id_umpanbalik', $row->id)->first();
-                            $fullUrl = url('umpan-balik-view/' . $row->generate_url);
+
+                            if ($row->id_category == 0) {
+                                $fullUrl = url('umpan-balik-view/' . $row->generate_url);
+                            } else {
+                                $categorySlug = $row->category ? Str::slug($row->category->name) : 'default';
+                                $fullUrl = route('superadmin.dynamic.umpanbalik.view', ['category_slug' => $categorySlug, 'generate_url' => $row->generate_url]);
+                            }
 
                             // If 'Belum diberi tanggapan', disable the button
                             if (!$tanggapan) {
@@ -183,18 +192,16 @@ class ListumpanbalikController extends Controller
                             }
                             return $btn;
                        })
-
-                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl'])
+                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl','kategori']) // Add 'kategori' here
                        ->make(true);
            }
     }
 
     public function getdatapengawas(Request $request){
         if ($request->ajax()) {
-            $query = UmpanbalikT::with('rencanakerja')
+            $query = UmpanbalikT::with(['rencanakerja', 'category'])
             ->where('umpanbalik_t.id_pengawas', Auth::user()->id)
             ->latest();
-
 
 
            // Filter berdasarkan bulan
@@ -242,31 +249,40 @@ class ListumpanbalikController extends Controller
                     ->addColumn('is_rtl', function($row){
                         return $row->is_rtl;
                     })
+                    ->addColumn('kategori', function($row){ // Add this column
+                        if ($row->id_category == 0) {
+                            return 'Default Feedback (Statis)';
+                        } else {
+                            return $row->category->name ?? 'N/A';
+                        }
+                    })
                     ->addColumn('tgl_rtl', function($row){
-                        return $row->is_rtl == 1 && $row->tgl_rtl ? \Carbon\Carbon::parse($row->tgl_rtl)->format('d M Y H:i:s') : '';
+                        return $row->is_rtl == 1 && $row->tgl_rtl ? Carbon::parse($row->tgl_rtl)->format('d M Y H:i:s') : '';
                     })
                     ->addColumn('nama_sekolah', function($row) {
                         $cariguru = GuruM::findorFail($row->id_user);
                         $sekolahs = SekolahM::findorFail($cariguru->sekolah_id);
                         return $sekolahs->nama_sekolah;
                     })
+                       ->addColumn('action', function($row){
+                            $tanggapan = TanggapanUmpanbalikT::where('id_umpanbalik', $row->id)->first();
 
-               ->addColumn('action', function($row){
+                            if ($row->id_category == 0) {
+                                $fullUrl = url('umpan-balik-view/' . $row->generate_url);
+                            } else {
+                                $categorySlug = $row->category ? Str::slug($row->category->name) : 'default';
+                                $fullUrl = route('superadmin.dynamic.umpanbalik.view', ['category_slug' => $categorySlug, 'generate_url' => $row->generate_url]);
+                            }
 
-                // Check if the response has been given
-    $tanggapan = TanggapanUmpanbalikT::where('id_umpanbalik', $row->id)->first();
-    $fullUrl = url('umpan-balik-view/' . $row->generate_url);
-
-    // If 'Belum diberi tanggapan', disable the button
-    if (!$tanggapan) {
-        $btn = '<a href="#" class="btn btn-sm bg-warning text-white disabled" style="pointer-events: none;" > <i class="fa fa-eye"></i> Belum diberi tanggapan</a>';
-    } else {
-        $btn = '<a target="_blank" href="'.$fullUrl.'" class="btn btn-sm bg-primary text-white" > <i class="fa fa-eye"></i> View</a>';
-    }
-    return $btn;
+                            if (!$tanggapan) {
+                                $btn = '<a href="#" class="btn btn-sm bg-warning text-white disabled" style="pointer-events: none;" > <i class="fa fa-eye"></i> Belum diberi tanggapan</a>';
+                            } else {
+                                $btn = '<a target="_blank" href="'.$fullUrl.'" class="btn btn-sm bg-primary text-white" > <i class="fa fa-eye"></i> View</a>';
+                            }
+                            return $btn;
                        })
 
-                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl'])
+                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl','kategori']) // Add 'kategori' here
                        ->make(true);
            }
     }

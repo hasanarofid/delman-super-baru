@@ -49,13 +49,6 @@ $profile = ProfileMarket::find(1);
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
                         <!-- Authentication Links -->
-                        <li class="nav-item">
-                            <div class="d-flex">
-                                <a class="nav-link" href="{{ route('cart.index') }}">
-                                    <i class="fa fa-shopping-cart" aria-hidden="true"></i><span class="badge">{{ Session::has('cart') ? Session::get('cart')->totalQuantity : '' }}</span>
-                                </a>
-                            </div>
-                        </li>
                         @guest
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
@@ -72,7 +65,6 @@ $profile = ProfileMarket::find(1);
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a href="{{ route('profile.edit',['user'=>Auth::user()->id ]) }}" class="dropdown-item">Edit Profile</a>
                                     
                                     @if(Auth::user()->role == 'Customer')
                                     <a href="{{ route('order.show',['user'=>Auth::user()->id]) }}" class="dropdown-item">Purchase History</a>
@@ -130,62 +122,6 @@ $profile = ProfileMarket::find(1);
 
     $(document).ready(function(){
 
-        filter_data('');
-
-        function filter_data(query='')
-        {
-            var search=JSON.stringify(query);
-            var price =JSON.stringify($('#pricerange').val());
-            var gender =JSON.stringify(get_filter('gender')); 
-            var brand =JSON.stringify(get_filter('brand'));
-            $.ajax({
-                url:"{{ route('product.filter') }}",
-                method:'GET',
-                data:{
-                    query:search,
-                    price:price,
-                    gender:gender,
-                    brand:brand,
-                    },
-                dataType:'json',
-                success:function(data)
-                {
-                    $('#products').html(data.table_data);
-                }
-            })
-        }
-
-        function get_filter(class_name)
-        {
-            var filter=[];
-            $('.'+class_name+':checked').each(function(){
-                filter.push($(this).val());
-            });
-            return filter;
-        }
-
-        $(document).on('keyup','#search',function(){
-            var query = $(this).val();
-            filter_data(query);
-        });
-
-        $('.selector').click(function(){
-            var query = $('#search').val();
-            filter_data(query);
-        });
-
-        $(document).on('input','#pricerange',function(){
-            var range = $(this).val();
-            $('#currentrange').html(range);
-        });
-
-        $(document).on('change','#size-dropdown',function(){
-            var size = $(this).val();
-            document.cookie="shoes_size="+size+";"+"path=/";
-            $('#add-to-cart').removeClass('disabled');
-        });
-
-    });
     
 </script>
 
