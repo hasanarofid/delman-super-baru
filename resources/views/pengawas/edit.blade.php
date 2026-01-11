@@ -48,7 +48,7 @@
                      </div>
                      <div class="form-group">
                         <label for="name">Jenjang Jabatan </label>
-                        <select name="jenjang_jabatan" id="jenjang_jabatan" class="form-control" required>
+                        <select name="jenjang_jabatan" id="jenjang_jabatan" class="form-control select2" required>
                            <option value="">.: Pilih Jenjang Jabatan :. </option>
                            <option value="Pengawas Sekolah Utama"  {{ ($models->jenjang_jabatan == 'Pengawas Sekolah Utama') ? 'selected' : ''  }}> Pengawas Sekolah Utama </option>
                            <option value="Pengawas Sekolah Ahli Madya"  {{ ($models->jenjang_jabatan == 'Pengawas Sekolah Ahli Madya') ? 'selected' : ''  }}> Pengawas Sekolah Ahli Madya </option>
@@ -58,12 +58,20 @@
 
                      <div class="form-group">
                         <label for="pangkat">Pangkat</label>
-                        <input type="text" class="form-control" value="{{ $models->pangkat  }}" name="pangkat" id="pangkat" placeholder="Pangkat">
+                        <select name="pangkat" id="pangkat" class="form-control select2" required>
+                           @if($models->pangkat)
+                              <option value="{{ $models->pangkat }}" selected>{{ $models->pangkat }}</option>
+                           @endif
+                        </select>
                      </div>
 
                      <div class="form-group">
                         <label for="gol_ruang">Gol. Ruang</label>
-                        <input type="text" class="form-control" value="{{ $models->gol_ruang  }}" name="gol_ruang" id="gol_ruang" placeholder="Gol. Ruang">
+                        <select name="gol_ruang" id="gol_ruang" class="form-control select2" required>
+                           @if($models->gol_ruang)
+                              <option value="{{ $models->gol_ruang }}" selected>{{ $models->gol_ruang }}</option>
+                           @endif
+                        </select>
                      </div>
                        <div class="form-group">
                               <label for="no_telp">No Telpon</label>
@@ -107,7 +115,68 @@
       </div>
  </div>
 @endsection
-       @section('js')
+       @section('script')
+         <script>
+           jQuery(document).ready(function () {
+    // Initialize Select2 for the 'select2' class elements
+    jQuery('.select2').select2();
 
-       @endsection
+    // Initialize the 'pangkat' select2 element with AJAX
+    jQuery('#pangkat').select2({
+        ajax: {
+            url: "{{ route('masterpengawas.getpangkat') }}",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    term: params.term, // search term
+                    jenjang_jabatan: jQuery('#jenjang_jabatan').val() // Pass selected jenjang_jabatan
+                };
+            },
+            processResults: function(data) {
+                return {
+                    results: data
+                };
+            }
+        }
+    });
+
+    // Initialize the 'gol_ruang' select2 element with AJAX
+    jQuery('#gol_ruang').select2({
+        ajax: {
+            url: "{{ route('masterpengawas.getRuang') }}",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    term: params.term, // search term
+                    pangkat: jQuery('#pangkat').val() // Pass selected pangkat
+                };
+            },
+            processResults: function(data) {
+                return {
+                    results: data
+                };
+            }
+        }
+    });
+
+    // Trigger change event for 'jenjang_jabatan' to load initial 'pangkat' options
+    jQuery('#jenjang_jabatan').on('change', function(e) {
+        // Only clear if the change was initiated by user interaction
+        if (e.originalEvent) {
+            jQuery('#pangkat').val(null).trigger('change');
+        }
+    });
+
+    // Trigger change event for 'pangkat' to load initial 'gol_ruang' options
+    jQuery('#pangkat').on('change', function(e) {
+        // Only clear if the change was initiated by user interaction
+        if (e.originalEvent) {
+            jQuery('#gol_ruang').val(null).trigger('change');
+        }
+    });
+});
+         </script>
+@endsection
 

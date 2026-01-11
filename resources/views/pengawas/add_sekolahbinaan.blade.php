@@ -46,36 +46,30 @@
                      <input type="hidden" name="id_pengawas" id="id_pengawas" value="{{ $models->id }}">
               
                      
-                     <div class="form-group">
-                        <label for="kabupaten_id">Sekolah </label>
-                        
-                        <select name="sekolah_id[]" id="sekolah_id" class="form-select select2" required multiple>
-                            @php
-                                $allSelected = true;
-                            @endphp
+                     <div class="form-group mb-3">
+                        <label for="sekolah_id">Pilih Sekolah Binaan</label>
+                        <div class="mb-2 mt-2">
+                            <button type="button" class="btn btn-xs btn-outline-primary" id="select-all">Select All</button>
+                            <button type="button" class="btn btn-xs btn-outline-secondary" id="deselect-all">Deselect All</button>
+                        </div>
+                        <select name="sekolah_id[]" id="sekolah_id" class="form-select select2" multiple>
                             @foreach ($sekolah as $item)
-                                @php
-                                    $selected = $binaan->contains('sekolah.id', $item->id) ? 'selected' : '';
-                                    if (!$selected) {
-                                        // If any item is not selected, set allSelected to false
-                                        $allSelected = false;
-                                    }
-                                @endphp
-                                <option   value="{{ $item->id }}" {{ $selected }}>{{ $item->nama_sekolah }}</option>
+                                <option value="{{ $item->id }}" {{ $binaan->contains('id_sekolah', $item->id) ? 'selected' : '' }}>
+                                    {{ $item->nama_sekolah }}
+                                </option>
                             @endforeach
-                            @if ($allSelected)
-                                <option  value="" disabled hidden>All selected</option>
-                            @endif
                         </select>
-                        
-                        
+                        <small class="text-muted">Kosongkan pilihan jika ingin menghapus semua sekolah binaan.</small>
                      </div>
                     
 
 
-                     <button type="submit" class="btn btn-sm btn-success">
-                        <i class="fa fa-save"></i>   Save
+                     <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ti ti-device-floppy me-1"></i> Simpan Perubahan
                         </button>
+                        <a href="{{ route('masterpengawas.index') }}" class="btn btn-label-secondary">Kembali</a>
+                     </div>
                     
                   </form>
                </div>
@@ -87,11 +81,27 @@
 @endsection
        @section('script')
        <script>
-           $(document).ready(function () {
-      $('#sekolah_id').select2();
-   });
+           jQuery(document).ready(function () {
+               var $select = jQuery('#sekolah_id').select2({
+                   placeholder: '.: Pilih Sekolah Binaan :.',
+                   allowClear: true
+               });
+
+               jQuery('#select-all').on('click', function() {
+                   var allOptions = [];
+                   jQuery('#sekolah_id option').each(function() {
+                       if (jQuery(this).val()) {
+                           allOptions.push(jQuery(this).val());
+                       }
+                   });
+                   $select.val(allOptions).trigger('change');
+               });
+
+               jQuery('#deselect-all').on('click', function() {
+                   $select.val(null).trigger('change');
+               });
+           });
        </script>
- 
        @endsection
 
 

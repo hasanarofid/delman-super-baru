@@ -10,7 +10,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title') | {{ $profile->title }}</title>
+    <title>@yield('title') | Delman Super</title>
     <meta name="description" content="Pengawas" />
 
     <!-- Favicon -->
@@ -59,6 +59,7 @@
     <!-- Helpers -->
     <script src="{{ asset('theme/assets/vendor/js/helpers.js') }}"></script>
     <script src="{{ asset('theme/assets/vendor/libs/jquery/jquery.js') }}"></script>
+    <script src="{{ asset('theme/assets/vendor/libs/select2/select2.js') }}"></script>
 
     
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
@@ -195,7 +196,6 @@
 
     <script src="{{ asset('theme/assets/vendor/js/menu.js') }}"></script>
     <!-- endbuild -->
-    <script src="{{ asset('theme/assets/vendor/libs/select2/select2.js') }}"></script>
     <!-- Vendors JS -->
     <script src="{{ asset('theme/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js') }}"></script>
 
@@ -204,13 +204,14 @@
     <script src="{{ asset('theme/assets/vendor/libs/formvalidation/dist/js/plugins/Bootstrap5.min.js') }}"></script>
     <script src="{{ asset('theme/assets/vendor/libs/formvalidation/dist/js/plugins/AutoFocus.min.js') }}"></script>
 
-    <!-- Main JS -->
-    <script src="{{ asset('theme/assets/js/main.js') }}"></script>
 
     <!-- Page JS -->
     {{-- <script src="{{ asset('theme/assets/js/tables-datatables-basic.js') }}"></script> --}}
 
     @yield('script')
+    <!-- Main JS -->
+    <script src="{{ asset('theme/assets/js/main.js') }}"></script>
+    <div class="style-switcher-toggle d-none"></div>
 </body>
 
 </html>

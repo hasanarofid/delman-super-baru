@@ -9,7 +9,7 @@
    <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title')  | {{ $profile->title }}</title>
+    <title>@yield('title')  | Delman Super </title>
 
     <link rel="icon" href="{{ asset('delmansupernew.png') }}" type="image/x-icon"/>
        <!--     Fonts and icons     -->

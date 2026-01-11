@@ -29,6 +29,11 @@
                             {{ Session::get('success') }}
                         </div>
                         @endif
+                        @if (Session::has('error'))
+                        <div class="alert alert-danger">
+                            {{ Session::get('error') }}
+                        </div>
+                        @endif
                         <div class="table-responsive p-0">
                             <table class="table table-bordered table-striped" id="data-table">
                                 <thead>
@@ -81,8 +86,12 @@
             {data: 'name', name: 'name'},
             {data: 'nip', name: 'nip'},
             {data: 'jenjang_jabatan', name: 'jenjang_jabatan'},
-            {data: 'pangkat', name: 'pangkat'},
-            {data: 'gol_ruang', name: 'gol_ruang'},
+            {data: 'pangkat', name: 'pangkat', render: function(data, type, row) {
+                return (data !== null && data !== '0' && data !== '') ? data : '-';
+            }},
+            {data: 'gol_ruang', name: 'gol_ruang', render: function(data, type, row) {
+                return (data !== null && data !== '0' && data !== '') ? data : '-';
+            }},
             {data: 'no_telp', name: 'no_telp'},
             {data: 'alamat', name: 'alamat'},
             {data: 'binaan', name: 'binaan'},

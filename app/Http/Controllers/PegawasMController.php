@@ -42,22 +42,60 @@ class PegawasMController extends Controller
       public function getpangkat(Request $request)
     {
         $search = $request->term;
-        $data = GolPangkatRuang::select('pangkat as text', 'id')
-        ->where('pangkat', 'LIKE', "%$search%")
-        // ->whereNull('id_master')
-        ->get();
-        
+        $jenjang_jabatan = $request->jenjang_jabatan; 
+        $selected_value = $request->id; // New: to handle initial selection based on value (name)
+
+        $query = GolPangkatRuang::select('pangkat as text', 'pangkat as id'); // Changed id to pangkat for storing name
+
+        if ($search) {
+            $query->where('pangkat', 'LIKE', "%$search%");
+        }
+
+        // Add filtering based on jenjang_jabatan if needed
+        if ($jenjang_jabatan) {
+            $query->where('jenjang_jabatan', $jenjang_jabatan);
+        }
+
+        // If a selected_value (name) is provided, ensure it's in the results
+        if ($selected_value) {
+            $item = GolPangkatRuang::where('pangkat', $selected_value)->first();
+            if ($item) {
+                return response()->json(['id' => $item->pangkat, 'text' => $item->pangkat]); // Return name as both id and text
+            }
+            return response()->json([]);
+        }
+
+        $data = $query->distinct('pangkat')->get(); // Ensure unique pangkat names
         return response()->json($data);
     }
 
          public function getRuang(Request $request)
     {
         $search = $request->term;
-        $data = GolPangkatRuang::select('ruang_kerja as text', 'id')
-        ->where('ruang_kerja', 'LIKE', "%$search%")
-        // ->whereNull('id_master')
-        ->get();
-        
+        $pangkat = $request->pangkat; 
+        $selected_value = $request->id; // New: to handle initial selection based on value (name)
+
+        $query = GolPangkatRuang::select('ruang_kerja as text', 'ruang_kerja as id'); // Changed id to ruang_kerja for storing name
+
+        if ($search) {
+            $query->where('ruang_kerja', 'LIKE', "%$search%");
+        }
+
+        // Add filtering based on pangkat if needed
+        if ($pangkat) {
+            $query->where('pangkat', $pangkat);
+        }
+
+        // If a selected_value (name) is provided, ensure it's in the results
+        if ($selected_value) {
+            $item = GolPangkatRuang::where('ruang_kerja', $selected_value)->first();
+            if ($item) {
+                return response()->json(['id' => $item->ruang_kerja, 'text' => $item->ruang_kerja]); // Return name as both id and text
+            }
+            return response()->json([]);
+        }
+
+        $data = $query->distinct('ruang_kerja')->get(); // Ensure unique ruang_kerja names
         return response()->json($data);
     }
 
@@ -97,7 +135,7 @@ class PegawasMController extends Controller
             //         $id_filter[] = $kab->id;
             //     }
     
-                $post = User::with('kabupaten')
+                $post = User::with('kabupaten', 'profile')
                 ->where('role','Pengawas')
                 // ->whereIn('kabupaten_id',$id_filter)
                 ->latest()->get();
@@ -116,10 +154,10 @@ class PegawasMController extends Controller
 
                      return  ' <div class="card card-profile"><img src="'.$foto.'" height="100px" alt="Image placeholder" class="card-img-top"></div>';
                     })->addColumn('no_telp', function($row){
-                        return !empty($row->no_telp) ? $row->no_telp: '-';
+                        return !empty($row->profile->no_telp) ? $row->profile->no_telp: '-';
              })
                       ->addColumn('alamat', function($row){
-                               return !empty($row->alamat_lengkap) ? $row->alamat_lengkap: '-';
+                               return !empty($row->profile->alamat_lengkap) ? $row->profile->alamat_lengkap: '-';
                     })
                       ->addColumn('kabupaten', function($row){
                         return !empty($row->kabupaten->nama_kabupaten) ? $row->kabupaten->nama_kabupaten: '-';
@@ -142,7 +180,7 @@ class PegawasMController extends Controller
                         if ($user && $user->role == 'Super Admin') {
                             $btn = '<a href="'.route('masterpengawas.edit',$row->id).'" data-toggle="tooltip"  class="edit btn btn-primary btn-sm editPost">Edit</a>';
                            $btn = $btn.' <a href="'.route('masterpengawas.hapus',$row->id).'" data-toggle="tooltip" data-toggle="modal" data-target="#confirmDeleteModal"    data-original-title="Delete" class="btn btn-danger btn-sm deletePost">Delete</a>';
-                           $btn = $btn.' <a href="'.route('masterpengawas.setSekolahBinaan',$row->id).'"  class="btn btn-info btn-sm deletePost">Add Sekolah Binaan</a>';
+                           $btn = $btn.' <a href="'.route('masterpengawas.setSekolahBinaan',$row->id).'"  class="btn btn-info btn-sm">Add Sekolah Binaan</a>';
     
                             return $btn;
                         } else {
@@ -182,7 +220,7 @@ class PegawasMController extends Controller
     }
     public function store_sekolah(Request $request)
     {
-        $sekolahIds = $request->input('sekolah_id');
+        $sekolahIds = $request->input('sekolah_id') ?? [];
         $id_pengawas = $request->input('id_pengawas');
     
         // Retrieve current sekolah binaan for the supervisor
@@ -195,9 +233,11 @@ class PegawasMController extends Controller
         $addSekolahIds = array_diff($sekolahIds, $currentSekolahIds);
     
         // Delete removed sekolah binaan
-        SekolahbinaanT::where('id_pengawas', $id_pengawas)
-            ->whereIn('id_sekolah', $deleteSekolahIds)
-            ->delete();
+        if (!empty($deleteSekolahIds)) {
+            SekolahbinaanT::where('id_pengawas', $id_pengawas)
+                ->whereIn('id_sekolah', $deleteSekolahIds)
+                ->delete();
+        }
     
         // Add new sekolah binaan
         foreach ($addSekolahIds as $sekolahId) {
@@ -207,7 +247,7 @@ class PegawasMController extends Controller
             $skolahbinaan->save();
         }
     
-        return redirect()->route('masterpengawas.index')
+        return redirect()->back()
                          ->with('success', 'Sekolah binaan pengawas updated successfully');
     }
     /** save data pengawas */
@@ -234,8 +274,18 @@ class PegawasMController extends Controller
             $user->kota = $request->kota;
             $user->alamat_lengkap = $request->alamat_lengkap;
             $user->kode_area = $request->kode_area;
-            $user->kabupaten_id = $request->kabupaten_id;
+            $user->kabupaten_id = 1; // Set kabupaten_id to 1 as requested
             $user->save();
+
+            // Update associated profile
+            if ($user->profile) {
+                $user->profile->update([
+                    'no_telp' => $request->no_telp,
+                    'alamat_lengkap' => $request->alamat_lengkap,
+                    'kota' => $request->kota,
+                    'kode_area' => $request->kode_area,
+                ]);
+            }
 
             return redirect()->route('masterpengawas.index')->with('success', 'pengawas created successfully');
     }
@@ -246,7 +296,13 @@ class PegawasMController extends Controller
     }
 
      public function hapus($id){
-         $user = User::where('id',$id)->delete();
+        $countSekolahBinaan = SekolahbinaanT::where('id_pengawas', $id)->count();
+
+        if ($countSekolahBinaan > 0) {
+            return redirect()->back()->with('error', 'Data tidak bisa dihapus karena pengawas masih memiliki ' . $countSekolahBinaan . ' sekolah binaan. Silakan hapus sekolah binaan terlebih dahulu.');
+        }
+
+        $user = User::where('id',$id)->delete();
         return redirect()->back()->with('success', 'pengawas Delete successfully');
     }
 
@@ -261,6 +317,24 @@ class PegawasMController extends Controller
             $user->alamat_lengkap = $request->alamat_lengkap;
             $user->kode_area = $request->kode_area;
              $user->save();
+
+            // Update associated profile
+            if ($user->profile) {
+                $user->profile->update([
+                    'no_telp' => $request->no_telp,
+                    'alamat_lengkap' => $request->alamat_lengkap,
+                    'kota' => $request->kota,
+                    'kode_area' => $request->kode_area,
+                ]);
+            } else {
+                // If profile doesn't exist for some reason, create it
+                $user->profile()->create([
+                    'no_telp' => $request->no_telp,
+                    'alamat_lengkap' => $request->alamat_lengkap,
+                    'kota' => $request->kota,
+                    'kode_area' => $request->kode_area,
+                ]);
+            }
 
         if(isset($request->password)){
             $user->password = Hash::make($request->password);
