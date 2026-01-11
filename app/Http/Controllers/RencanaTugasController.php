@@ -124,9 +124,13 @@ class RencanaTugasController extends Controller
                     return $nama_sekolah;
                 })
                 ->addColumn('status', function ($row) {
-                    return $row->status == 1
-                        ? '<span class="badge bg-label-success m-1">Sudah Kirim WA Blast</span>'
-                        : '<span class="badge bg-label-danger m-1">Belum Kirim WA Blast</span>';
+                    if ($row->status == 1) {
+                        return '<span class="badge bg-label-success m-1">Sudah Kirim WA Blast</span>';
+                    } else {
+                        $log = WhatsappMessagesLog::where('rencana_kerja_id', $row->id)->latest()->first();
+                        $reason = $log ? '<br><small class="text-danger">Gagal: ' . $log->failure_reason . '</small>' : '';
+                        return '<span class="badge bg-label-danger m-1">Belum Kirim WA Blast</span>' . $reason;
+                    }
                 })
                 ->addColumn('action', function ($row) {
                     $user = Auth::user();
@@ -149,29 +153,32 @@ class RencanaTugasController extends Controller
     public function kirimWa($id)
     {
         try {
-            $model = RencanaKerjaT::findOrFail($id);
+            $model = RencanaKerjaT::with('pengawasnama')->findOrFail($id);
             $id_umpanbalik_category = $model->id_umpanbalik_category;
             $sekolahIds = explode(',', $model->sekolah_id);
 
             $sekolahs = SekolahM::with('kepalaSekolahSatu')->whereIn('id', $sekolahIds)->get();
 
+            if ($sekolahs->isEmpty()) {
+                return response()->json(['success' => false, 'message' => 'Tidak ada sekolah sasaran.'], 400);
+            }
+
             foreach ($sekolahs as $list) {
                 $nama_sekolah = $list->nama_sekolah;
                 $kepalaSekolah = $list->kepalaSekolahSatu;
-                if ($kepalaSekolah) {
+                if ($kepalaSekolah && !empty($kepalaSekolah->no_telp)) {
                     $nama_kepala_sekolah = $kepalaSekolah->nama;
                     $nama_kepala_sekolah_id = $kepalaSekolah->id;
                     $no_telp = $kepalaSekolah->no_telp;
 
                     if ($id_umpanbalik_category == 0) {
-                        // Panggil fungsi buildUmpanBalik yang lama untuk URL statis
                         $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
-                        sleep(rand(30, 60));
                     } else {
-                        // Memanggil fungsi buildDynamicUmpanBalik untuk URL dinamis
                         $this->buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_umpanbalik_category);
-                        sleep(rand(30, 60));
                     }
+                    sleep(rand(2, 5));
+                } else {
+                    return response()->json(['success' => false, 'message' => "Kepala sekolah {$nama_sekolah} tidak memiliki nomor telepon."], 400);
                 }
             }
             $model->status = 1;
@@ -179,10 +186,10 @@ class RencanaTugasController extends Controller
 
         } catch (\Exception $e) {
             Log::error("Failed to send WhatsApp message: " . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Failed to send WA message.'], 500);
+            return response()->json(['success' => false, 'message' => 'Gagal kirim WA: ' . $e->getMessage()], 500);
         }
 
-        return response()->json(['success' => true, 'message' => 'WA message sent successfully!']);
+        return response()->json(['success' => true, 'message' => 'Pesan WA berhasil dikirim!']);
     }
 
     public function kirimWaWithCategory($id, $id_category)
@@ -246,132 +253,171 @@ class RencanaTugasController extends Controller
         }
     }
 
-    // Fungsi untuk menggenerate URL umpan balik STATIS (lama)
     public function buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp)
     {
-        try {
-            $uniqueUrl = Str::uuid()->toString();
+        $uniqueUrl = (string) Str::uuid();
 
-            $checkUmpanBalik = UmpanbalikT::where('id_user', $nama_kepala_sekolah_id)
-                ->where('id_pelaporan', $model->id)
-                ->where('id_pengawas', $model->id_pengawas)
-                ->first();
+        $checkUmpanBalik = UmpanbalikT::where('id_user', $nama_kepala_sekolah_id)
+            ->where('id_pelaporan', $model->id)
+            ->where('id_pengawas', $model->id_pengawas)
+            ->first();
 
-            if ($checkUmpanBalik) {
-                $umpanBalik = $checkUmpanBalik;
-                $umpanBalik->id_updated_by = Auth::user()->id;
-                $umpanBalik->save();
-                $fullUrl = url('umpan-balik/' . $umpanBalik->generate_url);
-            } else {
-                $umpanBalik = new UmpanbalikT();
-                $umpanBalik->generate_url = $uniqueUrl;
-                $umpanBalik->id_updated_by = Auth::user()->id;
-                $umpanBalik->id_pelaporan = $model->id;
-                $umpanBalik->id_user = $nama_kepala_sekolah_id;
-                $umpanBalik->id_pengawas = $model->id_pengawas;
-                $umpanBalik->id_created_by = Auth::user()->id;
-                $umpanBalik->save();
-                $fullUrl = url('umpan-balik/' . $uniqueUrl);
-            }
-
-            $pesan = "Yth Bapak / Ibu {$nama_kepala_sekolah}\n"
-                . "Kepala {$nama_sekolah},\n"
-                . "Pada bulan {$model->bulan} {$model->tahun}\n"
-                . "pengawas {$model->pengawasnama->name}\n"
-                . "akan melakukan kegiatan pendampingan {$model->nama_program_kerja}\n"
-                . "ke sekolah.\n"
-                . "Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
-                . "Berikut ini beberapa catatan yang penting:\n"
-                . "1. Pastikan link diisi pada hari pengawas melakukan pendampingan.\n"
-                . "2. Sertakan 1 bukti pendampingan berupa foto kegiatan bersama pengawas.\n\n"
-                . "Terimakasih\n"
-                . "Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengawas (DelmanSuper) KCD Kabupaten Tangerang";
-
-            $this->sendWhatsAppMessage($no_telp, $pesan, $nama_kepala_sekolah_id, $model);
-        } catch (\Exception $e) {
-            Log::error("Failed to create or send feedback link: " . $e->getMessage());
+        if ($checkUmpanBalik) {
+            $umpanBalik = $checkUmpanBalik;
+            $umpanBalik->id_updated_by = Auth::user()->id;
+            $umpanBalik->save();
+            $fullUrl = url('umpan-balik/' . $umpanBalik->generate_url);
+        } else {
+            $umpanBalik = new UmpanbalikT();
+            $umpanBalik->generate_url = $uniqueUrl;
+            $umpanBalik->id_updated_by = Auth::user()->id;
+            $umpanBalik->id_pelaporan = $model->id;
+            $umpanBalik->id_user = $nama_kepala_sekolah_id;
+            $umpanBalik->id_pengawas = $model->id_pengawas;
+            $umpanBalik->id_created_by = Auth::user()->id;
+            $umpanBalik->tgl_rtl = date('Y-m-d');
+            $umpanBalik->id_category = 0;
+            $umpanBalik->save();
+            $fullUrl = url('umpan-balik/' . $uniqueUrl);
         }
+
+        $pesan = "Yth Bapak / Ibu {$nama_kepala_sekolah}\n"
+            . "Kepala {$nama_sekolah},\n"
+            . "Pada bulan {$model->bulan} {$model->tahun_ajaran}\n"
+            . "pengawas {$model->pengawasnama->name}\n"
+            . "akan melakukan kegiatan pendampingan {$model->nama_program_kerja}\n"
+            . "ke sekolah.\n"
+            . "Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
+            . "Berikut ini beberapa catatan yang penting:\n"
+            . "1. Pastikan link diisi pada hari pengawas melakukan pendampingan.\n"
+            . "2. Sertakan 1 bukti pendampingan berupa foto kegiatan bersama pengawas.\n\n"
+            . "Terimakasih\n"
+            . "Pesan ini digenerate otomatis oleh DelmanSuper ";
+
+        $this->sendWhatsAppMessage($no_telp, $pesan, $nama_kepala_sekolah_id, $model);
     }
 
-    // Fungsi untuk menggenerate URL umpan balik DINAMIS (baru)
     public function buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_category)
     {
-        try {
-            $checkUmpanBalik = UmpanbalikT::where('id_user', $nama_kepala_sekolah_id)
-                ->where('id_pelaporan', $model->id)
-                ->where('id_pengawas', $model->id_pengawas)
-                ->where('id_category', $id_category)
-                ->first();
+        $checkUmpanBalik = UmpanbalikT::where('id_user', $nama_kepala_sekolah_id)
+            ->where('id_pelaporan', $model->id)
+            ->where('id_pengawas', $model->id_pengawas)
+            ->where('id_category', $id_category)
+            ->first();
 
-            if ($checkUmpanBalik) {
-                $umpanBalik = $checkUmpanBalik;
-                $umpanBalik->id_updated_by = Auth::user()->id;
-                $umpanBalik->save();
-                $fullUrl = url('dynamic-umpanbalik/' . $id_category . '/' . $umpanBalik->generate_url);
-            } else {
-                $fullUrl = DynamicUmpanbalikController::generateUmpanbalikUrl(
-                    $nama_kepala_sekolah_id,
-                    $model->id,
-                    $model->id_pengawas,
-                    $id_category
-                );
-            }
-
-            $pesan = "Yth Bapak / Ibu {$nama_kepala_sekolah}\n"
-                . "Kepala {$nama_sekolah},\n"
-                . "Pada bulan {$model->bulan} {$model->tahun}\n"
-                . "pengawas {$model->pengawasnama->name}\n"
-                . "akan melakukan kegiatan pendampingan {$model->nama_program_kerja}\n"
-                . "ke sekolah.\n"
-                . "Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
-                . "Berikut ini beberapa catatan yang penting:\n"
-                . "1. Pastikan link diisi pada hari pengawas melakukan pendampingan.\n"
-                . "2. Sertakan 1 bukti pendampingan berupa foto kegiatan bersama pengawas.\n\n"
-                . "Terimakasih\n"
-                . "Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengawas (DelmanSuper) KCD Kabupaten Tangerang";
-
-            $this->sendWhatsAppMessage($no_telp, $pesan, $nama_kepala_sekolah_id, $model);
-        } catch (\Exception $e) {
-            Log::error("Failed to create or send dynamic feedback link: " . $e->getMessage());
+        if ($checkUmpanBalik) {
+            $umpanBalik = $checkUmpanBalik;
+            $umpanBalik->id_updated_by = Auth::user()->id;
+            $umpanBalik->save();
+            $fullUrl = url('dynamic-umpanbalik/' . $id_category . '/' . $umpanBalik->generate_url);
+        } else {
+            $fullUrl = DynamicUmpanbalikController::generateUmpanbalikUrl(
+                $nama_kepala_sekolah_id,
+                $model->id,
+                $model->id_pengawas,
+                $id_category
+            );
         }
+
+        $pesan = "Yth Bapak / Ibu {$nama_kepala_sekolah}\n"
+            . "Kepala {$nama_sekolah},\n"
+            . "Pada bulan {$model->bulan} {$model->tahun_ajaran}\n"
+            . "pengawas {$model->pengawasnama->name}\n"
+            . "akan melakukan kegiatan pendampingan {$model->nama_program_kerja}\n"
+            . "ke sekolah.\n"
+            . "Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
+            . "Berikut ini beberapa catatan yang penting:\n"
+            . "1. Pastikan link diisi pada hari pengawas melakukan pendampingan.\n"
+            . "2. Sertakan 1 bukti pendampingan berupa foto kegiatan bersama pengawas.\n\n"
+            . "Terimakasih\n"
+            . "Pesan ini digenerate otomatis oleh DelmanSuper ";
+
+        $this->sendWhatsAppMessage($no_telp, $pesan, $nama_kepala_sekolah_id, $model);
     }
 
 
     protected function sendWhatsAppMessage($phone, $message, $nama_kepala_sekolah_id, $model)
     {
         $token = 'ChvMJmr8Y5PwD130iY6kZqNQoAvCNQBxvH4RKiCOckJCAvEtVZtBO2Gyubj9THyU';
-        $secretKey = 'fv6GW850'; // Replace this with the actual secret key
-        $authorization = "{$token}.{$secretKey}";
+        $secretKey = 'SqKDZXzk'; 
         $url = "https://jogja.wablas.com/api/send-message";
 
+        // Format nomor telepon
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+        if (substr($phone, 0, 1) == '0') {
+            $phone = '62' . substr($phone, 1);
+        } elseif (substr($phone, 0, 2) != '62') {
+            $phone = '62' . $phone;
+        }
+
+        if (empty(trim($message))) {
+            Log::error("WhatsApp message is empty for phone {$phone}");
+            return;
+        }
+
+        // Branding Replacement
+        $message = str_ireplace(['simodip', 'sistem modip', 'Sistem Monitoring dan Evaluasi Digital Pengawas'], 'DelmanSuper', $message);
+
         $logEntry = new WhatsappMessagesLog();
-                $logEntry->rencana_kerj_id = $model->id; // Add the Rencana Kerja ID here
+        $logEntry->rencana_kerja_id = $model->id;
         $logEntry->kepala_sekolah_id = $nama_kepala_sekolah_id;
         $logEntry->phone_number = $phone;
         $logEntry->message = $message;
 
         try {
-            $response = Http::withHeaders([
-                'Authorization' => $authorization,
-            ])->post($url, [
-                'phone' => $phone,
-                'message' => $message,
-            ]);
-
+            $data = ['phone' => $phone, 'message' => $message];
+            
+            // Format 1: token.secretKey
+            $authorization = "{$token}.{$secretKey}";
+            $response = Http::withHeaders(['Authorization' => $authorization])->asForm()->post($url, $data);
+            
             if ($response->successful()) {
-                Log::info("WhatsApp message sent successfully to {$phone}");
                 $logEntry->is_sent = true;
-            } else {
-                Log::error("Failed to send WhatsApp message to {$phone}: " . $response->body());
-                $logEntry->is_sent = false;
-                $logEntry->failure_reason = "Failed to send message: " . $response->body();
+                $logEntry->save();
+                return true;
             }
-        } catch (\Exception $e) {
-            Log::error("WhatsApp API error for {$phone}: " . $e->getMessage());
-            $logEntry->is_sent = false;
-            $logEntry->failure_reason = "API error: " . $e->getMessage();
-        }
 
-        $logEntry->save(); // Save the log entry to the database
+            // Format 2: secret in data (Jika 403 atau gagal format 1)
+            $dataWithSecret = array_merge($data, ['secret' => $secretKey]);
+            $response2 = Http::withHeaders(['Authorization' => $token])->asForm()->post($url, $dataWithSecret);
+            
+            if ($response2->successful()) {
+                $logEntry->is_sent = true;
+                $logEntry->save();
+                return true;
+            }
+
+            // Format 3: token only
+            $response3 = Http::withHeaders(['Authorization' => $token])->asForm()->post($url, $data);
+            
+            if ($response3->successful()) {
+                $logEntry->is_sent = true;
+                $logEntry->save();
+                return true;
+            }
+
+            // Semua gagal
+            $responseBody = $response3->body();
+            $resArr = json_decode($responseBody, true);
+            $errMsg = $resArr['message'] ?? $responseBody;
+            
+            if (strpos($responseBody, 'IP') !== false) {
+                $errMsg .= " (IP Server belum di-whitelist di Wablas)";
+            }
+
+            $logEntry->is_sent = false;
+            $logEntry->failure_reason = "Semua format auth gagal. Terakhir: " . $errMsg;
+            $logEntry->save();
+
+            throw new \Exception($errMsg);
+
+        } catch (\Exception $e) {
+            $logEntry->is_sent = false;
+            if (empty($logEntry->failure_reason)) {
+                $logEntry->failure_reason = $e->getMessage();
+            }
+            $logEntry->save();
+            throw $e;
+        }
     }
 }

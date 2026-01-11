@@ -148,7 +148,7 @@ class ListumpanbalikController extends Controller
                     })
                     ->addColumn('tanggapan_status', function($row){
                         $tanggapan = TanggapanUmpanbalikT::where('id_umpanbalik',$row->id)->first();
-                        if($tanggapan){
+                        if($tanggapan || $row->submitted_at !== null){
                             $btn = '<span class="badge bg-label-success m-1" > Sudah diberi tanggapan </span>';
                         }else{
                             $btn = '<span class="badge bg-label-danger m-1" > Belum diberi tanggapan </span>';
@@ -185,7 +185,7 @@ class ListumpanbalikController extends Controller
                             }
 
                             // If 'Belum diberi tanggapan', disable the button
-                            if (!$tanggapan) {
+                            if (!$tanggapan && $row->submitted_at === null) {
                                 $btn = '<a href="#" class="btn btn-sm bg-warning text-white disabled" style="pointer-events: none;" > <i class="fa fa-eye"></i> Belum diberi tanggapan</a>';
                             } else {
                                 $btn = '<a target="_blank" href="'.$fullUrl.'" class="btn btn-sm bg-primary text-white" > <i class="fa fa-eye"></i> View</a>';
@@ -238,7 +238,7 @@ class ListumpanbalikController extends Controller
                     })
                     ->addColumn('tanggapan_status', function($row){
                         $tanggapan = TanggapanUmpanbalikT::where('id_umpanbalik',$row->id)->first();
-                        if($tanggapan){
+                        if($tanggapan || $row->submitted_at !== null){
                             $btn = '<span class="badge bg-label-success m-1" > Sudah diberi tanggapan </span>';
                         }else{
                             $btn = '<span class="badge bg-label-danger m-1" > Belum diberi tanggapan </span>';

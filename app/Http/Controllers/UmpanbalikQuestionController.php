@@ -15,7 +15,10 @@ class UmpanbalikQuestionController extends Controller
      */
     public function index()
     {
-        $questions = UmpanbalikM::with('category')->get();
+        $questions = UmpanbalikM::with('category')
+            ->whereNotNull('id_category')
+            ->where('id_category', '!=', 0)
+            ->get();
         return view('admin.umpanbalik.questions.index', compact('questions'));
     }
 

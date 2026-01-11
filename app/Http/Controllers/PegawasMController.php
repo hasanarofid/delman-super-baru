@@ -39,64 +39,62 @@ class PegawasMController extends Controller
 
     // }
 
-      public function getpangkat(Request $request)
+    public function getpangkat(Request $request)
     {
         $search = $request->term;
-        $jenjang_jabatan = $request->jenjang_jabatan; 
-        $selected_value = $request->id; // New: to handle initial selection based on value (name)
+        $id = $request->id;
 
-        $query = GolPangkatRuang::select('pangkat as text', 'pangkat as id'); // Changed id to pangkat for storing name
-
-        if ($search) {
-            $query->where('pangkat', 'LIKE', "%$search%");
+        // Jika mencari berdasarkan ID/Nama yang sudah terpilih
+        if ($id) {
+            return response()->json(['id' => $id, 'text' => $id]);
         }
 
-        // Add filtering based on jenjang_jabatan if needed
-        if ($jenjang_jabatan) {
-            $query->where('jenjang_jabatan', $jenjang_jabatan);
-        }
+        $data = DB::table('table_gol_pangkat_ruang')
+            ->whereNotNull('pangkat')
+            ->where('pangkat', '<>', '')
+            ->where('pangkat', '<>', '0')
+            ->when($search, function($query) use ($search) {
+                return $query->where('pangkat', 'LIKE', "%$search%");
+            })
+            ->distinct()
+            ->pluck('pangkat');
 
-        // If a selected_value (name) is provided, ensure it's in the results
-        if ($selected_value) {
-            $item = GolPangkatRuang::where('pangkat', $selected_value)->first();
-            if ($item) {
-                return response()->json(['id' => $item->pangkat, 'text' => $item->pangkat]); // Return name as both id and text
-            }
-            return response()->json([]);
-        }
+        $results = $data->map(function($item) {
+            return ['id' => $item, 'text' => $item];
+        });
 
-        $data = $query->distinct('pangkat')->get(); // Ensure unique pangkat names
-        return response()->json($data);
+        return response()->json($results);
     }
 
-         public function getRuang(Request $request)
+    public function getRuang(Request $request)
     {
         $search = $request->term;
-        $pangkat = $request->pangkat; 
-        $selected_value = $request->id; // New: to handle initial selection based on value (name)
+        $pangkat = $request->pangkat;
+        $id = $request->id;
 
-        $query = GolPangkatRuang::select('ruang_kerja as text', 'ruang_kerja as id'); // Changed id to ruang_kerja for storing name
-
-        if ($search) {
-            $query->where('ruang_kerja', 'LIKE', "%$search%");
+        // Jika mencari berdasarkan ID/Nama yang sudah terpilih
+        if ($id) {
+            return response()->json(['id' => $id, 'text' => $id]);
         }
 
-        // Add filtering based on pangkat if needed
-        if ($pangkat) {
-            $query->where('pangkat', $pangkat);
-        }
+        $data = DB::table('table_gol_pangkat_ruang')
+            ->whereNotNull('ruang_kerja')
+            ->where('ruang_kerja', '<>', '')
+            ->where('ruang_kerja', '<>', '0')
+            ->when($pangkat, function($query) use ($pangkat) {
+                return $query->where('pangkat', $pangkat);
+            })
+            ->when($search, function($query) use ($search) {
+                return $query->where('ruang_kerja', 'LIKE', "%$search%");
+            })
+            ->distinct()
+            ->pluck('ruang_kerja');
 
-        // If a selected_value (name) is provided, ensure it's in the results
-        if ($selected_value) {
-            $item = GolPangkatRuang::where('ruang_kerja', $selected_value)->first();
-            if ($item) {
-                return response()->json(['id' => $item->ruang_kerja, 'text' => $item->ruang_kerja]); // Return name as both id and text
-            }
-            return response()->json([]);
-        }
+        $results = $data->map(function($item) {
+            return ['id' => $item, 'text' => $item];
+        });
 
-        $data = $query->distinct('ruang_kerja')->get(); // Ensure unique ruang_kerja names
-        return response()->json($data);
+        return response()->json($results);
     }
 
     /**
@@ -171,6 +169,12 @@ class PegawasMController extends Controller
                         }
                         return $bin; 
 
+                    })
+                    ->editColumn('pangkat', function($row){
+                        return (!empty($row->pangkat) && $row->pangkat !== '0') ? $row->pangkat : '-';
+                    })
+                    ->editColumn('gol_ruang', function($row){
+                        return (!empty($row->gol_ruang) && $row->gol_ruang !== '0') ? $row->gol_ruang : '-';
                     })
                     
 
@@ -252,7 +256,6 @@ class PegawasMController extends Controller
     }
     /** save data pengawas */
     public function store(Request $request){
-        // dd($request->post());die;belum
         $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users',
@@ -263,8 +266,8 @@ class PegawasMController extends Controller
             $user->email = $request->email;
             $user->nip = $request->nip;
             $user->jenjang_jabatan = $request->jenjang_jabatan;
-            $user->pangkat = $request->pangkat;
-            $user->gol_ruang = $request->gol_ruang;
+            $user->pangkat = ($request->pangkat !== "0") ? $request->pangkat : null;
+            $user->gol_ruang = ($request->gol_ruang !== "0") ? $request->gol_ruang : null;
             $user->foto_profile = 'userdefault.jpg';
 
             $user->password = Hash::make($request->password);
@@ -309,8 +312,8 @@ class PegawasMController extends Controller
     public function update(Request $request){
          $user = User::where('id',$request->id)->first();
          $user->jenjang_jabatan = $request->jenjang_jabatan;
-         $user->pangkat = $request->pangkat;
-         $user->gol_ruang = $request->gol_ruang;
+         $user->pangkat = ($request->pangkat !== "0") ? $request->pangkat : null;
+         $user->gol_ruang = ($request->gol_ruang !== "0") ? $request->gol_ruang : null;
        
                $user->no_telp = $request->no_telp;
             $user->kota = $request->kota;

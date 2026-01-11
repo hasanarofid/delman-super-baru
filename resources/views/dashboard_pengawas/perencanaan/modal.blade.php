@@ -8,7 +8,7 @@
                 <h3 class="mb-2">Tambah data Rencana Kerja</h3>
                 <p class="text-muted">Inputkan data Rencana Kerja anda</p>
               </div>
-              <form id="add_laporan" class="row g-3"  action="{{ route('pengawas.perencanaan.save-perencanaan') }}" method="POST" >
+              <form id="formAddPerencanaan" class="row g-3"  action="{{ route('pengawas.perencanaan.save-perencanaan') }}" method="POST" >
                 @csrf
                 <div class="col-12 col-md-6">
                     <label class="form-label" for="basic-default-name">Bulan</label>
@@ -113,7 +113,7 @@
                 
 
                 <div class="col-12 text-center">
-                  <button type="submit" class="btn btn-primary me-sm-3 me-1">Submit</button>
+                  <button type="submit" id="btnSubmitAdd" class="btn btn-primary me-sm-3 me-1">Submit</button>
                   <button
                     type="reset"
                     class="btn btn-label-secondary"
@@ -139,7 +139,7 @@
                   <h3 class="mb-2">Edit data perencanaan</h3>
                   <p class="text-muted">Inputkan data perencanaan anda</p>
                 </div>
-                <form id="add_laporan" class="row g-3"  action="{{ route('pengawas.perencanaan.update') }}" method="POST" >
+                <form id="formEditPerencanaan" class="row g-3"  action="{{ route('pengawas.perencanaan.update') }}" method="POST" >
                   <input type="hidden" id="id" name="id">
                   @csrf
                   <div class="col-12 col-md-6">
@@ -246,7 +246,7 @@
                   
   
                   <div class="col-12 text-center">
-                    <button type="submit" class="btn btn-primary me-sm-3 me-1">Submit</button>
+                    <button type="submit" id="btnSubmitEdit" class="btn btn-primary me-sm-3 me-1">Submit</button>
                     <button
                       type="reset"
                       class="btn btn-label-secondary"

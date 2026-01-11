@@ -94,6 +94,10 @@ class UmpanbalikController extends Controller
         $model->foto  = $imageName;
 
         $model->save();
+
+        // Update submitted_at in umpanbalik_t for consistency
+        $umpanbalik->update(['submitted_at' => now()]);
+
         return redirect()->route('tanggapan')->with('success', 'Umpan Balik anda berhasil disimpan. terima kasih untuk tanggapan anda');
     }
 

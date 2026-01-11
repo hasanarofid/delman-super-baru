@@ -60,15 +60,15 @@
 
                      <div class="form-group">
                         <label for="pangkat">Pangkat</label>
-                        <select name="pangkat" id="pangkat" class="form-control">
-                        
+                        <select name="pangkat" id="pangkat" class="form-control select2" required>
+                           <option value="">.: Pilih Pangkat :.</option>
                         </select>
                      </div>
 
                      <div class="form-group">
                         <label for="gol_ruang">Gol. Ruang</label>
-                        <select name="gol_ruang" id="gol_ruang" class="form-control">
-                        
+                        <select name="gol_ruang" id="gol_ruang" class="form-control select2" required>
+                           <option value="">.: Pilih Gol. Ruang :.</option>
                         </select>
 
                      </div>
@@ -126,11 +126,13 @@
 
          <script>
            jQuery(document).ready(function () {
-    // Initialize Select2 for the 'select2' class elements
-    jQuery('.select2').select2();
+    // Initialize Select2 for general elements (excluding AJAX ones to avoid double-init)
+    jQuery('.select2').not('#pangkat, #gol_ruang').select2();
 
     // Initialize the 'pangkat' select2 element with AJAX
     jQuery('#pangkat').select2({
+        placeholder: '.: Pilih Pangkat :.',
+        allowClear: true,
         ajax: {
             url: "{{ route('masterpengawas.getpangkat') }}",
             dataType: 'json',
@@ -151,6 +153,8 @@
 
     // Initialize the 'gol_ruang' select2 element with AJAX
     jQuery('#gol_ruang').select2({
+        placeholder: '.: Pilih Gol. Ruang :.',
+        allowClear: true,
         ajax: {
             url: "{{ route('masterpengawas.getRuang') }}",
             dataType: 'json',
@@ -171,11 +175,14 @@
 
     // Trigger change event for 'jenjang_jabatan' to load initial 'pangkat' options
     jQuery('#jenjang_jabatan').on('change', function() {
-        jQuery('#pangkat').val(null).trigger('change'); // Clear and trigger change on 'pangkat'
-    });
+        jQuery('#pangkat').val(null).trigger('change'); 
+        jQuery('#gol_ruang').val(null).trigger('change');
+    }).trigger('change'); 
 
     // Trigger change event for 'pangkat' to load initial 'gol_ruang' options
-    jQuery('#gol_ruang').val(null).trigger('change'); // Clear and trigger change on 'gol_ruang'
+    jQuery('#pangkat').on('change', function() {
+        jQuery('#gol_ruang').val(null).trigger('change');
+    });
 });
    
          </script>

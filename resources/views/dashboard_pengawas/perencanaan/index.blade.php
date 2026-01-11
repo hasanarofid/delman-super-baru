@@ -11,11 +11,18 @@
 
     <div class="container-xxl flex-grow-1 container-p-y">
       @if(Session::has('success'))
-      <div class="alert alert-success">
+      <div class="alert alert-success alert-dismissible fade show" role="alert">
           {{ Session::get('success') }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
-      {{ Session::forget('success') }}
-  @endif
+      @endif
+
+      @if(Session::has('error'))
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <strong>Gagal!</strong> {{ Session::get('error') }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      @endif
     <div class="col-12 col-lg-12 ">
       <!-- About User -->
       <div class="card h-100">
@@ -43,6 +50,7 @@
                                   <th>Jenis Program</th>
                                   <th>Aspek Raport Pendidikan</th>
                                   <th>Sekolah Sasaran</th>
+                                  <th>Status WA</th>
                                   <th>Tanggal Dibuat</th>
                                   <th>Action</th>
                               </tr>

@@ -61,6 +61,22 @@
 
       
   $(document).ready(function () {
+    // Prevent double submission for Create Form
+    $('#formAddPerencanaan').on('submit', function() {
+        var btn = $('#btnSubmitAdd');
+        btn.prop('disabled', true);
+        btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
+        return true; // continue with form submission
+    });
+
+    // Prevent double submission for Edit Form
+    $('#formEditPerencanaan').on('submit', function() {
+        var btn = $('#btnSubmitEdit');
+        btn.prop('disabled', true);
+        btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
+        return true; // continue with form submission
+    });
+
    //   alert(3);
     var table = $('#dataTable').DataTable({
      
@@ -75,7 +91,7 @@
             {data: 'nama_jenis', name: 'nama_jenis'},
             {data: 'nama_aspek', name: 'nama_aspek'},
             {data: 'nama_sekolah', name: 'nama_sekolah'},
-           
+            {data: 'status_wa', name: 'status_wa'},
             {data: 'tanggal', name: 'tanggal'},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ]

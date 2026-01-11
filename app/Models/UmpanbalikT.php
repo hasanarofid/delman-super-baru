@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 class UmpanbalikT extends Model
 {
     protected $table = 'umpanbalik_t';
+    protected $dates = ['submitted_at', 'tgl_rtl', 'tgl_pendampingan'];
     protected $fillable = [
         'id_user',
         'id_pelaporan',
@@ -21,18 +22,20 @@ class UmpanbalikT extends Model
         'submitted_at',
         'id_created_by',
         'id_updated_by',
+        'tgl_rtl',
+        'tgl_pendampingan',
     ];
     public function pengawasnama()
     {
-        return $this->hasOne(User::class, 'id', 'id_pengawas');
+        return $this->belongsTo(User::class, 'id_pengawas', 'id');
     }
     public function user(){
-        return $this->hasOne(GuruM::class, 'id', 'id_user');
+        return $this->belongsTo(GuruM::class, 'id_user', 'id');
     }
 
     public function rencanakerja()
     {
-        return $this->hasOne(RencanaKerjaT::class, 'id', 'id_pelaporan');
+        return $this->belongsTo(RencanaKerjaT::class, 'id_pelaporan', 'id');
     }
 
     public function tanggapanUmpanBalik()

@@ -11,22 +11,22 @@ class RencanaKerjaT extends Model
     protected $table = 'rencakakerja_t';
     public function pengawasnama()
     {
-        return $this->hasOne(User::class, 'id', 'id_pengawas');
+        return $this->belongsTo(User::class, 'id_pengawas', 'id');
     }
 
     public function kategoriprogram()
     {
-        return $this->hasOne(Kategory::class, 'id', 'kategoriprogram_id');
+        return $this->belongsTo(Kategory::class, 'kategoriprogram_id', 'id');
     }
 
     public function jenisprogram()
     {
-        return $this->hasOne(JenisProgram::class, 'id', 'jenisprogram_id');
+        return $this->belongsTo(JenisProgram::class, 'jenisprogram_id', 'id');
     }
 
     public function aspekprogram()
     {
-        return $this->hasOne(AspekProgram::class, 'id', 'aspekprogram_id');
+        return $this->belongsTo(AspekProgram::class, 'aspekprogram_id', 'id');
     }
 
 }
