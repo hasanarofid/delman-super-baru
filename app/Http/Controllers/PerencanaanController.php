@@ -18,6 +18,7 @@ use DataTables;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Models\UmpanbalikCategory;
+use Carbon\Carbon;
 class PerencanaanController extends Controller
 {
     //index
@@ -209,7 +210,8 @@ class PerencanaanController extends Controller
     public function kirimWa($id)
     {
         try {
-            $model = RencanaKerjaT::findOrFail($id);
+            $model = RencanaKerjaT::with('pengawasnama')->findOrFail($id);
+            $id_umpanbalik_category = $model->id_umpanbalik_category;
             $sekolahIds = explode(',', $model->sekolah_id);
 
             $sekolahs = SekolahM::with('kepalaSekolahSatu')->whereIn('id', $sekolahIds)->get();
@@ -217,12 +219,19 @@ class PerencanaanController extends Controller
             foreach ($sekolahs as $list) {
                 $nama_sekolah = $list->nama_sekolah;
                 $kepalaSekolah = $list->kepalaSekolahSatu;
-                if ($kepalaSekolah) {
+                if ($kepalaSekolah && !empty($kepalaSekolah->no_telp)) {
                     $nama_kepala_sekolah = $kepalaSekolah->nama;
                     $nama_kepala_sekolah_id = $kepalaSekolah->id;
                     $no_telp = $kepalaSekolah->no_telp;
 
-                    $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+                    if ($id_umpanbalik_category == 0) {
+                        $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+                        sleep(rand(30, 60));
+                    } else {
+                        // Memanggil fungsi buildDynamicUmpanBalik untuk URL dinamis
+                        $this->buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_umpanbalik_category);
+                        sleep(rand(30, 60));
+                    }
                 }
             }
             $model->status = 1;
@@ -257,6 +266,8 @@ class PerencanaanController extends Controller
                     $umpanBalik->id_pengawas = $model->id_pengawas;
                     $umpanBalik->generate_url = $uniqueUrl;
                     $umpanBalik->id_created_by = Auth::user()->id;
+                    // Set tgl_rtl untuk menghindari error "Field 'tgl_rtl' doesn't have a default value"
+                    $umpanBalik->tgl_rtl = date('Y-m-d'); // Set dengan tanggal hari ini
                     $umpanBalik->save();
                     $fullUrl = url('umpan-balik/' . $uniqueUrl);
                 }
@@ -266,20 +277,21 @@ class PerencanaanController extends Controller
 
 
 
+            $nama_pengawas = $model->pengawasnama ? $model->pengawasnama->name : 'Pengawas';
             $pesan = "Yth Bapak / Ibu {$nama_kepala_sekolah}
-            Kepala {$nama_sekolah},
-            Pada bulan {$model->bulan} {$model->tahun}
-            pengawas {$model->pengawasnama->name}
-            akan melakukan kegiatan pendampingan {$model->nama_program_kerja}
-            ke sekolah.
-            Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}
+Kepala {$nama_sekolah},
+Pada bulan {$model->bulan} {$model->tahun_ajaran} pengawas {$nama_pengawas} akan melakukan kegiatan pendampingan {$model->nama_program_kerja} ke sekolah.
+Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}
 
-            Berikut ini beberapa catatan yang penting:
-            1. Pastikan link diisi pada hari pengawas melakukan pendampingan.
-            2. Sertakan 1 bukti pendampingan berupa foto kegiatan bersama pengawas.
+Berikut ini beberapa catatan yang penting:
+1. Pastikan link diisi pada hari pengawas melakukan pendampingan.
+2. Sertakan 1 bukti pendampingan berupa foto kegiatan bersama pengawas.
 
-            Terimakasih
-            Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengawas (DelmanSuper) KCD Kabupaten Tangerang";
+Terimakasih
+Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengawas (DelmanSuper) KCD Kabupaten Tangerang";
+            
+            // Trim dan pastikan pesan tidak kosong
+            $pesan = trim($pesan);
 
             $this->sendWhatsAppMessage($no_telp, $pesan,$nama_kepala_sekolah_id,$model);
 
@@ -327,38 +339,86 @@ class PerencanaanController extends Controller
     {
         $token = 'ChvMJmr8Y5PwD130iY6kZqNQoAvCNQBxvH4RKiCOckJCAvEtVZtBO2Gyubj9THyU';
         $secretKey = 'fv6GW850'; // Replace this with the actual secret key
-        $authorization = "{$token}.{$secretKey}";
         $url = "https://jogja.wablas.com/api/send-message";
 
+        // Format nomor telepon: hapus spasi, strip karakter non-numeric, pastikan format 62xxxxxxxxxx
+        $phone = preg_replace('/[^0-9]/', '', $phone); // Hapus semua karakter non-numeric
+        if (substr($phone, 0, 1) == '0') {
+            $phone = '62' . substr($phone, 1); // Ganti 0 di depan dengan 62
+        } elseif (substr($phone, 0, 2) != '62') {
+            $phone = '62' . $phone; // Tambahkan 62 jika belum ada
+        }
+
+        // Validasi pesan tidak kosong
+        if (empty(trim($message))) {
+            Log::error("WhatsApp message is empty for phone {$phone}");
+            return;
+        }
+
         $logEntry = new WhatsappMessagesLog();
-        $logEntry->rencana_kerja_id = $model->id; // Add the Rencana Kerja ID here
+        $logEntry->rencana_kerja_id = $model->id;
         $logEntry->kepala_sekolah_id = $nama_kepala_sekolah_id;
         $logEntry->phone_number = $phone;
         $logEntry->message = $message;
 
         try {
-            $response = Http::withHeaders([
-                'Authorization' => $authorization,
-            ])->post($url, [
+            // Coba format authorization dengan token.secretKey (Wablas 2.0)
+            $authorization = "{$token}.{$secretKey}";
+            
+            // Log pesan yang akan dikirim (potong jika terlalu panjang untuk log)
+            $messagePreview = strlen($message) > 200 ? substr($message, 0, 200) . '...' : $message;
+            Log::info("Attempting to send WhatsApp to {$phone} with authorization format: token.secretKey");
+            Log::info("Message preview: " . $messagePreview);
+            Log::info("Message length: " . strlen($message) . " characters");
+            
+            // Pastikan pesan di-encode dengan benar
+            $data = [
                 'phone' => $phone,
                 'message' => $message,
-            ]);
+            ];
+            
+            $response = Http::withHeaders([
+                'Authorization' => $authorization,
+            ])->asForm()->post($url, $data);
+
+            $responseBody = $response->body();
+            $statusCode = $response->status();
+
+            Log::info("Wablas API Response - Status: {$statusCode}, Body: {$responseBody}");
 
             if ($response->successful()) {
                 Log::info("WhatsApp message sent successfully to {$phone}");
                 $logEntry->is_sent = true;
             } else {
-                Log::error("Failed to send WhatsApp message to {$phone}: " . $response->body());
-                $logEntry->is_sent = false;
-                $logEntry->failure_reason = "Failed to send message: " . $response->body();
+                // Jika gagal dengan format token.secretKey, coba dengan token saja
+                Log::warning("First attempt failed, trying with token only format");
+                
+                $response2 = Http::withHeaders([
+                    'Authorization' => $token,
+                ])->asForm()->post($url, $data);
+
+                $responseBody2 = $response2->body();
+                $statusCode2 = $response2->status();
+
+                Log::info("Wablas API Response (token only) - Status: {$statusCode2}, Body: {$responseBody2}");
+
+                if ($response2->successful()) {
+                    Log::info("WhatsApp message sent successfully to {$phone} using token only format");
+                    $logEntry->is_sent = true;
+                } else {
+                    Log::error("Failed to send WhatsApp message to {$phone}. First attempt: {$responseBody}, Second attempt: {$responseBody2}");
+                    $logEntry->is_sent = false;
+                    $logEntry->failure_reason = "Failed to send message. Status: {$statusCode2}, Response: {$responseBody2}";
+                }
             }
         } catch (\Exception $e) {
             Log::error("WhatsApp API error for {$phone}: " . $e->getMessage());
+            Log::error("Stack trace: " . $e->getTraceAsString());
             $logEntry->is_sent = false;
             $logEntry->failure_reason = "API error: " . $e->getMessage();
         }
 
-        $logEntry->save(); // Save the log entry to the database
+        $logEntry->save();
     }
 
 

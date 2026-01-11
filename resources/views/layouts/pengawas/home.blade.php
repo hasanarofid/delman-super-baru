@@ -143,7 +143,7 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
   
               <!-- Apps & Pages -->
               <li class="menu-header small text-uppercase">
-                <span class="menu-header-text">Sistem Modip</span>
+                <span class="menu-header-text">Delman Super</span>
               </li>
               <li class="menu-item {{ (request()->is('perencanaan')) ? 'active' : '' }}">
                 <a href="{{ route('pengawas.perencanaan') }}" class="menu-link">
@@ -323,7 +323,7 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
             <script>
               document.write(new Date().getFullYear());
             </script>
-            , made with ❤️ by <a href="{{ route('pengawas.index') }}" target="_blank" class="fw-semibold">Sistem Modip</a>
+            , made with ❤️ by <a href="{{ route('pengawas.index') }}" target="_blank" class="fw-semibold">Delman Super</a>
           </div>
 
         </div>

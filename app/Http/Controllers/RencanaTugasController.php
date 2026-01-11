@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\UmpanbalikT;
 use App\GuruM;
 use Illuminate\Http\Request;
@@ -149,6 +150,7 @@ class RencanaTugasController extends Controller
     {
         try {
             $model = RencanaKerjaT::findOrFail($id);
+            $id_umpanbalik_category = $model->id_umpanbalik_category;
             $sekolahIds = explode(',', $model->sekolah_id);
 
             $sekolahs = SekolahM::with('kepalaSekolahSatu')->whereIn('id', $sekolahIds)->get();
@@ -161,8 +163,15 @@ class RencanaTugasController extends Controller
                     $nama_kepala_sekolah_id = $kepalaSekolah->id;
                     $no_telp = $kepalaSekolah->no_telp;
 
-                    // Memanggil fungsi buildUmpanBalik yang lama untuk URL statis
-                    $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+                    if ($id_umpanbalik_category == 0) {
+                        // Panggil fungsi buildUmpanBalik yang lama untuk URL statis
+                        $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+                        sleep(rand(30, 60));
+                    } else {
+                        // Memanggil fungsi buildDynamicUmpanBalik untuk URL dinamis
+                        $this->buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_umpanbalik_category);
+                        sleep(rand(30, 60));
+                    }
                 }
             }
             $model->status = 1;
@@ -195,9 +204,11 @@ class RencanaTugasController extends Controller
                     if ($id_category == 0) {
                         // Panggil fungsi buildUmpanBalik yang lama untuk URL statis
                         $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+                        sleep(rand(30, 60));
                     } else {
                         // Memanggil fungsi buildDynamicUmpanBalik untuk URL dinamis
                         $this->buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_category);
+                        sleep(rand(30, 60));
                     }
                 }
             }
@@ -296,7 +307,7 @@ class RencanaTugasController extends Controller
                 $umpanBalik = $checkUmpanBalik;
                 $umpanBalik->id_updated_by = Auth::user()->id;
                 $umpanBalik->save();
-                $fullUrl = url('dynamic-umpanbalik/' . $umpanBalik->generate_url);
+                $fullUrl = url('dynamic-umpanbalik/' . $id_category . '/' . $umpanBalik->generate_url);
             } else {
                 $fullUrl = DynamicUmpanbalikController::generateUmpanbalikUrl(
                     $nama_kepala_sekolah_id,

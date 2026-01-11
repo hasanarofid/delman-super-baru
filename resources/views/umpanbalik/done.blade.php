@@ -13,7 +13,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>Umpan Balik | Sistem Modip</title>
+    <title>Umpan Balik | Delman Super</title>
 
     <meta name="description" content="" />
 
@@ -97,7 +97,7 @@
 
             <a href="#" class="app-brand-link ">
               <img src="{{ asset('delmansupernew.png') }}" style="margin-top:-20px"   height="70px" width="70px" alt="Image placeholder" class="">
-              <span class="app-brand-text demo menu-text fw-bold">Sistem Modip | Umpan Balik</span>
+              <span class="app-brand-text demo menu-text fw-bold">Delman Super | Umpan Balik</span>
             </a>
 
           </div>
@@ -122,7 +122,8 @@
               <h3 class="text-center">Umpan Balik Pelaksanaan Pendampingan / Supervisi Pengawas Sekolah </h3>
 
                 <div class="container text-center">
-                    <h2 class="text-success">Rencana kerja {{ $model->rencanakerja->nama_program_kerja }} sudah disubmit oleh kepala sekolah. </h2>
+                    {{-- <h2 class="text-success">Rencana kerja {{ $model->rencanakerja->nama_program_kerja }} sudah disubmit oleh kepala sekolah. </h2> --}}
+                    <h2 class="text-success">Umpan balik Anda telah berhasil disubmit. Terima kasih!</h2>
                 </div>
 
             </div>
@@ -138,7 +139,7 @@
                         <script>
                         document.write(new Date().getFullYear());
                         </script>
-                        , made with ❤️ by <a href="{{ route('pengawas.index') }}" target="_blank" class="fw-semibold">Sistem Modip</a>
+                        , made with ❤️ by <a href="{{ route('pengawas.index') }}" target="_blank" class="fw-semibold">Delman Super</a>
                     </div>
 
                     </div>

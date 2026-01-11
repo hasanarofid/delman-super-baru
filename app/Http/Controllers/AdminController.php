@@ -103,7 +103,7 @@ class AdminController extends Controller
     public function chartData(Request $request)
     {
         $month = $request->input('bln', 'all');
-        $year = $request->input('tahun', 'all');
+        $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
 
         $query = RencanaKerjaT::with('pengawasnama')
         ->selectRaw('id_pengawas, COUNT(*) as total')
@@ -114,9 +114,11 @@ class AdminController extends Controller
             $query->where('bulan', $month);
         }
 
-        // Apply the year filter
+        // Apply the year filter (default ke tahun sekarang jika 'all')
         if ($year !== 'all') {
             $query->where('tahun_ajaran', $year);
+        } else {
+            $query->where('tahun_ajaran', date('Y'));
         }
 
         // Get the results
@@ -134,7 +136,7 @@ class AdminController extends Controller
     public function chartData2(Request $request)
     {
         $month = $request->input('bln', 'all');
-        $year = $request->input('tahun', 'all');
+        $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
         $pengawas = $request->input('pengawas', 'all');
 
         $query = UmpanbalikT::with('pengawasnama', 'rencanakerja')
@@ -154,7 +156,9 @@ class AdminController extends Controller
         }
         $query->whereHas('rencanakerja', function ($q) use ($month, $year) {
             if ($month !== 'all') $q->where('bulan', $month);
-            if ($year !== 'all') $q->where('tahun_ajaran', $year);
+            // Default ke tahun sekarang jika 'all'
+            $filterYear = ($year !== 'all') ? $year : date('Y');
+            $q->where('tahun_ajaran', $filterYear);
         });
         // dd($query->get());
         // $result = $query->get();
@@ -174,7 +178,7 @@ class AdminController extends Controller
     public function chartData2lama(Request $request)
     {
         $month = $request->input('bln', 'all');
-        $year = $request->input('tahun', 'all');
+        $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
         $pengawas = $request->input('pengawas', 'all');
 
         $query = UmpanbalikT::with('pengawasnama','rencanakerja')
@@ -189,14 +193,14 @@ class AdminController extends Controller
 
 
          // Apply the month and year filters on the related rencanakerja table
-    $query->whereHas('rencanakerja', function ($q) use ($month, $year) {
-        if ($month !== 'all') {
-            $q->where('bulan', $month);
-        }
-        if ($year !== 'all') {
-            $q->where('tahun_ajaran', $year);
-        }
-    });
+        $query->whereHas('rencanakerja', function ($q) use ($month, $year) {
+            if ($month !== 'all') {
+                $q->where('bulan', $month);
+            }
+            // Default ke tahun sekarang jika 'all'
+            $filterYear = ($year !== 'all') ? $year : date('Y');
+            $q->where('tahun_ajaran', $filterYear);
+        });
 
          // Get the results
          $data = $query->get()
@@ -213,7 +217,7 @@ class AdminController extends Controller
     public function chartDataRaportPendidikan(Request $request)
     {
         $month = $request->input('bln', 'all');
-        $year = $request->input('tahun', 'all');
+        $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
 
         $query = RencanaKerjaT::with('aspekprogram')
         ->selectRaw('aspekprogram_id, COUNT(*) as total')
@@ -224,9 +228,11 @@ class AdminController extends Controller
             $query->where('bulan', $month);
         }
 
-        // Apply the year filter
+        // Apply the year filter (default ke tahun sekarang jika 'all')
         if ($year !== 'all') {
             $query->where('tahun_ajaran', $year);
+        } else {
+            $query->where('tahun_ajaran', date('Y'));
         }
 
         // Get the results
@@ -246,6 +252,7 @@ class AdminController extends Controller
     public function getSpiderWebData(Request $request)
     {
         $pengawasId = $request->input('pengawas', 'all');
+        $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
 
         // Define the query to calculate averages
         $query = TanggapanUmpanbalikT::selectRaw(
@@ -285,7 +292,7 @@ class AdminController extends Controller
                     WHEN "Sangat Kurang" THEN 0
                 END
             ) as kemampuan_komunikasi,
-              AVG(
+            AVG(
                 CASE jawaban_9
                     WHEN "Sangat Baik" THEN 4
                     WHEN "Baik" THEN 3
@@ -301,6 +308,13 @@ class AdminController extends Controller
         // Apply filter based on pengawasId, if specified
         if ($pengawasId !== 'all') {
             $query->where('rt.id_pengawas', $pengawasId);
+        }
+
+        // Apply the year filter
+        if ($year !== 'all') {
+            $query->where('rt.tahun_ajaran', $year);
+        } else {
+            $query->where('rt.tahun_ajaran', date('Y'));
         }
 
         // Execute the query to retrieve the averages
@@ -322,31 +336,22 @@ class AdminController extends Controller
     public function chartTerkonfirmasi(Request $request)
     {
         $month = $request->input('bln', 'all');
-        $year = $request->input('tahun', 'all');
+        $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
 
         $query = UmpanbalikT::with('pengawasnama','tanggapanUmpanBalik','rencanakerja')
         ->whereHas('tanggapanUmpanBalik') // hanya ambil yang sudah ada tanggapan
         ->selectRaw('id_pengawas, COUNT(*) as total')
         ->groupBy('id_pengawas');
 
-        // Apply the month filter
-        // if ($month !== 'all') {
-        //     $query->where('bulan', $month);
-        // }
-
-        // // Apply the year filter
-        // if ($year !== 'all') {
-        //     $query->where('tahun_ajaran', $year);
-        // }
-                // Apply the month and year filters on the related rencanakerja table
-    $query->whereHas('rencanakerja', function ($q) use ($month, $year) {
-        if ($month !== 'all') {
-            $q->where('bulan', $month);
-        }
-        if ($year !== 'all') {
-            $q->where('tahun_ajaran', $year);
-        }
-    });
+        // Apply the month and year filters on the related rencanakerja table
+        $query->whereHas('rencanakerja', function ($q) use ($month, $year) {
+            if ($month !== 'all') {
+                $q->where('bulan', $month);
+            }
+            // Default ke tahun sekarang jika 'all'
+            $filterYear = ($year !== 'all') ? $year : date('Y');
+            $q->where('tahun_ajaran', $filterYear);
+        });
 
         // Get the results
         $data = $query->get()
@@ -365,6 +370,7 @@ class AdminController extends Controller
     public function chartpie(Request $request)
     {
         $pengawas = $request->input('pengawas', 'all');
+        $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
 
         // Buat query untuk menghitung jumlah masing-masing jenis jawaban di jawaban_4
         $query = TanggapanUmpanbalikT::selectRaw("
@@ -379,6 +385,13 @@ class AdminController extends Controller
         // Tambahkan filter untuk pengawas jika ada
         if ($pengawas !== 'all') {
             $query->where('rt.id_pengawas', $pengawas);
+        }
+
+        // Apply the year filter
+        if ($year !== 'all') {
+            $query->where('rt.tahun_ajaran', $year);
+        } else {
+            $query->where('rt.tahun_ajaran', date('Y'));
         }
 
         // Ambil hasil dan bentuk ulang data untuk output JSON

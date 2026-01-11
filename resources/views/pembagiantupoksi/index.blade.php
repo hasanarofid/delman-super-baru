@@ -15,8 +15,8 @@
                                 <div class="col-6 d-flex justify-content-end">
                                     <div class="btn-group" role="group" aria-label="Basic example">
                                         <a class="btn btn-primary waves-effect waves-light"
-                                            href="{{ route('mastertupoksi.add') }}"><i class="fas fa-plus"
-                                                aria-hidden="true"></i>&nbsp;Admin</a>
+                                            href="{{ route('pembagiantupoksi.add') }}"><i class="fas fa-plus"
+                                                aria-hidden="true"></i>&nbsp;Tambah Pembagian Tupoksi</a>
                                     </div>
                                 </div>
                             </div>
@@ -78,7 +78,9 @@
         </div>
     </div>
 @endsection
+
 @section('script')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         jQuery(document).ready(function() {
             jQuery('#myModal').on('show.bs.modal', function(event) {
@@ -97,7 +99,7 @@
 
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('mastertupoksi.getdata') }}",
+                ajax: "{{ route('pembagiantupoksi.getdata') }}",
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex'
@@ -123,6 +125,27 @@
                         searchable: false
                     },
                 ]
+            });
+
+            // Handle delete button click with SweetAlert2
+            jQuery('#data-table').on('click', '.deletePost', function(e) {
+                e.preventDefault();
+                var deleteUrl = jQuery(this).attr('href');
+
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Anda tidak akan dapat mengembalikan ini!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = deleteUrl;
+                    }
+                });
             });
         });
     </script>

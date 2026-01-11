@@ -58,6 +58,7 @@
     
     <!-- Helpers -->
     <script src="{{ asset('theme/assets/vendor/js/helpers.js') }}"></script>
+    <script src="{{ asset('theme/assets/vendor/libs/jquery/jquery.js') }}"></script>
 
     
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
@@ -183,7 +184,6 @@
     <!-- build:js assets/vendor/js/core.js -->
     
 
-    <script src="{{ asset('theme/assets/vendor/libs/jquery/jquery.js') }}"></script>
     <script src="{{ asset('theme/assets/vendor/libs/popper/popper.js') }}"></script>
     <script src="{{ asset('theme/assets/vendor/js/bootstrap.js') }}"></script>
     <script src="{{ asset('theme/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
@@ -209,8 +209,8 @@
 
     <!-- Page JS -->
     {{-- <script src="{{ asset('theme/assets/js/tables-datatables-basic.js') }}"></script> --}}
-    @yield('script')
 
+    @yield('script')
 </body>
 
 </html>

@@ -344,7 +344,10 @@ $('#filter-pengawas').select2();
 let umpanbalikChartInstance = null;
 
 function fetchChartData2(month = 'all', year = 'all', pengawas = 'all') {
-    fetch(`{{ route('pengawas.chartData2') }}?bln=${month}&tahun=${year}&pengawas=${pengawas}`)
+    // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+    const currentYear = new Date().getFullYear();
+    const filterYear = (year === 'all') ? currentYear : year;
+    fetch(`{{ route('pengawas.chartData2') }}?bln=${month}&tahun=${filterYear}&pengawas=${pengawas}`)
         .then(response => response.json())
         .then(data => {
             if (!data || data.length === 0) {
@@ -414,16 +417,21 @@ document.getElementById('export-pdf2').addEventListener('click', function () {
             pdf.save('chart-umpanbalikChart.pdf');
         });
 
-// Initial chart load with no filters (all data)
-fetchChartData2();
+// Initial chart load dengan tahun sekarang sebagai default
+const currentYear2 = new Date().getFullYear();
+fetchChartData2('all', currentYear2, 'all');
 
 
 // Event listener for filter changes
 $('#filter-bln-last, #filter-tahun-last').change(function() {
 
     const month = $('#filter-bln-last').val();
-    const year = $('#filter-tahun-last').val();
-    fetchChartData2(month, year);
+    let year = $('#filter-tahun-last').val();
+    // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+    if (year === 'all') {
+        year = new Date().getFullYear();
+    }
+    fetchChartData2(month, year, 'all');
 });
 
 });

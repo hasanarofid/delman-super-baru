@@ -87,12 +87,14 @@
 
   function deletePerencanaan(id) {
     Swal.fire({
-        title: 'Are you sure?',
-        text: 'You will not be able to recover this data!',
+        title: 'Apakah Anda yakin?',
+        text: 'Anda tidak akan dapat mengembalikan data ini!',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'Cancel'
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
             // User confirmed, proceed with AJAX delete request

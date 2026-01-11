@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 class DynamicUmpanbalikController extends Controller
 {
-    public function showForm($generate_url)
+    public function showForm($id_category, $generate_url)
     {
         $umpanbalikT = UmpanbalikT::where('generate_url', $generate_url)->firstOrFail();
         $category_id = $umpanbalikT->id_category; // Anda perlu menambahkan id_category ke umpanbalik_t

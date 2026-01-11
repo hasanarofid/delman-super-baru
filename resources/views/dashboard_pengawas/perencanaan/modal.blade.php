@@ -73,6 +73,21 @@
                       @endforeach
                     </select>
             </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="id_umpanbalik_category">Kategori Umpan Balik</label>
+                  <select
+                        id="id_umpanbalik_category"
+                        name="id_umpanbalik_category"
+                        class="select2 form-select"
+                        required
+                        >
+                        <option value="">Pilih Kategori</option>
+                        <option value="0" selected>Default</option>
+                        @foreach ($umpanbalikCategories as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                      </select>
+              </div>
                 <div class="col-12 col-md-12">
                     <label class="form-label" for="basic-default-name">Sekolah Sasaran</label>
                     <select

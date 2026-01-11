@@ -13,7 +13,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>Umpan Balik | Sistem Modip</title>
+    <title>Umpan Balik | Delman Super</title>
 
     <meta name="description" content="" />
 
@@ -97,7 +97,7 @@
             
             <a href="#" class="app-brand-link ">
               <img src="{{ asset('delmansupernew.png') }}" style="margin-top:-20px"   height="70px" width="70px" alt="Image placeholder" class="">
-              <span class="app-brand-text demo menu-text fw-bold">Sistem Modip | Umpan Balik</span>
+              <span class="app-brand-text demo menu-text fw-bold">Delman Super | Umpan Balik</span>
             </a>
 
           </div>
@@ -162,15 +162,22 @@
                               <div class="form-group">
                                   <label>{{ $item->pertanyaan }} <span class="required">*</span></label>
                                   @if($item->type_input === 'radiobutton')
-                                    <?php $options = explode(';', $item->jawaban); ?>
+                                    @php
+                                        $options = [];
+                                        if ($item->options && is_array($item->options)) {
+                                            $options = $item->options;
+                                        } elseif ($item->jawaban) {
+                                            $options = explode(';', $item->jawaban);
+                                        }
+                                    @endphp
                                     @foreach($options as $option)
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->id }}" value="{{ $option }}">
+                                            <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->urutan }}" value="{{ $option }}">
                                             <label class="form-check-label">{{ $option }}</label>
                                         </div>
                                     @endforeach
                                   @else
-                                      <textarea  class="form-control" name="{{ 'jawaban_' . $item->id }}"></textarea>
+                                      <textarea  class="form-control" name="{{ 'jawaban_' . $item->urutan }}"></textarea>
                                   @endif
                               </div>
                               </div>
@@ -196,15 +203,22 @@
                               <div class="form-group">
                                   <label>{{ $item->pertanyaan }} <span class="required">*</span></label>
                                   @if($item->type_input === 'radiobutton')
-                                    <?php $options = explode(';', $item->jawaban); ?>
+                                    @php
+                                        $options = [];
+                                        if ($item->options && is_array($item->options)) {
+                                            $options = $item->options;
+                                        } elseif ($item->jawaban) {
+                                            $options = explode(';', $item->jawaban);
+                                        }
+                                    @endphp
                                     @foreach($options as $option)
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->id }}" value="{{ $option }}">
+                                            <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->urutan }}" value="{{ $option }}">
                                             <label class="form-check-label">{{ $option }}</label>
                                         </div>
                                     @endforeach
                                   @else
-                                      <textarea  class="form-control" name="{{ 'jawaban_' . $item->id }}"></textarea>
+                                      <textarea  class="form-control" name="{{ 'jawaban_' . $item->urutan }}"></textarea>
                                   @endif
                               </div>
                               </div>
@@ -230,15 +244,22 @@
                               <div class="form-group">
                                   <label>{{ $item->pertanyaan }} <span class="required">*</span></label>
                                   @if($item->type_input === 'radiobutton')
-                                    <?php $options = explode(';', $item->jawaban); ?>
+                                    @php
+                                        $options = [];
+                                        if ($item->options && is_array($item->options)) {
+                                            $options = $item->options;
+                                        } elseif ($item->jawaban) {
+                                            $options = explode(';', $item->jawaban);
+                                        }
+                                    @endphp
                                     @foreach($options as $option)
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->id }}" value="{{ $option }}">
+                                            <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->urutan }}" value="{{ $option }}">
                                             <label class="form-check-label">{{ $option }}</label>
                                         </div>
                                     @endforeach
                                   @else
-                                      <textarea  class="form-control" name="{{ 'jawaban_' . $item->id }}"></textarea>
+                                      <textarea  class="form-control" name="{{ 'jawaban_' . $item->urutan }}"></textarea>
                                   @endif
 
                                   
@@ -286,7 +307,7 @@
                         <script>
                         document.write(new Date().getFullYear());
                         </script>
-                        , made with ❤️ by <a href="{{ route('pengawas.index') }}" target="_blank" class="fw-semibold">Sistem Modip</a>
+                        , made with ❤️ by <a href="{{ route('pengawas.index') }}" target="_blank" class="fw-semibold">Delman Super</a>
                     </div>
 
                     </div>
@@ -353,7 +374,7 @@ $(document).ready(function() {
                 updateButtons();
             }
         } else {
-            showNotification("Harap isi semua kolom yang bertanda (*)!");
+            alert("Harap isi semua kolom yang bertanda (*)!");
         }
     });
 
@@ -387,74 +408,70 @@ $(document).ready(function() {
     // Fungsi validasi step saat ini
     function validateStep(step) {
         let isValid = true;
-        const inputs = $('.formStep').eq(step).find('input, textarea, file');
+        const currentStepEl = $('.formStep').eq(step);
         
-        // Validasi input standar (input text, file, date, dll.)
+        // 1. Validasi input standar (input text, file, date, dll.) yang memiliki atribut 'required'
+        const inputs = currentStepEl.find('input[required], textarea[required], select[required]');
         inputs.each(function() {
-            if ($(this).prop('required') && !$(this).val()) {
+            if (!$(this).val()) {
                 $(this).addClass('is-invalid');
-                $(this).siblings('.invalid-feedback').show(); // Tampilkan pesan error
                 isValid = false;
             } else {
                 $(this).removeClass('is-invalid');
-                $(this).siblings('.invalid-feedback').hide(); // Sembunyikan pesan error
             }
         });
 
-        // Validasi untuk radio button dan checkbox yang required
-        $('.formStep').eq(step).find('input[type="radio"]:required, input[type="checkbox"]:required').each(function() {
+        // 2. Validasi untuk radio button yang required
+        currentStepEl.find('input[type="radio"]').each(function() {
             const name = $(this).attr('name');
-            if ($(`input[name="${name}"]:checked`).length === 0) {
-                isValid = false;
-                $(`input[name="${name}"]`).closest('.form-group').addClass('is-invalid');
-            } else {
-                $(`input[name="${name}"]`).closest('.form-group').removeClass('is-invalid');
+            if ($('input[name="' + name + '"]').prop('required')) {
+                if ($('input[name="' + name + '"]:checked').length === 0) {
+                    isValid = false;
+                    $('input[name="' + name + '"]').closest('.form-group').addClass('is-invalid');
+                } else {
+                    $('input[name="' + name + '"]').closest('.form-group').removeClass('is-invalid');
+                }
+            }
+        });
+
+        // 3. Validasi untuk .validate-card (khusus radio group dan textarea dalam kartu)
+        currentStepEl.find('.validate-card').each(function () {
+            const card = $(this);
+            const radios = card.find('input[type="radio"]');
+            const textarea = card.find('textarea');
+
+            if (radios.length > 0) {
+                if (card.find('input[type="radio"]:checked').length === 0) {
+                    card.addClass('invalid');
+                    isValid = false;
+                } else {
+                    card.removeClass('invalid');
+                }
+            } else if (textarea.length > 0) {
+                if (textarea.val().trim() === '') {
+                    card.addClass('invalid');
+                    isValid = false;
+                } else {
+                    card.removeClass('invalid');
+                }
             }
         });
 
         return isValid;
-    }
-
-    // Fungsi untuk menampilkan notifikasi error
-    function showNotification(message) {
-        if ($('#formNotification').length === 0) {
-            $('#multiStepForm').prepend(
-                `<div id="formNotification" class="alert alert-danger">${message}</div>`
-            );
-        }
     }
 
     // Menghapus pesan error saat input diubah
-    $(document).on('input change', '.is-invalid', function() {
-        $(this).removeClass('is-invalid');
-        $(this).siblings('.invalid-feedback').hide();
+    $(document).on('input change', '.is-invalid, .invalid', function() {
+        $(this).removeClass('is-invalid invalid');
     });
 
-    // Menambahkan validasi untuk kartu (checkbox, radio, dan textarea)
-    $('#nextBtn, #submitBtn').click(function () {
-        let isValid = true;
-
-        // Memeriksa setiap kartu di form
-        $('.validate-card').each(function () {
-            const card = $(this);
-            const inputs = card.find('input[type="radio"]:checked, textarea');
-
-            // Jika tidak ada input yang dipilih atau textarea kosong
-            if (inputs.length === 0 || (inputs.is('textarea') && inputs.val().trim() === '')) {
-                card.addClass('invalid');
-                isValid = false;
-            } else {
-                card.removeClass('invalid');
-            }
-        });
-
-        // Jika tombol Next, jangan lanjut jika ada yang tidak valid
-        if ($(this).attr('id') === 'nextBtn' && !isValid) {
+    // Handle submit button separately to ensure final validation
+    $('#multiStepForm').submit(function(e) {
+        if (!validateStep(currentStep)) {
+            e.preventDefault();
             alert('Harap isi semua kolom yang wajib diisi!');
+            return false;
         }
-
-        // Jika tombol Submit, kembalikan isValid untuk mengontrol form submission
-        return isValid;
     });
 });
 

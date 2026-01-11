@@ -57,34 +57,47 @@
 @endsection
 
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    
-   $(function () {
-    
-    
-   //   alert(3);
-    var table = $('#data-table').DataTable({
-     
-        processing: true,
-        serverSide: true,
-        ajax: "{{ route('stakeholder.getdata') }}",
-        columns: [
-            {data: 'DT_RowIndex', name: 'DT_RowIndex'},
-            {data: 'foto', name: 'foto'},
-            {data: 'kabupaten', name: 'kabupaten'},
+    $(document).ready(function() {
 
-            {data: 'name', name: 'name'},
-            {data: 'email', name: 'email'},
+        var table = $('#data-table').DataTable({
 
-            {data: 'no_telp', name: 'no_telp'},
-            {data: 'alamat', name: 'alamat'},
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('stakeholder.getdata') }}",
+            columns: [
+                {data: 'DT_RowIndex', name: 'DT_RowIndex'},
+                {data: 'foto', name: 'foto'},
+                {data: 'kabupaten', name: 'kabupaten'},
+                {data: 'name', name: 'name'},
+                {data: 'email', name: 'email'},
+                {data: 'no_telp', name: 'no_telp'},
+                {data: 'alamat', name: 'alamat'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ]
+        });
 
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ]
+        // Handle delete button click with SweetAlert2
+        jQuery('#data-table').on('click', '.deletePost', function(e) {
+            e.preventDefault();
+            var deleteUrl = jQuery(this).attr('href');
+
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Anda tidak akan dapat mengembalikan ini!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = deleteUrl;
+                }
+            });
+        });
     });
-  });
 
-
-    
 </script>
-@endsection

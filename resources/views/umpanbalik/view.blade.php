@@ -13,7 +13,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>Umpan Balik view | Sistem Modip</title>
+    <title>Umpan Balik view | Delman Super</title>
 
     <meta name="description" content="" />
 
@@ -56,26 +56,12 @@
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="{{ asset('theme/assets/js/config.js') }}"></script>
     <style>
-        /* CSS untuk membuat logo menjadi terpusat di dalam header */
-.navbar-brand {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-@media (max-width: 1199.98px) {
-    .navbar-brand {
-        position: static;
-        transform: none;
-    }
-}
-.hide {
-    display: none !important;
-}
-label {
-            font-weight: bold;
-        }
-
+      .hide {
+          display: none !important;
+      }
+      label {
+          font-weight: bold;
+      }
     </style>
   </head>
 
@@ -90,7 +76,7 @@ label {
 
             <a href="#" class="app-brand-link ">
               <img src="{{ asset('delmansupernew.png') }}" style="margin-top:-20px"   height="70px" width="70px" alt="Image placeholder" class="">
-              <span class="app-brand-text demo menu-text fw-bold">Sistem Modip | Umpan Balik view</span>
+              <span class="app-brand-text demo menu-text fw-bold">Delman Super | Umpan Balik view</span>
             </a>
 
           </div>
@@ -158,7 +144,15 @@ label {
                                     <div class="form-group">
                                         <label>{{ $item->pertanyaan }}</label>
                                         @if($item->type_input === 'radiobutton')
-                                            @foreach($item->options as $option)
+                                            @php
+                                                $options = [];
+                                                if ($item->options && is_array($item->options)) {
+                                                    $options = $item->options;
+                                                } elseif ($item->jawaban) {
+                                                    $options = explode(';', $item->jawaban);
+                                                }
+                                            @endphp
+                                            @foreach($options as $option)
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->urutan }}" value="{{ $option }}"
                                                         {{ ($tangapan && $tangapan->{'jawaban_' . $item->urutan} == $option) ? 'checked' : '' }} {{ $tangapan ? 'disabled' : '' }}>
@@ -195,7 +189,15 @@ label {
                                     <div class="form-group">
                                         <label>{{ $item->pertanyaan }}</label>
                                         @if($item->type_input === 'radiobutton')
-                                            @foreach($item->options as $option)
+                                            @php
+                                                $options = [];
+                                                if ($item->options && is_array($item->options)) {
+                                                    $options = $item->options;
+                                                } elseif ($item->jawaban) {
+                                                    $options = explode(';', $item->jawaban);
+                                                }
+                                            @endphp
+                                            @foreach($options as $option)
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->urutan }}" value="{{ $option }}"
                                                         {{ ($tangapan && $tangapan->{'jawaban_' . $item->urutan} == $option) ? 'checked' : '' }} {{ $tangapan ? 'disabled' : '' }}>
@@ -232,7 +234,15 @@ label {
                                     <div class="form-group">
                                         <label>{{ $item->pertanyaan }}</label>
                                         @if($item->type_input === 'radiobutton')
-                                            @foreach($item->options as $option)
+                                            @php
+                                                $options = [];
+                                                if ($item->options && is_array($item->options)) {
+                                                    $options = $item->options;
+                                                } elseif ($item->jawaban) {
+                                                    $options = explode(';', $item->jawaban);
+                                                }
+                                            @endphp
+                                            @foreach($options as $option)
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" name="{{ 'jawaban_' . $item->urutan }}" value="{{ $option }}"
                                                         {{ ($tangapan && $tangapan->{'jawaban_' . $item->urutan} == $option) ? 'checked' : '' }} {{ $tangapan ? 'disabled' : '' }}>
@@ -293,7 +303,7 @@ label {
                         <script>
                         document.write(new Date().getFullYear());
                         </script>
-                        , made with ❤️ by <a href="{{ route('pengawas.index') }}" target="_blank" class="fw-semibold">Sistem Modip</a>
+                        , made with ❤️ by <a href="{{ route('pengawas.index') }}" target="_blank" class="fw-semibold">Delman Super</a>
                     </div>
 
                     </div>
@@ -369,20 +379,15 @@ label {
 
     function updateButtons() {
     if (currentStep === 0) {
-        $('#prevBtn').addClass('hide'); // Menambahkan kelas CSS 'hide'
+        $('#prevBtn').addClass('hide'); 
     } else {
-        $('#prevBtn').removeClass('hide'); // Menghapus kelas CSS 'hide'
+        $('#prevBtn').removeClass('hide'); 
     }
 
     if (currentStep === totalSteps - 1) {
-        $('#nextBtn').addClass('hide'); // Menambahkan kelas CSS 'hide'
-        @if(!$tangapan)
-        // Jika ini adalah langkah terakhir dan belum disubmit, tampilkan tombol submit
-        $('#multiStepForm').append('<button type="submit" class="btn btn-success mt-4" id="submitBtn">Kirim Umpan Balik</button>');
-        @endif
+        $('#nextBtn').addClass('hide'); 
     } else {
-        $('#nextBtn').removeClass('hide'); // Menghapus kelas CSS 'hide'
-        $('#submitBtn').remove(); // Hapus tombol submit jika bukan langkah terakhir
+        $('#nextBtn').removeClass('hide'); 
     }
 }
       });

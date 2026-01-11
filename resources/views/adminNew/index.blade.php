@@ -299,17 +299,34 @@
                             <h6 class="mb-0">Profil Kompetensi Pengawas </h6>
                         </div>
                         <div class="card-body p-3">
-                            <button id="export-pdf5" class="btn btn-primary">Export PDF</button> <!-- Export button -->
+                            <button id="export-pdf5" class="btn btn-primary btn-sm mb-3">Export PDF</button> <!-- Export button -->
                             <div class="row mb-3">
 
 
-                                <div class="col-md-12">
+                                <div class="col-md-6">
 
                                     <label for="filter-pengawas">Filter by Pengawas:</label>
                                     <select id="filter-pengawas2" name="pengawas" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
                                         @foreach ($listPengawas as $item)
                                             <option value="{{ $item->id }}">{{ $item->name . ' - ' . $item->nip }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="filter-tahun">Filter Tahun:</label>
+                                    <select
+                                        id="filter-tahun-spider"
+                                        name="tahun"
+                                        class="select2 form-select"
+                                        required
+                                    >
+                                        <option value="all">All</option> <!-- Option to show all records -->
+                                        @foreach($years as $year)
+                                            <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>
+                                                {{ $year }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -330,16 +347,33 @@
                             <h6 class="mb-0"> Realisasi Pelaksanaan Pendampingan </h6>
                         </div>
                         <div class="card-body p-3">
-                            <button id="export-pdf6" class="btn btn-primary">Export PDF</button> <!-- Export button -->
+                            <button id="export-pdf6" class="btn btn-primary btn-sm mb-3">Export PDF</button> <!-- Export button -->
                             <div class="row mb-3">
 
-                                <div class="col-md-12">
+                                <div class="col-md-6">
 
                                     <label for="filter-pengawas">Filter by Pengawas:</label>
                                     <select id="filter-pengawas3" name="pengawas" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
                                         @foreach ($listPengawas as $item)
                                             <option value="{{ $item->id }}">{{ $item->name . ' - ' . $item->nip }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="filter-tahun">Filter Tahun:</label>
+                                    <select
+                                        id="filter-tahun-pie"
+                                        name="tahun"
+                                        class="select2 form-select"
+                                        required
+                                    >
+                                        <option value="all">All</option> <!-- Option to show all records -->
+                                        @foreach($years as $year)
+                                            <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>
+                                                {{ $year }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -364,12 +398,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             // diagram pie
             $('#filter-pengawas3').select2();
+            $('#filter-tahun-pie').select2();
 
             let pieChartInstance = null;
 
             // Fungsi untuk mengambil dan menampilkan data chart pie
-            function fetchChartDataPie(pengawas = 'all') {
-                fetch(`{{ route('admin.chartpie') }}?pengawas=${pengawas}`)
+            function fetchChartDataPie(pengawas = 'all', year = 'all') {
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                const currentYear = new Date().getFullYear();
+                const filterYear = (year === 'all') ? currentYear : year;
+                fetch(`{{ route('admin.chartpie') }}?pengawas=${pengawas}&tahun=${filterYear}`)
                     .then(response => response.json())
                     .then(data => {
                         if (!data || data.length === 0) {
@@ -454,12 +492,17 @@
             });
 
             // Load chart awal tanpa filter (semua data)
-            fetchChartDataPie();
+            const currentYearPie = new Date().getFullYear();
+            fetchChartDataPie('all', currentYearPie);
 
             // Event listener untuk perubahan filter
-            $('#filter-pengawas3').change(function() {
+            $('#filter-pengawas3, #filter-tahun-pie').change(function() {
                 const pengawas = $('#filter-pengawas3').val();
-                fetchChartDataPie(pengawas);
+                let year = $('#filter-tahun-pie').val();
+                if (year === 'all') {
+                    year = new Date().getFullYear();
+                }
+                fetchChartDataPie(pengawas, year);
             });
             // end diagram pie
             //chart terkonfirmasi
@@ -469,7 +512,10 @@
             let terkomfrimChartInstance = null;
 
             function fetchChartTerkonfrim(month = 'all', year = 'all') {
-                fetch(`{{ route('admin.chartTerkonfirmasi') }}?bln=${month}&tahun=${year}`)
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                const currentYear = new Date().getFullYear();
+                const filterYear = (year === 'all') ? currentYear : year;
+                fetch(`{{ route('admin.chartTerkonfirmasi') }}?bln=${month}&tahun=${filterYear}`)
                     .then(response => response.json())
                     .then(data => {
                         // Check if data is empty
@@ -554,12 +600,18 @@
                 pdf.save('chart-chartKonfrim.pdf');
             });
 
-            fetchChartTerkonfrim();
+            // Initial chart load dengan tahun sekarang sebagai default
+            const currentYear3 = new Date().getFullYear();
+            fetchChartTerkonfrim('all', currentYear3);
 
             // Event listener for filter changes
             $('#filter-bln3, #filter-tahun3').change(function() {
                 const month = $('#filter-bln3').val();
-                const year = $('#filter-tahun3').val();
+                let year = $('#filter-tahun3').val();
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                if (year === 'all') {
+                    year = new Date().getFullYear();
+                }
                 fetchChartTerkonfrim(month, year);
             });
 
@@ -571,7 +623,10 @@
             let raportPendidikanChartInstance = null;
 
             function fetchChartDataRaportPendidikan(month = 'all', year = 'all') {
-                fetch(`{{ route('admin.chartDataRaportPendidikan') }}?bln=${month}&tahun=${year}`)
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                const currentYear = new Date().getFullYear();
+                const filterYear = (year === 'all') ? currentYear : year;
+                fetch(`{{ route('admin.chartDataRaportPendidikan') }}?bln=${month}&tahun=${filterYear}`)
                     .then(response => response.json())
                     .then(data => {
                         // Check if data is empty
@@ -658,12 +713,18 @@
             });
 
 
-            fetchChartDataRaportPendidikan();
+            // Initial chart load dengan tahun sekarang sebagai default
+            const currentYear4 = new Date().getFullYear();
+            fetchChartDataRaportPendidikan('all', currentYear4);
 
             // Event listener for filter changes
             $('#filter-bln2, #filter-tahun2').change(function() {
                 const month = $('#filter-bln2').val();
-                const year = $('#filter-tahun2').val();
+                let year = $('#filter-tahun2').val();
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                if (year === 'all') {
+                    year = new Date().getFullYear();
+                }
                 fetchChartDataRaportPendidikan(month, year);
             });
 
@@ -675,7 +736,10 @@
             let pengawasChartInstance = null;
 
             function fetchChartData(month = 'all', year = 'all') {
-                fetch(`{{ route('admin.chartData') }}?bln=${month}&tahun=${year}`)
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                const currentYear = new Date().getFullYear();
+                const filterYear = (year === 'all') ? currentYear : year;
+                fetch(`{{ route('admin.chartData') }}?bln=${month}&tahun=${filterYear}`)
                     .then(response => response.json())
                     .then(data => {
                         // Check if data is empty
@@ -760,13 +824,18 @@
             });
 
 
-            // Initial chart load with no filters (all data)
-            fetchChartData();
+            // Initial chart load dengan tahun sekarang sebagai default
+            const currentYear = new Date().getFullYear();
+            fetchChartData('all', currentYear);
 
             // Event listener for filter changes
             $('#filter-bln, #filter-tahun').change(function() {
                 const month = $('#filter-bln').val();
-                const year = $('#filter-tahun').val();
+                let year = $('#filter-tahun').val();
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                if (year === 'all') {
+                    year = new Date().getFullYear();
+                }
                 fetchChartData(month, year);
             });
 
@@ -776,7 +845,10 @@
             let umpanbalikChartInstance = null;
 
             function fetchChartData2(month = 'all', year = 'all', pengawas = 'all') {
-                fetch(`{{ route('admin.chartData2') }}?bln=${month}&tahun=${year}&pengawas=${pengawas}`)
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                const currentYear = new Date().getFullYear();
+                const filterYear = (year === 'all') ? currentYear : year;
+                fetch(`{{ route('admin.chartData2') }}?bln=${month}&tahun=${filterYear}&pengawas=${pengawas}`)
                     .then(response => response.json())
                     .then(data => {
                         if (!data || data.length === 0) {
@@ -847,19 +919,25 @@
                 pdf.save('chart-umpanbalikChart.pdf');
             });
 
-            // Initial chart load with no filters (all data)
-            fetchChartData2();
+            // Initial chart load dengan tahun sekarang sebagai default
+            const currentYear2 = new Date().getFullYear();
+            fetchChartData2('all', currentYear2, 'all');
 
             // Event listener for filter changes
             $('#filter-bln-last, #filter-tahun-last , #filter-pengawas').change(function() {
 
                 const pengawas = $('#filter-pengawas').val();
                 const month = $('#filter-bln-last').val();
-                const year = $('#filter-tahun-last').val();
+                let year = $('#filter-tahun-last').val();
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                if (year === 'all') {
+                    year = new Date().getFullYear();
+                }
                 fetchChartData2(month, year, pengawas);
             });
 
             $('#filter-pengawas2').select2();
+            $('#filter-tahun-spider').select2();
 
             let spiderChartInstance;
 
@@ -873,8 +951,11 @@
             };
 
             // Function to fetch chart data and display it
-            function fetchSpiderWebData(pengawas = 'all') {
-                fetch(`{{ route('admin.spiderWebData') }}?pengawas=${pengawas}`)
+            function fetchSpiderWebData(pengawas = 'all', year = 'all') {
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                const currentYear = new Date().getFullYear();
+                const filterYear = (year === 'all') ? currentYear : year;
+                fetch(`{{ route('admin.spiderWebData') }}?pengawas=${pengawas}&tahun=${filterYear}`)
                     .then(response => response.json())
                     .then(data => {
                         if (spiderChartInstance) {
@@ -969,12 +1050,17 @@
             });
 
             // Initial chart data load
-            fetchSpiderWebData();
+            const currentYearSpider = new Date().getFullYear();
+            fetchSpiderWebData('all', currentYearSpider);
 
             // Fetch data when the pengawas filter changes
-            $('#filter-pengawas2').change(function() {
-                const pengawas = $(this).val();
-                fetchSpiderWebData(pengawas);
+            $('#filter-pengawas2, #filter-tahun-spider').change(function() {
+                const pengawas = $('#filter-pengawas2').val();
+                let year = $('#filter-tahun-spider').val();
+                if (year === 'all') {
+                    year = new Date().getFullYear();
+                }
+                fetchSpiderWebData(pengawas, year);
             });
 
 

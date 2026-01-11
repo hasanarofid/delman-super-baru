@@ -58,23 +58,21 @@
     </div>
 @endsection
 @section('script')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         jQuery(document).ready(function() {
             jQuery('#myModal').on('show.bs.modal', function(event) {
                 // Additional actions to perform when the modal is shown
                 alert(1);
             });
-        });
 
-        jQuery(function() {
             jQuery.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 }
             });
-            //   alert(3);
+            
             var table = jQuery('#data-table').DataTable({
-
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('admin.list') }}",
@@ -90,7 +88,6 @@
                         data: 'kabupaten',
                         name: 'kabupaten'
                     },
-
                     {
                         data: 'name',
                         name: 'name'
@@ -99,7 +96,6 @@
                         data: 'email',
                         name: 'email'
                     },
-
                     {
                         data: 'no_telp',
                         name: 'no_telp'
@@ -108,7 +104,6 @@
                         data: 'alamat',
                         name: 'alamat'
                     },
-
                     {
                         data: 'action',
                         name: 'action',
@@ -116,6 +111,27 @@
                         searchable: false
                     },
                 ]
+            });
+
+            // Handle delete button click with SweetAlert2
+            jQuery('#data-table').on('click', '.deletePost', function(e) {
+                e.preventDefault();
+                var deleteUrl = jQuery(this).attr('href');
+
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Anda tidak akan dapat mengembalikan ini!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = deleteUrl;
+                    }
+                });
             });
         });
     </script>

@@ -140,8 +140,8 @@ class PengawasController extends Controller
             // Generate a unique name based on the current date and time.
             $imageName = now()->format('YmdHis') . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
         
-            // Store the image in the "blog" directory within the "public" disk.
-            $request->foto->storeAs('pengawas', $imageName, 'public');
+            // Store the image in the "blog" directory within the "shared" disk.
+            $request->foto->storeAs('pengawas', $imageName, 'shared');
             
         }else{
             $imageName = 'userdefault.jpg';
@@ -581,7 +581,7 @@ return response()->json($chartData);
      public function chartDataRaportPendidikan(Request $request)
      {
          $month = $request->input('bln', 'all');
-         $year = $request->input('tahun', 'all');
+         $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
  
          $query = RencanaKerjaT::with('aspekprogram')
          ->selectRaw('aspekprogram_id, COUNT(*) as total')
@@ -593,9 +593,11 @@ return response()->json($chartData);
              $query->where('bulan', $month);
          }
  
-         // Apply the year filter
+         // Apply the year filter (default ke tahun sekarang jika 'all')
          if ($year !== 'all') {
              $query->where('tahun_ajaran', $year);
+         } else {
+             $query->where('tahun_ajaran', date('Y'));
          }
  
          // Get the results
@@ -660,7 +662,7 @@ return response()->json($chartData);
     public function chartData2Lama(Request $request)
     {
         $month = $request->input('bln', 'all');
-        $year = $request->input('tahun', 'all');
+        $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
         $pengawas = $request->input('pengawas', 'all');
     
         $query = UmpanbalikT::with('pengawasnama', 'rencanakerja')
@@ -677,7 +679,9 @@ return response()->json($chartData);
         }
         $query->whereHas('rencanakerja', function ($q) use ($month, $year) {
             if ($month !== 'all') $q->where('bulan', $month);
-            if ($year !== 'all') $q->where('tahun_ajaran', $year);
+            // Default ke tahun sekarang jika 'all'
+            $filterYear = ($year !== 'all') ? $year : date('Y');
+            $q->where('tahun_ajaran', $filterYear);
         });
     
         $data = $query->get()->map(function ($item) {
@@ -694,7 +698,7 @@ return response()->json($chartData);
     public function chartData2(Request $request)
     {
         $month = $request->input('bln', 'all');
-        $year = $request->input('tahun', 'all');
+        $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
         $pengawas = $request->input('pengawas', 'all');
 
         $query = UmpanbalikT::with('pengawasnama', 'rencanakerja')
@@ -713,7 +717,9 @@ return response()->json($chartData);
         }
         $query->whereHas('rencanakerja', function ($q) use ($month, $year) {
             if ($month !== 'all') $q->where('bulan', $month);
-            if ($year !== 'all') $q->where('tahun_ajaran', $year);
+            // Default ke tahun sekarang jika 'all'
+            $filterYear = ($year !== 'all') ? $year : date('Y');
+            $q->where('tahun_ajaran', $filterYear);
         });
 
         $data = $query->get()->map(function ($item) {

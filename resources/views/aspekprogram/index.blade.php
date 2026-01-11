@@ -53,10 +53,18 @@
 @endsection
 
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-        $(document).ready(function () {
-      
-        var table = $('#data-table').DataTable({
+    jQuery(document).ready(function() {
+        // Setup CSRF Token for AJAX
+        jQuery.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        // Initialize DataTable
+        var table = jQuery('#data-table').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
@@ -69,7 +77,27 @@
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ]
         });
+
+        // Handle delete button click with SweetAlert2
+        jQuery('#data-table').on('click', '.deletePost', function(e) {
+            e.preventDefault();
+            var deleteUrl = jQuery(this).attr('href');
+
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Anda tidak akan dapat mengembalikan ini!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = deleteUrl;
+                }
+            });
+        });
     });
-    
 </script>
 @endsection

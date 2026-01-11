@@ -86,8 +86,8 @@ class PelaporanController extends Controller
                 // Generate a unique name based on the current date and time.
                 $lampiranName = 'lampiran' . now()->format('YmdHis') . '_' . Str::random(10) . '.' . $lampiran->getClientOriginalExtension();
 
-                // Store the image in the "lampiran" directory within the "public" disk.
-                $request->lampiran->storeAs('lampiran', $lampiranName, 'public');
+                // Store the image in the "lampiran" directory within the "shared" disk.
+                $request->lampiran->storeAs('lampiran', $lampiranName, 'shared');
             }
 
             // Membuat instance Pelaporan baru
@@ -373,6 +373,7 @@ Admin Delman Super';
 
                     $btn = '<a  onclick="lihatPerencanaan(' . $row->id . ')" class="btn btn-sm bg-warning text-white " > <i class="fa fa-edit"></i> Edit</a>';
                     $btn = $btn . '<a href="#" onclick="addLampiran(' . $row->id . ')" class="btn btn-info btn-sm "><i class="fa fa-add"></i> Lampiran</a>';
+                    $btn = $btn . '<a href="#" onclick="deletePelaporan(' . $row->id . ')" class="btn btn-danger btn-sm deletePost"><i class="fa fa-remove"></i> Delete</a>';
 
                     return $btn;
                 })

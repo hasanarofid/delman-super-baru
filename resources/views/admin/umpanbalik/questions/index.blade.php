@@ -47,10 +47,10 @@
                             <td>
                                 <a href="{{ route('umpanbalik.questions.show', $question->id) }}" class="btn btn-info btn-sm">Lihat</a>
                                 <a href="{{ route('umpanbalik.questions.edit', $question->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                <form action="{{ route('umpanbalik.questions.destroy', $question->id) }}" method="POST" style="display: inline;">
+                                <form action="{{ route('umpanbalik.questions.destroy', $question->id) }}" method="POST" class="d-inline delete-form">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?')">Hapus</button>
+                                    <button type="submit" class="btn btn-danger btn-sm delete-button">Hapus</button>
                                 </form>
                             </td>
                         </tr>
@@ -61,4 +61,33 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteForms = document.querySelectorAll('.delete-form');
+
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Anda tidak akan dapat mengembalikan ini!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 @endsection

@@ -225,7 +225,10 @@
             let terkomfrimChartInstance = null;
 
             function fetchChartTerkonfrim(month = 'all', year = 'all') {
-                fetch(`{{ route('pengawas.chartTerkonfirmasi') }}?bln=${month}&tahun=${year}`)
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                const currentYear = new Date().getFullYear();
+                const filterYear = (year === 'all') ? currentYear : year;
+                fetch(`{{ route('pengawas.chartTerkonfirmasi') }}?bln=${month}&tahun=${filterYear}`)
                     .then(response => response.json())
                     .then(data => {
                         // Check if data is empty
@@ -312,12 +315,18 @@
                 pdf.addImage(imgData, 'PNG', 10, 10, 180, 90);
                 pdf.save('chart-chartKonfrim.pdf');
             });
-            fetchChartTerkonfrim();
+            // Initial chart load dengan tahun sekarang sebagai default
+            const currentYear3 = new Date().getFullYear();
+            fetchChartTerkonfrim('all', currentYear3);
 
             // Event listener for filter changes
             $('#filter-bln3, #filter-tahun3').change(function() {
                 const month = $('#filter-bln3').val();
-                const year = $('#filter-tahun3').val();
+                let year = $('#filter-tahun3').val();
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                if (year === 'all') {
+                    year = new Date().getFullYear();
+                }
                 fetchChartTerkonfrim(month, year);
             });
             // chat 3
@@ -328,7 +337,10 @@
             let raportPendidikanChartInstance = null;
 
             function fetchChartDataRaportPendidikan(month = 'all', year = 'all') {
-                fetch(`{{ route('pengawas.chartDataRaportPendidikan') }}?bln=${month}&tahun=${year}`)
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                const currentYear = new Date().getFullYear();
+                const filterYear = (year === 'all') ? currentYear : year;
+                fetch(`{{ route('pengawas.chartDataRaportPendidikan') }}?bln=${month}&tahun=${filterYear}`)
                     .then(response => response.json())
                     .then(data => {
                         // Check if data is empty
@@ -411,12 +423,18 @@
                 pdf.addImage(imgData, 'PNG', 10, 10, 180, 90);
                 pdf.save('chart-chartPerRencanaKerja.pdf');
             });
-            fetchChartDataRaportPendidikan();
+            // Initial chart load dengan tahun sekarang sebagai default
+            const currentYear2 = new Date().getFullYear();
+            fetchChartDataRaportPendidikan('all', currentYear2);
 
             // Event listener for filter changes
             $('#filter-bln2, #filter-tahun2').change(function() {
                 const month = $('#filter-bln2').val();
-                const year = $('#filter-tahun2').val();
+                let year = $('#filter-tahun2').val();
+                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
+                if (year === 'all') {
+                    year = new Date().getFullYear();
+                }
                 fetchChartDataRaportPendidikan(month, year);
             });
 

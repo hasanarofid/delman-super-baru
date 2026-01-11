@@ -64,6 +64,13 @@ return [
             'endpoint' => env('AWS_URL'),
         ],
 
+        'shared' => [
+            'driver' => 'local',
+            'root' => '/home/u144635195/shared-storage', // Path absolut di Hostinger
+            'url' => env('APP_URL').'/shared',
+            'visibility' => 'public',
+        ],
+
     ],
 
     /*
@@ -79,6 +86,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
+        public_path('shared') => '/home/u144635195/shared-storage',
     ],
 
 ];

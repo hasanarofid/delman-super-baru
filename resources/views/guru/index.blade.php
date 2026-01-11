@@ -56,9 +56,10 @@
 @endsection
 
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-        $(document).ready(function () {
-      
+    $(document).ready(function() {
+
         var table = $('#data-table').DataTable({
             processing: true,
             serverSide: true,
@@ -68,16 +69,35 @@
             columns: [
                 {data: 'DT_RowIndex', name: 'DT_RowIndex'},
                 {data: 'nama_sekolah', name: 'nama_sekolah'},
-            {data: 'nama', name: 'nama'},
-            {data: 'jabatan', name: 'jabatan'},
-
-
-            {data: 'no_telp', name: 'no_telp'},
-            {data: 'alamat_lengkap', name: 'alamat_lengkap'},
+                {data: 'nama', name: 'nama'},
+                {data: 'jabatan', name: 'jabatan'},
+                {data: 'no_telp', name: 'no_telp'},
+                {data: 'alamat_lengkap', name: 'alamat_lengkap'},
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ]
         });
+
+        // Handle delete button click with SweetAlert2
+        jQuery('#data-table').on('click', '.deletePost', function(e) {
+            e.preventDefault();
+            var deleteUrl = jQuery(this).attr('href');
+
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Anda tidak akan dapat mengembalikan ini!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = deleteUrl;
+                }
+            });
+        });
     });
-    
+
 </script>
 @endsection

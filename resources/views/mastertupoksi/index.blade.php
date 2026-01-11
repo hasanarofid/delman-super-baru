@@ -53,7 +53,8 @@
 </div>
 @endsection
 
-@section('script')
+ @section('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     jQuery(document).ready(function() {
         // Setup CSRF Token for AJAX
@@ -85,9 +86,25 @@
             ]
         });
 
-        // Modal event (optional)
-        jQuery('#myModal').on('show.bs.modal', function(event) {
-            alert(1); // This can be customized as needed
+        // Handle delete button click with SweetAlert2
+        jQuery('#data-table').on('click', '.deletePost', function(e) {
+            e.preventDefault();
+            var deleteUrl = jQuery(this).attr('href');
+
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Anda tidak akan dapat mengembalikan ini!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = deleteUrl;
+                }
+            });
         });
     });
 </script>

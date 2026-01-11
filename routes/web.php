@@ -915,7 +915,7 @@ Route::middleware(['web', 'pengawas'])->group(function () {
 // });
 // end route halaman pengawas
 
-Route::get('/dynamic-umpanbalik/{generate_url}', 'DynamicUmpanbalikController@showForm')->name('dynamic.umpanbalik.form');
+Route::get('/dynamic-umpanbalik/{id_category}/{generate_url}', 'DynamicUmpanbalikController@showForm')->name('dynamic.umpanbalik.form');
 Route::post('/dynamic-umpanbalik/{generate_url}', 'DynamicUmpanbalikController@saveForm')->name('dynamic.umpanbalik.save');
 
 Route::get('/umpanbalik-done', function () {
@@ -924,7 +924,7 @@ Route::get('/umpanbalik-done', function () {
 
 Auth::routes();
 Route::get('laporan/{filename}', function ($filename) {
-    $path = storage_path('app/public/laporan/' . $filename);
+    $path = '/home/u144635195/shared-storage/laporan/' . $filename;
 
     if (!File::exists($path)) {
         Log::error('Image file not found: ' . $path);
@@ -941,7 +941,7 @@ Route::get('laporan/{filename}', function ($filename) {
 })->name('laporan');
 
 Route::get('fotopengawas/{filename}', function ($filename) {
-    $path = storage_path('app/public/pengawas/' . $filename);
+    $path = '/home/u144635195/shared-storage/pengawas/' . $filename;
 
     if (!File::exists($path)) {
         Log::error('Image file not found: ' . $path);
@@ -958,7 +958,7 @@ Route::get('fotopengawas/{filename}', function ($filename) {
 })->name('fotopengawas');
 
 Route::get('favicon/{filename?}', function ($filename) {
-    $path = storage_path('app/public/favicon/' . $filename);
+    $path = '/home/u144635195/shared-storage/favicon/' . $filename;
     $file = File::get($path);
     $type = File::mimeType($path);
     $response = Response::make($file, 200);
@@ -968,7 +968,7 @@ Route::get('favicon/{filename?}', function ($filename) {
 
 
 Route::get('umpanbalikfoto/{filename}', function ($filename) {
-    $path = storage_path('app/public/umpanbalik/' . $filename);
+    $path = '/home/u144635195/shared-storage/umpanbalik/' . $filename;
 
     if (!File::exists($path)) {
         Log::error('Image file not found: ' . $path);
