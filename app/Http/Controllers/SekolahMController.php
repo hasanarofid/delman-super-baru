@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\SekolahM;
+use App\Models\RencanaKerjaT;
 use Illuminate\Http\Request;
 use DataTables;
 use App\Imports\SekolahImport;
@@ -119,6 +120,12 @@ class SekolahMController extends Controller
     }
 
      public function hapus($id){
+        $countRencanaKerja = RencanaKerjaT::where('sekolah_id', $id)->count();
+
+        if ($countRencanaKerja > 0) {
+            return redirect()->back()->with('error', 'Data tidak bisa dihapus karena sekolah sudah terdaftar di ' . $countRencanaKerja . ' rencana kerja.');
+        }
+
          $user = SekolahM::where('id',$id)->delete();
         return redirect()->back()->with('success', 'Sekolah Delete successfully');
     }

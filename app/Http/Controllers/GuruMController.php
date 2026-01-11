@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\GuruM;
 use App\SekolahM;
+use App\Models\UmpanbalikT;
 use Illuminate\Http\Request;
 use DataTables;
 use App\Imports\GuruImport;
@@ -133,6 +134,12 @@ class GuruMController extends Controller
     }
 
      public function hapus($id){
+        $countUmpanBalik = UmpanbalikT::where('id_user', $id)->count();
+
+        if ($countUmpanBalik > 0) {
+            return redirect()->back()->with('error', 'Data tidak bisa dihapus karena guru sudah memiliki ' . $countUmpanBalik . ' data umpan balik di rencana kerja.');
+        }
+
          $user = GuruM::where('id',$id)->delete();
         return redirect()->back()->with('success', 'Guru Delete successfully');
     }
