@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 use DataTables;
 use App\Imports\ImportUser;
 use App\Exports\ExportUser;
+use App\Exports\ExportPengawas;
+use App\Imports\ImportPengawas;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Hash;
 use Auth;
@@ -199,7 +201,10 @@ class PegawasMController extends Controller
     }
 
     public function importfile(Request $request){
-        Excel::import(new ImportUser,
+        ini_set('max_execution_time', 3600); // 1 hour
+        ini_set('memory_limit', '2048M');    // 2GB memory
+        
+        Excel::import(new ImportPengawas,
                       $request->file('file')->store('files'));
         return redirect()->back()->with('success', 'pengawas Import successfully');
        
@@ -207,8 +212,23 @@ class PegawasMController extends Controller
 
     public function excelcontoh(Request $request){
          $models = User::where('role','Pengawas')->limit(1)->get();
+         if($models->isEmpty()){
+            $dummy = new User();
+            $dummy->name = 'Dr. Eko Supraptono, M.Si.';
+            $dummy->nip = '196404151992031006';
+            $dummy->jenjang_jabatan = 'Pengawas Sekolah Utama';
+            $dummy->pangkat = 'Pembina Utama Madya';
+            $dummy->gol_ruang = 'IV/d';
+            $models = collect([$dummy]);
+         }
         $judul = 'Contoh Data pengawas';
-        return Excel::download(new ExportUser($models), $judul.'.xlsx');
+        return Excel::download(new ExportPengawas($models), $judul.'.xlsx');
+    }
+
+    public function export(Request $request){
+        $models = User::where('role','Pengawas')->get();
+        $judul = 'Data Pengawas ' . date('Y-m-d');
+        return Excel::download(new ExportPengawas($models), $judul.'.xlsx');
     }
 
     /** add data pengawas */

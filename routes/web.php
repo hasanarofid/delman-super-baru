@@ -207,6 +207,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
         Route::post('/store_sekolah', 'PegawasMController@store_sekolah')->name('masterpengawas.store_sekolah');
         Route::get('/hapus-pengawas/{id}', 'PegawasMController@hapus')->name('masterpengawas.hapus');
         Route::get('/excelcontoh-pengawas', 'PegawasMController@excelcontoh')->name('masterpengawas.excelcontoh');
+        Route::get('/export-pengawas', 'PegawasMController@export')->name('masterpengawas.export');
         Route::get('/getpangkat', 'PegawasMController@getpangkat')->name('masterpengawas.getpangkat');
         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');

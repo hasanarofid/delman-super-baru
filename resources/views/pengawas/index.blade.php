@@ -14,9 +14,18 @@
                             </div>
                             <div class="col-6 d-flex justify-content-end">
                                 @if (Auth::user()->role == 'Super Admin')
-                                <div class="btn-group" role="group" aria-label="Basic example">
+                                <div class="btn-group" role="group">
                                     <a class="btn btn-primary waves-effect waves-light" href="{{ route('masterpengawas.add') }}">
-                                        <i class="fas fa-plus" aria-hidden="true"></i>&nbsp;Add Pengawas
+                                        <i class="fas fa-plus" aria-hidden="true"></i>&nbsp;Add
+                                    </a>
+                                    <a class="btn btn-success waves-effect waves-light" href="{{ route('masterpengawas.export') }}">
+                                        <i class="fas fa-file-excel" aria-hidden="true"></i>&nbsp;Export
+                                    </a>
+                                    <a class="btn btn-info waves-effect waves-light" href="{{ route('masterpengawas.import') }}">
+                                        <i class="fas fa-file-import" aria-hidden="true"></i>&nbsp;Import
+                                    </a>
+                                    <a class="btn btn-warning waves-effect waves-light" href="{{ route('masterpengawas.excelcontoh') }}">
+                                        <i class="fas fa-file-download" aria-hidden="true"></i>&nbsp;Contoh Export
                                     </a>
                                 </div>
                                 @endif
