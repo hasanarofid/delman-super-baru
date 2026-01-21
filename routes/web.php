@@ -248,6 +248,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
         Route::post('/store-guru', 'GuruMController@store')->name('guru.store');
         Route::get('/hapus-guru/{id}', 'GuruMController@hapus')->name('guru.hapus');
         Route::get('/excelcontoh-guru', 'GuruMController@excelcontoh')->name('guru.excelcontoh');
+        Route::get('/export-guru', 'GuruMController@export')->name('guru.export');
     });
     // end route panel menu guru
 

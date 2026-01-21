@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class GuruM extends Model
 {
         protected $table = 'guru_m';
-        
+
         protected $fillable = [
             'sekolah_id',
             'user_id',

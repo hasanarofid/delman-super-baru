@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use DataTables;
 use App\Imports\GuruImport;
 use App\Exports\GuruExport;
+use App\Exports\ExportKepalaSekolah;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -89,6 +90,12 @@ class GuruMController extends Controller
          $models = GuruM::with('sekolah')->where('is_aktif',true)->limit(1)->get();
          $judul = 'Contoh Data Guru';
         return Excel::download(new GuruExport($models), $judul.'.xlsx');
+    }
+
+    public function export(Request $request){
+        $models = GuruM::with('sekolah')->where('is_aktif',true)->latest()->get();
+        $judul = 'Data_Kepala_Sekolah_' . date('Y-m-d');
+        return Excel::download(new ExportKepalaSekolah($models), $judul.'.xlsx');
     }
 
     /** add data Guru */

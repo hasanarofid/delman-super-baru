@@ -16,8 +16,9 @@
                                 @if (Auth::user()->role == 'Super Admin')
                               <div class="btn-group" role="group" aria-label="Basic example">
                                 <a  class="btn btn-sm bg-primary text-white " href="{{  route('guru.add')  }}"><i class="fas fa-plus" aria-hidden="true"></i> Add </a>
+                                <a  class="btn btn-sm bg-success text-white" href="{{  route('guru.export')  }}" >  <i class="fa fa-file-excel-o" aria-hidden="true"></i> Export</a>
                                 <a  class="btn btn-sm bg-info text-white" href="{{  route('guru.import')  }}" >  <i class="fa fa-file-excel-o" aria-hidden="true"></i> Import</a>
-                                <a class="btn btn-sm  bg-success text-white " target="_blank" href="{{  route('guru.excelcontoh')  }}"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Contoh</a>
+                                <a class="btn btn-sm  bg-warning text-white " target="_blank" href="{{  route('guru.excelcontoh')  }}"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Contoh Export</a>
                              </div>
                              @endif
                             </div>
