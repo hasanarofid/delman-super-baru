@@ -30,8 +30,9 @@ class AdminController extends Controller
                 // if(Auth::user()->role == 'Super Admin'){
                     $total_guru = GuruM::where('is_aktif',true)->get()->count();
                     $total_sekolah = SekolahM::where('is_aktif',true)->get()->count();
-                    $total_pengawas = User::where('role','Pengawas')->get()->count();
-                    $total_stockholder = User::where('role','Stakeholder')->get()->count();
+                    // Count all pengawas without kabupaten_id filter
+                    $total_pengawas = User::where('role', 'Pengawas')->count();
+                    $total_stockholder = User::where('role', 'Stakeholder')->count();
                     $total_rencankerja = RencanaKerjaT::get()->count();
                     $total_umpanbalik = UmpanbalikT::get()->count();
                     // }else if(Auth::user()->role == 'Admin' || Auth::user()->role == 'Stakeholder' ){

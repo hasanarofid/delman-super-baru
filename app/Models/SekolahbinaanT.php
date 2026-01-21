@@ -9,6 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 class SekolahbinaanT extends Model
 {
     protected $table = 'sekolahbinaan_t';
+    
+    protected $fillable = [
+        'id_pengawas',
+        'id_sekolah',
+    ];
+    
     public function sekolah()
     {
         return $this->hasOne(SekolahM::class, 'id', 'id_sekolah');

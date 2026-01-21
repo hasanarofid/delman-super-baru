@@ -14,6 +14,7 @@ use DataTables;
 use App\Imports\ImportUser;
 use App\Exports\ExportUser;
 use App\Exports\ExportPengawas;
+use App\Exports\ExportDelmanSuper;
 use App\Imports\ImportPengawas;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Hash;
@@ -226,9 +227,15 @@ class PegawasMController extends Controller
     }
 
     public function export(Request $request){
-        $models = User::where('role','Pengawas')->get();
+        $models = User::where('role','Pengawas')->latest()->get();
         $judul = 'Data Pengawas ' . date('Y-m-d');
         return Excel::download(new ExportPengawas($models), $judul.'.xlsx');
+    }
+
+    public function exportDelmanSuper(Request $request){
+        $models = User::where('role','Pengawas')->latest()->get();
+        $judul = 'Export_Delman_Super_' . date('Y-m-d');
+        return Excel::download(new ExportDelmanSuper($models), $judul.'.xlsx');
     }
 
     /** add data pengawas */

@@ -21,6 +21,9 @@
                                     <a class="btn btn-success waves-effect waves-light" href="{{ route('masterpengawas.export') }}">
                                         <i class="fas fa-file-excel" aria-hidden="true"></i>&nbsp;Export
                                     </a>
+                                    <a class="btn btn-secondary waves-effect waves-light" href="{{ route('masterpengawas.exportDelmanSuper') }}" style="background-color: #28a745; border-color: #28a745;">
+                                        <i class="fas fa-file-excel" aria-hidden="true"></i>&nbsp;Export Delman Super
+                                    </a>
                                     <a class="btn btn-info waves-effect waves-light" href="{{ route('masterpengawas.import') }}">
                                         <i class="fas fa-file-import" aria-hidden="true"></i>&nbsp;Import
                                     </a>
