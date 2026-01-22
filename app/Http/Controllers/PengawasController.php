@@ -165,7 +165,8 @@ class PengawasController extends Controller
         // Validasi input
         $request->validate([
             'passl' => 'required',
-            'passb' => 'required|string|min:8|confirmed',
+            'passb' => 'required|string|min:8',
+            'passu' => 'required|string|min:8',
         ]);
     
         // Ambil pengguna yang sedang login
@@ -176,11 +177,12 @@ class PengawasController extends Controller
             return back()->with('error', 'Password lama tidak sesuai.');
         }
 
+        // Periksa apakah password baru dan ulangi password sama
         if ($request->passb != $request->passu) {
-            return back()->with('error', 'Password  tidak sesuai dengan ulangi password.');
+            return back()->with('error', 'Password baru tidak sesuai dengan ulangi password.');
         }
     
-        // Update password baru
+        // Update password baru dengan Hash::make()
         $user->password = Hash::make($request->passb);
         $user->save();
     
