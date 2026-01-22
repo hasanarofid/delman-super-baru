@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Artisan;
 */
 
 // clear view
-Route::get('/clear-view', function(){
+Route::get('/clear-view', function () {
     Artisan::call('view:clear');
     Artisan::call('config:cache');
     Artisan::call('clear-compiled');
@@ -22,16 +22,16 @@ Route::get('/clear-view', function(){
     Artisan::call('clear-compiled');
     return 'clear all cache config route';
 });
-Route::get('/config-cache', function(){
+Route::get('/config-cache', function () {
     Artisan::call('config:cache');
     return 'View Cache cleared!';
 });
-Route::get('/clear-compiled', function(){
+Route::get('/clear-compiled', function () {
     Artisan::call('clear-compiled');
     return 'View Cache cleared!';
 });
 // call migrate
-Route::get('/composer/autoload', function(){
+Route::get('/composer/autoload', function () {
     Artisan::call('shell:composer-dump-autoload');
     return 'Composer autoloader updated!';
 });
@@ -43,7 +43,7 @@ Route::get('/umpan-balik-view/{generate}', 'UmpanbalikController@umpanview');
 Route::post('/kirimumpanbalik', 'UmpanbalikController@saveumpan')->name('kirimumpanbalik');
 Route::get('/tanggapan', 'UmpanbalikController@tanggapan')->name('tanggapan');
 
-Route::get('/', function(){
+Route::get('/', function () {
     return redirect('/login');
 });
 
@@ -108,7 +108,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
         Route::get('/hapus-admin{id}', 'AdminController@hapus')->name('admin.hapus');
     });
 
-      Route::prefix('jenisprogram')->group(function () {
+    Route::prefix('jenisprogram')->group(function () {
         Route::get('/', 'JenisprogramController@index')->name('jenisprogram.index');
         Route::get('/get-jenisprogram', 'JenisprogramController@getdata')->name('jenisprogram.getdata');
         Route::get('/add-jenisprogram', 'JenisprogramController@add')->name('jenisprogram.add');
@@ -192,8 +192,8 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
         Route::get('/hapus{id}', 'PembagianTupoksiController@hapus')->name('pembagiantupoksi.hapus');
     });
 
-     // route menu pengawas
-     Route::prefix('masterpengawas')->group(function () {
+    // route menu pengawas
+    Route::prefix('masterpengawas')->group(function () {
         // route panel menu pengawas
         // dd('masterpengawas');
         Route::get('/', 'PegawasMController@index')->name('masterpengawas.index');
@@ -222,7 +222,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
 
     // route menu pengawas
     Route::prefix('sekolah')->group(function () {
-    // route panel menu sekolah
+        // route panel menu sekolah
         Route::get('/', 'SekolahMController@index')->name('sekolah.index');
         Route::get('/get-sekolah', 'SekolahMController@getdata')->name('sekolah.getdata');
         Route::get('/add-sekolah', 'SekolahMController@add')->name('sekolah.add');
@@ -233,11 +233,11 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
         Route::post('/store-sekolah', 'SekolahMController@store')->name('sekolah.store');
         Route::get('/hapus-sekolah/{id}', 'SekolahMController@hapus')->name('sekolah.hapus');
         Route::get('/excelcontoh-sekolah', 'SekolahMController@excelcontoh')->name('sekolah.excelcontoh');
-    // end route panel menu sekolah
+        // end route panel menu sekolah
     });
 
     // route panel menu guru
-      Route::prefix('guru')->group(function () {
+    Route::prefix('guru')->group(function () {
         Route::get('/', 'GuruMController@index')->name('guru.index');
         Route::get('/get-guru', 'GuruMController@getdata')->name('guru.getdata');
         Route::get('/add-guru', 'GuruMController@add')->name('guru.add');
@@ -253,7 +253,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
     // end route panel menu guru
 
     // route panel menu stakeholder
-      Route::prefix('stakeholder')->group(function () {
+    Route::prefix('stakeholder')->group(function () {
         Route::get('/', 'StakeholderController@index')->name('stakeholder.index');
         Route::get('/get-stakeholder', 'StakeholderController@getdata')->name('stakeholder.getdata');
         Route::get('/add-stakeholder', 'StakeholderController@add')->name('stakeholder.add');
@@ -276,10 +276,10 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
     });
 
     // end route menu admin
-        Route::resource('umpanbalik-categories', 'UmpanbalikCategoryController')->names('umpanbalik.categories');
+    Route::resource('umpanbalik-categories', 'UmpanbalikCategoryController')->names('umpanbalik.categories');
 
     Route::get('umpan-balik-view/{category_slug}/{generate_url}', 'DynamicUmpanbalikController@showSuperadminView')->name('superadmin.dynamic.umpanbalik.view');
-    
+
     // Explicitly define routes for UmpanbalikQuestionController
     Route::get('umpanbalik-questions', 'UmpanbalikQuestionController@index')->name('umpanbalik.questions.index');
     Route::get('umpanbalik-questions/create', 'UmpanbalikQuestionController@create')->name('umpanbalik.questions.create');
@@ -890,9 +890,10 @@ Route::middleware(['web', 'pengawas'])->group(function () {
     // });
     // end route panel menu pengawas pelaporan
 
-     // route panel menu pengawas sekolahbinaan
-     Route::prefix('sekolahbinaan')->group(function () {
+    // route panel menu pengawas sekolahbinaan
+    Route::prefix('sekolahbinaan')->group(function () {
         Route::get('/', 'SekolahbinaanController@index')->name('pengawas.sekolahbinaan');
+        Route::post('/update', 'SekolahbinaanController@update')->name('pengawas.sekolahbinaan.update');
     });
     // end route panel menu pengawas sekolahbinaan
 
