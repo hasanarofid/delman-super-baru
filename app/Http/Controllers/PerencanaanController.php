@@ -22,13 +22,14 @@ use Carbon\Carbon;
 class PerencanaanController extends Controller
 {
     //index
-    public function index(){
+    public function index()
+    {
         $kegiatan = TugaskerjaT::with('tugas')
-        ->where('id_pengawas',Auth::user()->id)->get();
-        $kategory = Kategory::where('type','perencanaan')->get();
+            ->where('id_pengawas', Auth::user()->id)->get();
+        $kategory = Kategory::where('type', 'pelaporan')->get();
         $subkategory = [];
         $binaan = SekolahbinaanT::with('sekolah')
-        ->where('id_pengawas',Auth::user()->id)->get();
+            ->where('id_pengawas', Auth::user()->id)->get();
         $currentMonth = date('n'); // Numeric representation of the current month (1-12)
         $currentYear = date('Y');  // Current year
         $months = [];
@@ -58,41 +59,51 @@ class PerencanaanController extends Controller
                 'name' => $monthNamesIndo[$monthNumber] // Full month name in Indonesian
             ];
         }
-        $jenisProgram = JenisProgram::where('status',true)->get();
-        $aspekProgram = AspekProgram::where('status',true)->get();
+        $jenisProgram = JenisProgram::where('status', true)->get();
+        $aspekProgram = AspekProgram::where('status', true)->get();
         $umpanbalikCategories = UmpanbalikCategory::where('status', true)->get();
 
-        return view('dashboard_pengawas.perencanaan.index',
-        compact('kegiatan'
-        ,'kategory','subkategory','binaan','months',
-        'jenisProgram','aspekProgram','umpanbalikCategories'
+        return view(
+            'dashboard_pengawas.perencanaan.index',
+            compact(
+                'kegiatan'
+                ,
+                'kategory',
+                'subkategory',
+                'binaan',
+                'months',
+                'jenisProgram',
+                'aspekProgram',
+                'umpanbalikCategories'
 
-    ));
+            )
+        );
     }
 
-    public function getdata(Request $request){
+    public function getdata(Request $request)
+    {
         if ($request->ajax()) {
-            $post = RencanaKerjaT::with('kategoriprogram','jenisprogram','aspekprogram')
-                ->where('id_pengawas',Auth::user()->id)->latest()->get();
+            $post = RencanaKerjaT::with('kategoriprogram', 'jenisprogram', 'aspekprogram')
+                ->where('id_pengawas', Auth::user()->id)->latest()->get();
 
             return Datatables::of($post)
                 ->addIndexColumn()
-                ->addColumn('tanggal', function($row){
+                ->addColumn('tanggal', function ($row) {
                     return $row->created_at->format('d M Y H:i:s');
                 })
-                ->addColumn('nama_kategori', function($row){
+                ->addColumn('nama_kategori', function ($row) {
                     return $row->kategoriprogram->nama;
                 })
-                ->addColumn('nama_jenis', function($row){
+                ->addColumn('nama_jenis', function ($row) {
                     return !empty($row->jenisprogram->nama) ? $row->jenisprogram->nama : '-';
                 })
-                ->addColumn('nama_aspek', function($row){
+                ->addColumn('nama_aspek', function ($row) {
                     return !empty($row->aspekprogram->nama) ? $row->aspekprogram->nama : '-';
                 })
-                ->addColumn('bulan_tahun', function($row){
-                    return $row->bulan .' - '. $row->tahun_ajaran;
+                ->addColumn('bulan_tahun', function ($row) {
+                    return $row->bulan . ' - ' . $row->tahun_ajaran;
                 })
-                ->addColumn('status_wa', function($row){
+                ->addColumn('status_wa', function ($row) {
                     if ($row->status == 1) {
                         return '<span class="badge bg-label-success">Terkirim</span>';
                     } else {
@@ -101,7 +112,7 @@ class PerencanaanController extends Controller
                         return '<span class="badge bg-label-danger">Gagal/Belum</span>' . $reason;
                     }
                 })
-                ->addColumn('nama_sekolah', function($row){
+                ->addColumn('nama_sekolah', function ($row) {
                     $sekolahIds = explode(',', $row->sekolah_id);
                     $sekolahs = SekolahM::whereIn('id', $sekolahIds)->get();
                     $nama_sekolah = '';
@@ -110,9 +121,9 @@ class PerencanaanController extends Controller
                     }
                     return $nama_sekolah;
                 })
-                ->addColumn('action', function($row){
-                    $btn = '<a onclick="editPerencanaan('.$row->id.')" class="btn btn-sm bg-info text-white me-1"><i class="fa fa-edit"></i> Edit</a>';
-                    $btn .= '<a href="#" onclick="deletePerencanaan('.$row->id.')" class="btn btn-danger btn-sm deletePost"><i class="fa fa-remove"></i> Delete</a>';
+                ->addColumn('action', function ($row) {
+                    $btn = '<a onclick="editPerencanaan(' . $row->id . ')" class="btn btn-sm bg-info text-white me-1"><i class="fa fa-edit"></i> Edit</a>';
+                    $btn .= '<a href="#" onclick="deletePerencanaan(' . $row->id . ')" class="btn btn-danger btn-sm deletePost"><i class="fa fa-remove"></i> Delete</a>';
                     return $btn;
                 })
                 ->rawColumns(['action', 'nama_kategori', 'nama_jenis', 'nama_aspek', 'nama_sekolah', 'bulan_tahun', 'status_wa'])
@@ -120,9 +131,10 @@ class PerencanaanController extends Controller
         }
     }
 
-    public function save(Request $request){
+    public function save(Request $request)
+    {
         $sekolah_ids = implode(',', $request->post('sekolah_id'));
-        
+
         try {
             return \DB::transaction(function () use ($request, $sekolah_ids) {
                 $model = new RencanaKerjaT();
@@ -151,7 +163,8 @@ class PerencanaanController extends Controller
     }
 
     //update
-    public function update(Request $request){
+    public function update(Request $request)
+    {
         $data = RencanaKerjaT::findOrFail($request->post('id'));
         // dd($request->post());
         $sekolah_ids = implode(',', $request->post('sekolah_id'));
@@ -166,9 +179,9 @@ class PerencanaanController extends Controller
         $data->bulan = $request->post('bulan');
         $data->deskripsi_permasalahan = $request->post('deskripsi_permasalahan');
         $data->target_capaian = $request->post('target_capaian');
-                $data->tenggat_waktu = $request->post('tenggat_waktu');
-                $data->id_umpanbalik_category = $request->post('id_umpanbalik_category');
-                $data->save();
+        $data->tenggat_waktu = $request->post('tenggat_waktu');
+        $data->id_umpanbalik_category = $request->post('id_umpanbalik_category');
+        $data->save();
         return redirect()->route('pengawas.perencanaan')->with('success', 'Perencanaan berhasil diedit!');
     }
 
@@ -213,7 +226,7 @@ class PerencanaanController extends Controller
         foreach ($sekolahs as $list) {
             $nama_sekolah = $list->nama_sekolah;
             $kepalaSekolah = $list->kepalaSekolahSatu;
-            
+
             if ($kepalaSekolah && !empty($kepalaSekolah->no_telp)) {
                 $nama_kepala_sekolah = $kepalaSekolah->nama;
                 $nama_kepala_sekolah_id = $kepalaSekolah->id;
@@ -224,14 +237,14 @@ class PerencanaanController extends Controller
                 } else {
                     $this->buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_umpanbalik_category);
                 }
-                
+
                 // Kurangi sleep agar tidak timeout (misal 2-5 detik)
                 sleep(rand(2, 5));
             } else {
                 throw new \Exception("Kepala sekolah {$nama_sekolah} tidak memiliki nomor telepon.");
             }
         }
-        
+
         $model->status = 1;
         $model->save();
     }
@@ -330,7 +343,7 @@ Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengaw
             $fullUrl = url('dynamic-umpanbalik/' . $id_category . '/' . $umpanBalik->generate_url);
         } else {
             $generate_url = (string) \Illuminate\Support\Str::uuid();
-            
+
             UmpanbalikT::create([
                 'id_user' => $nama_kepala_sekolah_id,
                 'id_pelaporan' => $model->id,
@@ -365,7 +378,7 @@ Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengaw
     protected function sendWhatsAppMessage($phone, $message, $nama_kepala_sekolah_id, $model)
     {
         $token = 'ChvMJmr8Y5PwD130iY6kZqNQoAvCNQBxvH4RKiCOckJCAvEtVZtBO2Gyubj9THyU';
-        $secretKey = 'SqKDZXzk'; 
+        $secretKey = 'SqKDZXzk';
         $url = "https://jogja.wablas.com/api/send-message";
 
         // Format nomor telepon
@@ -392,11 +405,11 @@ Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengaw
 
         try {
             $data = ['phone' => $phone, 'message' => $message];
-            
+
             // Format 1: token.secretKey
             $authorization = "{$token}.{$secretKey}";
             $response = Http::withHeaders(['Authorization' => $authorization])->asForm()->post($url, $data);
-            
+
             if ($response->successful()) {
                 $logEntry->is_sent = true;
                 $logEntry->save();
@@ -406,7 +419,7 @@ Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengaw
             // Format 2: secret in data (Jika 403 atau gagal format 1)
             $dataWithSecret = array_merge($data, ['secret' => $secretKey]);
             $response2 = Http::withHeaders(['Authorization' => $token])->asForm()->post($url, $dataWithSecret);
-            
+
             if ($response2->successful()) {
                 $logEntry->is_sent = true;
                 $logEntry->save();
@@ -415,7 +428,7 @@ Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengaw
 
             // Format 3: token only
             $response3 = Http::withHeaders(['Authorization' => $token])->asForm()->post($url, $data);
-            
+
             if ($response3->successful()) {
                 $logEntry->is_sent = true;
                 $logEntry->save();
@@ -426,7 +439,7 @@ Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengaw
             $responseBody = $response3->body();
             $resArr = json_decode($responseBody, true);
             $errMsg = $resArr['message'] ?? $responseBody;
-            
+
             if (strpos($responseBody, 'IP') !== false) {
                 $errMsg .= " (IP Server belum di-whitelist di Wablas)";
             }

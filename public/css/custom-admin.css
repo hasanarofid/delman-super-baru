@@ -3,9 +3,9 @@
     /* --delman-blue: #2563eb;
     --delman-blue-light: #3b82f6;
     --delman-blue-dark: #1d4ed8; */
-    --delman-blue: #28589c;       
-    --delman-blue-light: #6C84B8; 
-    --delman-blue-dark: #0c2447;   
+    --delman-blue: #28589c;
+    --delman-blue-light: #6C84B8;
+    --delman-blue-dark: #0c2447;
     --delman-orange: #f97316;
     --delman-orange-light: #fb923c;
     --delman-orange-dark: #ea580c;
@@ -23,9 +23,9 @@
 
 /* Sidebar Styling */
 .layout-menu {
-    background: linear-gradient(180deg, 
-        var(--delman-blue) 0%, 
-        var(--delman-blue-dark) 100%) !important;
+    background: linear-gradient(180deg,
+            var(--delman-blue) 0%,
+            var(--delman-blue-dark) 100%) !important;
     box-shadow: 4px 0 20px rgba(37, 99, 235, 0.15);
     position: relative;
     overflow: hidden;
@@ -38,7 +38,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
+    background:
         radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
     pointer-events: none;
@@ -46,9 +46,9 @@
 
 /* Logo Area */
 .app-brand {
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.15) 0%, 
-        rgba(255, 255, 255, 0.05) 100%);
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0.05) 100%);
     border-radius: 20px;
     margin: 20px;
     padding: 25px 20px;
@@ -66,10 +66,10 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.1), 
-        transparent);
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            transparent);
     transition: left 0.6s ease;
 }
 
@@ -117,10 +117,10 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.1), 
-        transparent);
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            transparent);
     transition: left 0.4s ease;
     z-index: 1;
 }
@@ -225,9 +225,9 @@
 
 /* Sub Menu */
 .menu-sub {
-    background: linear-gradient(135deg, 
-        rgba(0, 0, 0, 0.15) 0%, 
-        rgba(0, 0, 0, 0.05) 100%);
+    background: linear-gradient(135deg,
+            rgba(0, 0, 0, 0.15) 0%,
+            rgba(0, 0, 0, 0.05) 100%);
     border-radius: 12px;
     margin: 10px 0;
     padding: 10px 0;
@@ -331,9 +331,9 @@
 
 /* Navbar Styling */
 .layout-navbar {
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.95) 0%, 
-        rgba(255, 255, 255, 0.9) 100%) !important;
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.95) 0%,
+            rgba(255, 255, 255, 0.9) 100%) !important;
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(37, 99, 235, 0.1);
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
@@ -342,9 +342,9 @@
 .navbar-nav h4 {
     color: var(--delman-gray-dark);
     font-weight: 700;
-    background: linear-gradient(135deg, 
-        var(--delman-blue) 0%, 
-        var(--delman-purple) 100%);
+    background: linear-gradient(135deg,
+            var(--delman-blue) 0%,
+            var(--delman-purple) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -368,9 +368,9 @@
 }
 
 .dropdown-item:hover {
-    background: linear-gradient(135deg, 
-        var(--delman-blue) 0%, 
-        var(--delman-blue-light) 100%);
+    background: linear-gradient(135deg,
+            var(--delman-blue) 0%,
+            var(--delman-blue-light) 100%);
     color: white;
     transform: translateX(5px);
 }
@@ -404,30 +404,30 @@
 }
 
 .btn-success {
-    background: linear-gradient(135deg, 
-        var(--delman-success) 0%, 
-        #059669 100%);
+    background: linear-gradient(135deg,
+            var(--delman-success) 0%,
+            #059669 100%);
     border: none;
 }
 
 .btn-info {
-    background: linear-gradient(135deg, 
-        var(--delman-info) 0%, 
-        #0891b2 100%);
+    background: linear-gradient(135deg,
+            var(--delman-info) 0%,
+            #0891b2 100%);
     border: none;
 }
 
 .btn-danger {
-    background: linear-gradient(135deg, 
-        var(--delman-danger) 0%, 
-        #dc2626 100%);
+    background: linear-gradient(135deg,
+            var(--delman-danger) 0%,
+            #dc2626 100%);
     border: none;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, 
-        var(--delman-blue) 0%, 
-        var(--delman-blue-light) 100%);
+    background: linear-gradient(135deg,
+            var(--delman-blue) 0%,
+            var(--delman-blue-light) 100%);
     border: none;
 }
 
@@ -449,9 +449,9 @@ h4.mb-0 {
     color: var(--delman-gray-dark);
     font-weight: 700;
     font-size: 2.5rem;
-    background: linear-gradient(135deg, 
-        var(--delman-blue) 0%, 
-        var(--delman-purple) 100%);
+    background: linear-gradient(135deg,
+            var(--delman-blue) 0%,
+            var(--delman-purple) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -459,9 +459,9 @@ h4.mb-0 {
 
 /* Chart Cards */
 .card-header {
-    background: linear-gradient(135deg, 
-        rgba(37, 99, 235, 0.05) 0%, 
-        rgba(139, 92, 246, 0.05) 100%);
+    background: linear-gradient(135deg,
+            rgba(37, 99, 235, 0.05) 0%,
+            rgba(139, 92, 246, 0.05) 100%);
     border-bottom: 2px solid rgba(37, 99, 235, 0.1);
     border-radius: 20px 20px 0 0;
     padding: 1.5rem 2rem;
@@ -476,9 +476,9 @@ h4.mb-0 {
 
 /* Export Buttons */
 .btn-primary {
-    background: linear-gradient(135deg, 
-        var(--delman-blue) 0%, 
-        var(--delman-blue-light) 100%);
+    background: linear-gradient(135deg,
+            var(--delman-blue) 0%,
+            var(--delman-blue-light) 100%);
     border: none;
     border-radius: 12px;
     padding: 0.75rem 1.5rem;
@@ -488,9 +488,9 @@ h4.mb-0 {
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, 
-        var(--delman-blue-dark) 0%, 
-        var(--delman-blue) 100%);
+    background: linear-gradient(135deg,
+            var(--delman-blue-dark) 0%,
+            var(--delman-blue) 100%);
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
 }
@@ -606,26 +606,26 @@ h4.mb-0 {
 }
 
 .select2-results__option--highlighted {
-    background: linear-gradient(135deg, 
-        var(--delman-blue) 0%, 
-        var(--delman-blue-light) 100%) !important;
+    background: linear-gradient(135deg,
+            var(--delman-blue) 0%,
+            var(--delman-blue-light) 100%) !important;
     color: white !important;
     font-weight: 600 !important;
     transform: translateX(5px) !important;
 }
 
 .select2-results__option--selected {
-    background: linear-gradient(135deg, 
-        var(--delman-orange) 0%, 
-        var(--delman-orange-light) 100%) !important;
+    background: linear-gradient(135deg,
+            var(--delman-orange) 0%,
+            var(--delman-orange-light) 100%) !important;
     color: white !important;
     font-weight: 600 !important;
 }
 
 .select2-results__option--highlighted.select2-results__option--selected {
-    background: linear-gradient(135deg, 
-        var(--delman-orange) 0%, 
-        var(--delman-orange-light) 100%) !important;
+    background: linear-gradient(135deg,
+            var(--delman-orange) 0%,
+            var(--delman-orange-light) 100%) !important;
     color: white !important;
 }
 
@@ -695,9 +695,9 @@ h4.mb-0 {
 }
 
 .select2-container .select2-selection--multiple .select2-selection__choice {
-    background: linear-gradient(135deg, 
-        var(--delman-blue) 0%, 
-        var(--delman-blue-light) 100%) !important;
+    background: linear-gradient(135deg,
+            var(--delman-blue) 0%,
+            var(--delman-blue-light) 100%) !important;
     border: none !important;
     border-radius: 8px !important;
     color: white !important;
@@ -721,10 +721,10 @@ h4.mb-0 {
 
 /* Select2 Loading */
 .select2-container--loading .select2-selection--single {
-    background: linear-gradient(90deg, 
-        rgba(37, 99, 235, 0.1) 0%, 
-        rgba(37, 99, 235, 0.2) 50%, 
-        rgba(37, 99, 235, 0.1) 100%) !important;
+    background: linear-gradient(90deg,
+            rgba(37, 99, 235, 0.1) 0%,
+            rgba(37, 99, 235, 0.2) 50%,
+            rgba(37, 99, 235, 0.1) 100%) !important;
     background-size: 200% 100% !important;
     animation: loading 1.5s infinite !important;
 }
@@ -733,6 +733,7 @@ h4.mb-0 {
     0% {
         background-position: 200% 0;
     }
+
     100% {
         background-position: -200% 0;
     }
@@ -853,26 +854,26 @@ h4.mb-0 {
 }
 
 .select2-container--default .select2-results__option--highlighted {
-    background: linear-gradient(135deg, 
-        var(--delman-blue) 0%, 
-        var(--delman-blue-light) 100%) !important;
+    background: linear-gradient(135deg,
+            var(--delman-blue) 0%,
+            var(--delman-blue-light) 100%) !important;
     color: white !important;
     font-weight: 600 !important;
     transform: translateX(5px) !important;
 }
 
 .select2-container--default .select2-results__option[aria-selected='true'] {
-    background: linear-gradient(135deg, 
-        var(--delman-orange) 0%, 
-        var(--delman-orange-light) 100%) !important;
+    background: linear-gradient(135deg,
+            var(--delman-orange) 0%,
+            var(--delman-orange-light) 100%) !important;
     color: white !important;
     font-weight: 600 !important;
 }
 
 .select2-container--default .select2-results__option--highlighted[aria-selected='true'] {
-    background: linear-gradient(135deg, 
-        var(--delman-orange) 0%, 
-        var(--delman-orange-light) 100%) !important;
+    background: linear-gradient(135deg,
+            var(--delman-orange) 0%,
+            var(--delman-orange-light) 100%) !important;
     color: white !important;
 }
 
@@ -911,9 +912,9 @@ h4.mb-0 {
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
-    background: linear-gradient(135deg, 
-        var(--delman-blue) 0%, 
-        var(--delman-blue-light) 100%) !important;
+    background: linear-gradient(135deg,
+            var(--delman-blue) 0%,
+            var(--delman-blue-light) 100%) !important;
     border: none !important;
     border-radius: 8px !important;
     color: white !important;
@@ -1203,6 +1204,7 @@ h4.mb-0 {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1234,16 +1236,16 @@ h4.mb-0 {
         height: 44px !important;
         padding: 0.6rem 0.8rem !important;
     }
-    
+
     .select2-container .select2-selection--single .select2-selection__rendered {
         line-height: 28px !important;
         font-size: 14px !important;
     }
-    
+
     .select2-dropdown {
         margin-top: 2px !important;
     }
-    
+
     .select2-results__option {
         padding: 10px 12px !important;
         font-size: 14px !important;
@@ -1255,12 +1257,12 @@ h4.mb-0 {
         height: 40px !important;
         padding: 0.5rem 0.7rem !important;
     }
-    
+
     .select2-container .select2-selection--single .select2-selection__rendered {
         line-height: 24px !important;
         font-size: 13px !important;
     }
-    
+
     .select2-results__option {
         padding: 8px 10px !important;
         font-size: 13px !important;
@@ -1284,9 +1286,9 @@ canvas {
 
 /* Footer */
 .content-footer {
-    background: linear-gradient(135deg, 
-        var(--delman-gray-light) 0%, 
-        var(--delman-gray) 100%);
+    background: linear-gradient(135deg,
+            var(--delman-gray-light) 0%,
+            var(--delman-gray) 100%);
     color: white;
     border-top: 3px solid var(--delman-blue);
 }
@@ -1296,57 +1298,57 @@ canvas {
     .card-body {
         padding: 1.5rem;
     }
-    
+
     h4.mb-0 {
         font-size: 2rem;
     }
-    
+
     .btn-icon {
         padding: 10px;
     }
-    
+
     .menu-link {
         padding: 10px 15px;
     }
-    
+
     .brand-info {
         margin: 0 10px 10px 10px;
         padding: 10px;
     }
-    
+
     .brand-info h6 {
         font-size: 0.8rem;
     }
-    
+
     .brand-info small {
         font-size: 0.7rem;
     }
-    
+
     .chart-card .card-header h6 {
         font-size: 1rem;
     }
-    
+
     /* Sidebar responsive */
     .app-brand {
         margin: 15px;
         padding: 20px 15px;
     }
-    
+
     .app-brand img {
         max-width: 140px;
         height: auto;
     }
-    
+
     .menu-link {
         padding: 12px 15px;
         font-size: 0.9rem;
     }
-    
+
     .menu-icon {
         font-size: 1.1rem;
         margin-right: 12px;
     }
-    
+
     .layout-menu-toggle {
         padding: 10px;
     }
@@ -1356,103 +1358,103 @@ canvas {
     .card-body {
         padding: 1rem;
     }
-    
+
     h4.mb-0 {
         font-size: 1.8rem;
     }
-    
+
     .btn-icon {
         padding: 8px;
     }
-    
+
     .app-brand {
         margin: 10px;
         padding: 15px;
     }
-    
+
     .app-brand img {
         max-width: 120px;
         height: auto;
     }
-    
+
     .brand-info {
         margin: 0 5px 5px 5px;
         padding: 8px;
     }
-    
+
     .brand-info h6 {
         font-size: 0.75rem;
     }
-    
+
     .brand-info small {
         font-size: 0.65rem;
     }
-    
+
     .menu-link {
         padding: 8px 12px;
         font-size: 0.9rem;
     }
-    
+
     .menu-icon {
         font-size: 1rem;
     }
-    
+
     .chart-card .card-header {
         padding: 1rem;
     }
-    
+
     .chart-card .card-header h6 {
         font-size: 0.9rem;
     }
-    
+
     .btn-primary {
         padding: 0.5rem 1rem;
         font-size: 0.9rem;
     }
-    
+
     /* Sidebar mobile */
     .app-brand {
         margin: 10px;
         padding: 15px 10px;
     }
-    
+
     .app-brand img {
         max-width: 100px;
         height: auto;
     }
-    
+
     .brand-info {
         margin: 0 5px 5px 5px;
         padding: 8px;
     }
-    
+
     .brand-info h6 {
         font-size: 0.75rem;
     }
-    
+
     .brand-info small {
         font-size: 0.65rem;
     }
-    
+
     .menu-link {
         padding: 8px 12px;
         font-size: 0.85rem;
     }
-    
+
     .menu-icon {
         font-size: 1rem;
         margin-right: 10px;
     }
-    
+
     .menu-sub .menu-link {
         padding: 8px 15px 8px 35px;
         font-size: 0.8rem;
     }
-    
+
     .layout-menu-toggle {
         padding: 8px;
     }
-    
+
     .layout-menu-toggle i {
         font-size: 1rem;
     }
@@ -1464,84 +1466,84 @@ canvas {
         height: 120px !important;
         padding: 10px;
     }
-    
+
     .app-brand img {
         max-width: 80px;
         height: auto;
     }
-    
+
     .brand-info {
         margin: 0 10px 5px 10px;
         padding: 5px 10px;
     }
-    
+
     .brand-info h6 {
         font-size: 0.7rem;
         margin-bottom: 2px;
     }
-    
+
     .brand-info small {
         font-size: 0.6rem;
     }
-    
+
     .menu-link {
         padding: 6px 10px;
         font-size: 0.85rem;
     }
-    
+
     .card-body {
         padding: 0.75rem;
     }
-    
+
     h4.mb-0 {
         font-size: 1.5rem;
     }
-    
+
     /* Sidebar landscape */
     .app-brand {
         height: 100px !important;
         padding: 8px;
         margin: 5px;
     }
-    
+
     .app-brand img {
         max-width: 60px;
         height: auto;
     }
-    
+
     .brand-info {
         margin: 0 5px 3px 5px;
         padding: 5px 8px;
     }
-    
+
     .brand-info h6 {
         font-size: 0.7rem;
         margin-bottom: 2px;
     }
-    
+
     .brand-info small {
         font-size: 0.6rem;
     }
-    
+
     .menu-link {
         padding: 6px 10px;
         font-size: 0.8rem;
     }
-    
+
     .menu-icon {
         font-size: 0.9rem;
         margin-right: 8px;
     }
-    
+
     .menu-sub .menu-link {
         padding: 6px 12px 6px 30px;
         font-size: 0.75rem;
     }
-    
+
     .layout-menu-toggle {
         padding: 6px;
     }
-    
+
     .layout-menu-toggle i {
         font-size: 0.9rem;
     }
@@ -1553,6 +1555,7 @@ canvas {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1563,10 +1566,21 @@ canvas {
     animation: slideInUp 0.6s ease-out;
 }
 
-.card:nth-child(1) { animation-delay: 0.1s; }
-.card:nth-child(2) { animation-delay: 0.2s; }
-.card:nth-child(3) { animation-delay: 0.3s; }
-.card:nth-child(4) { animation-delay: 0.4s; }
+.card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.card:nth-child(4) {
+    animation-delay: 0.4s;
+}
 
 /* Hover effects for interactive elements */
 .menu-item,
@@ -1623,10 +1637,10 @@ canvas {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, 
-        var(--delman-blue) 0%, 
-        var(--delman-purple) 50%, 
-        var(--delman-orange) 100%);
+    background: linear-gradient(90deg,
+            var(--delman-blue) 0%,
+            var(--delman-purple) 50%,
+            var(--delman-orange) 100%);
 }
 
 .dashboard-card .card-body {
@@ -1641,9 +1655,9 @@ canvas {
 }
 
 .chart-card .card-header {
-    background: linear-gradient(135deg, 
-        rgba(37, 99, 235, 0.05) 0%, 
-        rgba(139, 92, 246, 0.05) 100%);
+    background: linear-gradient(135deg,
+            rgba(37, 99, 235, 0.05) 0%,
+            rgba(139, 92, 246, 0.05) 100%);
     border-bottom: 2px solid rgba(37, 99, 235, 0.1);
 }
 
@@ -1672,9 +1686,9 @@ canvas {
 
 /* Brand Info Styling */
 .brand-info {
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.15) 0%, 
-        rgba(255, 255, 255, 0.05) 100%);
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0.05) 100%);
     border-radius: 15px;
     padding: 20px;
     margin: 0 20px 20px 20px;
@@ -1692,10 +1706,10 @@ canvas {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.1), 
-        transparent);
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            transparent);
     transition: left 0.6s ease;
 }
 
@@ -1741,10 +1755,10 @@ canvas {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.2), 
-        transparent);
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
     transition: left 0.5s;
 }
 
@@ -1768,9 +1782,11 @@ canvas {
     0% {
         box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
     }
+
     70% {
         box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
     }
+
     100% {
         box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
     }
@@ -1782,9 +1798,9 @@ canvas {
 
 /* Enhanced Menu Toggle */
 .layout-menu-toggle {
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.15) 0%, 
-        rgba(255, 255, 255, 0.05) 100%);
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0.05) 100%);
     border-radius: 12px;
     padding: 12px;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1794,6 +1810,19 @@ canvas {
     overflow: hidden;
 }
 
+/* Specific styling for navbar toggle to be visible on white */
+.layout-navbar .layout-menu-toggle {
+    background: rgba(40, 88, 156, 0.08) !important;
+    border: 1px solid rgba(40, 88, 156, 0.2) !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+}
+
+.layout-navbar .layout-menu-toggle:hover {
+    background: rgba(40, 88, 156, 0.15) !important;
+    border-color: rgba(40, 88, 156, 0.3) !important;
+}
+
 .layout-menu-toggle::before {
     content: '';
     position: absolute;
@@ -1801,10 +1830,10 @@ canvas {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.2), 
-        transparent);
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent);
     transition: left 0.5s ease;
 }
 
@@ -1813,26 +1842,43 @@ canvas {
 }
 
 .layout-menu-toggle:hover {
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.25) 0%, 
-        rgba(255, 255, 255, 0.1) 100%);
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.25) 0%,
+            rgba(255, 255, 255, 0.1) 100%);
     transform: scale(1.05) rotate(2deg);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Menu Toggle Icons */
-.layout-menu-toggle i {
+.layout-navbar .layout-menu-toggle i,
+.layout-navbar .nav-link i.ti-menu-2 {
+    color: #28589c !important;
+    /* Use hex directly for absolute certainty */
+    font-size: 1.5rem !important;
+    font-weight: bold !important;
+    display: inline-block !important;
+    visibility: visible !important;
+}
+
+/* Ensure the container is visible and not collapsed */
+.layout-navbar .layout-menu-toggle {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    margin-right: 15px !important;
+}
+
+/* Sidebar Toggle stays white */
+.layout-menu .layout-menu-toggle i {
     color: white !important;
-    font-size: 1.2rem;
-    transition: all 0.3s ease;
-    position: relative;
-    z-index: 1;
 }
 
 .layout-menu-toggle:hover i {
-    transform: rotate(180deg);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: scale(1.1);
+    text-shadow: 0 2px 4px rgba(40, 88, 156, 0.2);
 }
 
 /* Menu Item Animations */
@@ -1841,6 +1887,7 @@ canvas {
         opacity: 0;
         transform: translateX(-30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -1851,9 +1898,11 @@ canvas {
     0% {
         box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7);
     }
+
     70% {
         box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
     }
+
     100% {
         box-shadow: 0 0 0 0 rgba(249, 115, 22, 0);
     }
@@ -1863,12 +1912,29 @@ canvas {
     animation: slideInLeft 0.6s ease-out;
 }
 
-.menu-item:nth-child(1) { animation-delay: 0.1s; }
-.menu-item:nth-child(2) { animation-delay: 0.2s; }
-.menu-item:nth-child(3) { animation-delay: 0.3s; }
-.menu-item:nth-child(4) { animation-delay: 0.4s; }
-.menu-item:nth-child(5) { animation-delay: 0.5s; }
-.menu-item:nth-child(6) { animation-delay: 0.6s; }
+.menu-item:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.menu-item:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.menu-item:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.menu-item:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.menu-item:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.menu-item:nth-child(6) {
+    animation-delay: 0.6s;
+}
 
 /* Smooth transitions for all interactive elements */
 .menu-item,
@@ -1902,12 +1968,13 @@ canvas {
 
 /* Print styles */
 @media print {
+
     .layout-menu,
     .layout-navbar,
     .btn {
         display: none !important;
     }
-    
+
     .card {
         box-shadow: none;
         border: 1px solid #ddd;

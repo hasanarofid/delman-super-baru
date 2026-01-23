@@ -1911,6 +1911,13 @@ binaryextensions@^2.2.0:
   resolved "https://registry.npmjs.org/binaryextensions/-/binaryextensions-2.3.0.tgz"
   integrity sha512-nAihlQsYGyc5Bwq6+EsubvANYGExeJKHDO3RjnvwU042fawQTQfM3Kxn7IHUXQOz4bzfwsGYYHGSvXyW4zOGLg==
 
+bindings@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.npmjs.org/bindings/-/bindings-1.5.0.tgz"
+  integrity sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==
+  dependencies:
+    file-uri-to-path "1.0.0"
+
 block-ui@2.70.1:
   version "2.70.1"
   resolved "https://registry.npmjs.org/block-ui/-/block-ui-2.70.1.tgz"
@@ -1955,6 +1962,7 @@ bootstrap-maxlength@1.10.1:
 "bootstrap-select@github:snapappointments/bootstrap-select#main":
   version "1.14.0-beta3"
   resolved "git+ssh://git@github.com/snapappointments/bootstrap-select.git#939e94b14a34759e193f616b753e0a33081cc0c5"
+  integrity sha512-AnN07doT3zsjPIBIy+KeNe5HNgbhAckTzBVkDVnC5IeGOrX8VOatlbnD85p7BzlxqPSek+gpsZKuxgMe40qshA==
 
 bootstrap@^4.4.1:
   version "4.6.2"
@@ -3767,6 +3775,11 @@ file-loader@^0.8.1:
   integrity sha512-yDylQzd/QOaMm249awSL+JjsLRDfFghwmm+YCALH0uLXqAazD/alHnhbIE+UyVtbI+bIVYVdgDApSJ9blouFDg==
   dependencies:
     loader-utils "~0.2.5"
+
+file-uri-to-path@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/file-uri-to-path/-/file-uri-to-path-1.0.0.tgz"
+  integrity sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==
 
 fill-range@^4.0.0:
   version "4.0.0"
@@ -5766,6 +5779,11 @@ mute-stdout@^1.0.0:
   version "1.0.1"
   resolved "https://registry.npmjs.org/mute-stdout/-/mute-stdout-1.0.1.tgz"
   integrity sha512-kDcwXR4PS7caBpuRYYBUz9iVixUk3anO3f5OYFiIPwK/20vCzKCHyKoulbiDY1S53zD2bxUpxN/IJ+TnXjfvxg==
+
+nan@^2.12.1:
+  version "2.24.0"
+  resolved "https://registry.npmjs.org/nan/-/nan-2.24.0.tgz"
+  integrity sha512-Vpf9qnVW1RaDkoNKFUvfxqAbtI8ncb8OJlqZ9wwpXzWPEsvsB1nvdUi6oYrHIkQ1Y/tMDnr1h4nczS0VB9Xykg==
 
 nanoid@^3.3.4:
   version "3.3.6"
