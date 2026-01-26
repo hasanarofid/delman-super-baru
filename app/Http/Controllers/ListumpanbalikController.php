@@ -18,7 +18,14 @@ use Illuminate\Support\Str; // Add Str for slug generation
 class ListumpanbalikController extends Controller
 {
     public function index(){
-        $listPengawas = User::where('role','pengawas')->get();
+        $user = Auth::user();
+        $queryPengawas = User::where('role','pengawas');
+        
+        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+            $queryPengawas->where('kabupaten_id', $user->kabupaten_id);
+        }
+        
+        $listPengawas = $queryPengawas->get();
 
         $currentMonth = date('n'); // Numeric representation of the current month (1-12)
         $currentYear = date('Y');  // Current year
@@ -61,7 +68,14 @@ class ListumpanbalikController extends Controller
     }
 
     public function indexpengawas(){
-        $listPengawas = User::where('role','pengawas')->get();
+        $user = Auth::user();
+        $queryPengawas = User::where('role','pengawas');
+        
+        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+            $queryPengawas->where('kabupaten_id', $user->kabupaten_id);
+        }
+        
+        $listPengawas = $queryPengawas->get();
         $currentMonth = date('n'); // Numeric representation of the current month (1-12)
         $currentYear = date('Y');  // Current year
         $years = range($currentYear - 5, $currentYear + 5);
@@ -105,7 +119,14 @@ class ListumpanbalikController extends Controller
 
     public function getdata(Request $request){
         if ($request->ajax()) {
+            $user = Auth::user();
             $query = UmpanbalikT::with(['rencanakerja', 'category'])->latest();
+
+            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+                $query->whereHas('pengawasnama', function($q) use ($user) {
+                    $q->where('kabupaten_id', $user->kabupaten_id);
+                });
+            }
 
              // Filter berdasarkan pengawas
             if ($request->has('pengawas') && $request->pengawas !== 'all') {

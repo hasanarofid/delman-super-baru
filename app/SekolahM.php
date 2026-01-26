@@ -27,4 +27,9 @@ class SekolahM extends Model
                 return $this->hasOne(GuruM::class, 'sekolah_id', 'id')->where('jabatan', 'Kepala Sekolah');
         }
         
+        public function kabupaten()
+        {
+                return $this->hasOne(Kabupaten::class, 'id', 'kabupaten_id');
+        }
+        
 }

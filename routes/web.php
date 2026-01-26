@@ -236,7 +236,6 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         // end route panel menu pengawas
     });
 
-    // route menu pengawas
     Route::prefix('sekolah')->group(function () {
         // route panel menu sekolah
         Route::get('/', 'SekolahMController@index')->name('sekolah.index');
@@ -249,10 +248,10 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         Route::post('/store-sekolah', 'SekolahMController@store')->name('sekolah.store');
         Route::get('/hapus-sekolah/{id}', 'SekolahMController@hapus')->name('sekolah.hapus');
         Route::get('/excelcontoh-sekolah', 'SekolahMController@excelcontoh')->name('sekolah.excelcontoh');
+            Route::post('/update-kabupaten', 'SekolahMController@updateKabupaten')->name('sekolah.updateKabupaten');
         // end route panel menu sekolah
     });
 
-    // route panel menu guru
     Route::prefix('guru')->group(function () {
         Route::get('/', 'GuruMController@index')->name('guru.index');
         Route::get('/get-guru', 'GuruMController@getdata')->name('guru.getdata');
@@ -265,22 +264,23 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         Route::get('/hapus-guru/{id}', 'GuruMController@hapus')->name('guru.hapus');
         Route::get('/excelcontoh-guru', 'GuruMController@excelcontoh')->name('guru.excelcontoh');
         Route::get('/export-guru', 'GuruMController@export')->name('guru.export');
+            Route::post('/update-kabupaten', 'GuruMController@updateKabupaten')->name('guru.updateKabupaten');
     });
     // end route panel menu guru
 
-        Route::prefix('stakeholder')->group(function () {
-            Route::get('/', 'StakeholderController@index')->name('stakeholder.index');
-            Route::get('/get-stakeholder', 'StakeholderController@getdata')->name('stakeholder.getdata');
-            Route::get('/add-stakeholder', 'StakeholderController@add')->name('stakeholder.add');
-            Route::get('/edit-stakeholder/{id}', 'StakeholderController@edit')->name('stakeholder.edit');
-            Route::post('/update-stakeholder/{id}', 'StakeholderController@update')->name('stakeholder.update');
-            Route::get('/import-stakeholder', 'StakeholderController@import')->name('stakeholder.import');
-            Route::post('/importfile-stakeholder', 'StakeholderController@importfile')->name('stakeholder.importfile');
-            Route::post('/store-stakeholder', 'StakeholderController@store')->name('stakeholder.store');
-            Route::get('/hapus-stakeholder/{id}', 'StakeholderController@hapus')->name('stakeholder.hapus');
-            Route::get('/excelcontoh-stakeholder', 'StakeholderController@excelcontoh')->name('stakeholder.excelcontoh');
+    Route::prefix('stakeholder')->group(function () {
+        Route::get('/', 'StakeholderController@index')->name('stakeholder.index');
+        Route::get('/get-stakeholder', 'StakeholderController@getdata')->name('stakeholder.getdata');
+        Route::get('/add-stakeholder', 'StakeholderController@add')->name('stakeholder.add');
+        Route::get('/edit-stakeholder/{id}', 'StakeholderController@edit')->name('stakeholder.edit');
+        Route::post('/update-stakeholder/{id}', 'StakeholderController@update')->name('stakeholder.update');
+        Route::get('/import-stakeholder', 'StakeholderController@import')->name('stakeholder.import');
+        Route::post('/importfile-stakeholder', 'StakeholderController@importfile')->name('stakeholder.importfile');
+        Route::post('/store-stakeholder', 'StakeholderController@store')->name('stakeholder.store');
+        Route::get('/hapus-stakeholder/{id}', 'StakeholderController@hapus')->name('stakeholder.hapus');
+        Route::get('/excelcontoh-stakeholder', 'StakeholderController@excelcontoh')->name('stakeholder.excelcontoh');
             Route::post('/update-kabupaten', 'StakeholderController@updateKabupaten')->name('stakeholder.updateKabupaten');
-        });
+    });
     // end route panel menu stakeholder
 
     // route wablasthistory
@@ -935,11 +935,11 @@ Route::middleware(['web', 'pengawas'])->group(function () {
 });
 
 // login logout stakeholder
-Route::get('/stockholder', function() {
+Route::get('/stakeholder', function() {
     return redirect()->route('stakeholder.login');
 });
-Route::get('/stockholder/login', 'Auth\LoginController@showStakeholderLoginForm')->name('stakeholder.login');
-Route::post('/stockholder/login', 'Auth\LoginController@stakeholderLogin')->name('stakeholder.login.post');
+Route::get('/stakeholder/login', 'Auth\LoginController@showStakeholderLoginForm')->name('stakeholder.login');
+Route::post('/stakeholder/login', 'Auth\LoginController@stakeholderLogin')->name('stakeholder.login.post');
 
 // Route::prefix('pengawas')->middleware(['auth', 'pengawas'])->group(function () {
 

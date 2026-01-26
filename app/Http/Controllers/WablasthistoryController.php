@@ -27,10 +27,15 @@ class WablasthistoryController extends Controller
 
     public function getdata(Request $request) {
         if ($request->ajax()) {
+            $user = Auth::user();
             // Base query with eager loading
             $query = WhatsappMessagesLog::with('rencanakerja', 'kepalasekolah')->latest();
     
-            
+            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+                $query->whereHas('rencanakerja.pengawasnama', function($q) use ($user) {
+                    $q->where('kabupaten_id', $user->kabupaten_id);
+                });
+            }
     
             // Return data for DataTables
             return Datatables::of($query->get())

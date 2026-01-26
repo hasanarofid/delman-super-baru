@@ -31,31 +31,29 @@ class GuruMController extends Controller
 
     public function getdata(Request $request){
         if ($request->ajax()) {
-           
-            // if(Auth::user()->role == 'Super Admin'){
-            //     $post = GuruM::with('sekolah')->where('is_aktif',true)->latest()->get();
-            // }else if(Auth::user()->role == 'Admin' || Auth::user()->role == 'Stakeholder' ){
-            //     $kelompok_kabupaten = Kabupaten::find(Auth::user()->kabupaten_id)->kelompok_kabupaten;
-            //     $kabupaten = Kabupaten::where('kelompok_kabupaten',$kelompok_kabupaten)->get();
-            //     $id_filter = [];
-            //     foreach($kabupaten as $kab){
-            //         $id_filter[] = $kab->id;
-            //     }
+            $user = Auth::user();
+            $query = GuruM::with('sekolah', 'kabupaten')->where('is_aktif', true);
+
+            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+                $query->where('kabupaten_id', $user->kabupaten_id);
+            }
     
-                $post = GuruM::with('sekolah')->where('is_aktif',true)
-                ->latest()->get();
+            $post = $query->latest()->get();
     
-            // }
             return Datatables::of($post)
                     ->addIndexColumn()
                      ->addColumn('nama_sekolah', function($row){
                                return !empty($row->sekolah->nama_sekolah) ? $row->sekolah->nama_sekolah: '-';
+                    })
+                    ->addColumn('kabupaten', function($row){
+                        return !empty($row->kabupaten->nama_kabupaten) ? $row->kabupaten->nama_kabupaten: '-';
                     })
                     ->addColumn('action', function($row){
                         $user = Auth::user();
                         if ($user && $user->role == 'Super Admin') {
                             $btn = '<a href="'.route('guru.edit',$row->id).'" data-toggle="tooltip"  class="edit btn btn-primary btn-sm editPost">Edit</a>';
                             $btn = $btn.' <a href="'.route('guru.hapus',$row->id).'" data-toggle="tooltip" data-toggle="modal" data-target="#confirmDeleteModal"    data-original-title="Delete" class="btn btn-danger btn-sm deletePost">Delete</a>';
+                            $btn = $btn.' <button type="button" class="btn btn-warning btn-sm updateKabupatenBtn" data-id="'.$row->id.'" data-kabupaten-id="'.$row->kabupaten_id.'">Update Kabupaten</button>';
      
                              return $btn;
                         } else {
@@ -63,7 +61,7 @@ class GuruMController extends Controller
                         }
                        
                  })
-                    ->rawColumns(['nama_sekolah','action'])
+                    ->rawColumns(['nama_sekolah','kabupaten','action'])
                     ->make(true);
         }
         return view('guru.index');
@@ -100,7 +98,14 @@ class GuruMController extends Controller
 
     /** add data Guru */
     public function add(){
-        $listsekolah = SekolahM::where('is_aktif',true)->get();
+        $user = Auth::user();
+        $query = SekolahM::where('is_aktif', true);
+
+        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+            $query->where('kabupaten_id', $user->kabupaten_id);
+        }
+
+        $listsekolah = $query->get();
       
         return view('guru.add',compact('listsekolah'));
     }
@@ -134,8 +139,14 @@ class GuruMController extends Controller
 
     public function edit($id){
         $models = GuruM::where('id',$id)->first();
-        $listsekolah = SekolahM::where('is_aktif',true)->get();
+        $user = Auth::user();
+        $query = SekolahM::where('is_aktif', true);
 
+        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+            $query->where('kabupaten_id', $user->kabupaten_id);
+        }
+
+        $listsekolah = $query->get();
 
         return view('guru.edit',compact('models','listsekolah'));
     }
@@ -166,5 +177,19 @@ class GuruMController extends Controller
 
 
         return redirect()->route('guru.edit',$request->id)->with('success', 'Guru update successfully');
+    }
+
+    public function updateKabupaten(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:guru_m,id',
+            'kabupaten_id' => 'required|exists:master_kabupaten,id',
+        ]);
+
+        $guru = GuruM::find($request->id);
+        $guru->kabupaten_id = $request->kabupaten_id;
+        $guru->save();
+
+        return response()->json(['success' => true, 'message' => 'Kabupaten Kepala Sekolah berhasil diupdate']);
     }
 }

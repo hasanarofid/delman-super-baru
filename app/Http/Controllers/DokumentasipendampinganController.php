@@ -61,6 +61,14 @@ class DokumentasipendampinganController extends Controller
 
 
     public function index(){
+        $user = Auth::user();
+        $queryPengawas = User::where('role','pengawas');
+        
+        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+            $queryPengawas->where('kabupaten_id', $user->kabupaten_id);
+        }
+        
+        $listPengawas = $queryPengawas->get();
 
         $currentMonth = date('n'); // Numeric representation of the current month (1-12)
         $currentYear = date('Y');  // Current year
@@ -93,8 +101,6 @@ class DokumentasipendampinganController extends Controller
             ];
         }
 
-        $listPengawas = User::where('role','pengawas')->get();
-
         return view('dokumentasipendampingan.index',compact('listPengawas',
         'months',
         'currentYear',
@@ -104,10 +110,11 @@ class DokumentasipendampinganController extends Controller
 
     public function getdata(Request $request){
         if ($request->ajax()) {
-
+            $user = Auth::user();
             $pengawas = $request->input('pengawas', 'all');
             $tahun = $request->input('tahun', 'all');
             $bln = $request->input('bln', 'all');
+            
             $monthNamesIndo = [
                 'Januari' => 1,
                 'Februari' => 2,
@@ -127,6 +134,12 @@ class DokumentasipendampinganController extends Controller
             $monthNumber = isset($monthNamesIndo[$bln]) ? $monthNamesIndo[$bln] : 'all';
 
             $post = TanggapanUmpanbalikT::with('umpanBalikT','umpanBalikT.rencanakerja')->latest();
+
+            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+                $post->whereHas('umpanBalikT.pengawasnama', function($q) use ($user) {
+                    $q->where('kabupaten_id', $user->kabupaten_id);
+                });
+            }
              // Apply filter for 'bln' (bulan)
              if ($bln !== 'all') {
                 $post->whereMonth('created_at', $monthNumber);
@@ -194,7 +207,14 @@ class DokumentasipendampinganController extends Controller
     $monthNumber = isset($monthNamesIndo[$bln]) ? $monthNamesIndo[$bln] : 'all';
 
     // Start the query
+    $userAuth = Auth::user();
     $query = TanggapanUmpanbalikT::with('umpanBalikT', 'umpanBalikT.rencanakerja', 'umpanBalikT.pengawasnama')->latest();
+
+    if ($userAuth->role == 'Stakeholder' || $userAuth->role == 'Admin') {
+        $query->whereHas('umpanBalikT.pengawasnama', function($q) use ($userAuth) {
+            $q->where('kabupaten_id', $userAuth->kabupaten_id);
+        });
+    }
 
     // Apply month filter
     if ($bln !== 'all') {

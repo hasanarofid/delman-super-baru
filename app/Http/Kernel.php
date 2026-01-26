@@ -65,7 +65,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'superadmin' => \App\Http\Middleware\SuperadminMiddleware::class,
-        'stockholder' => \App\Http\Middleware\StakeholderMiddleware::class,
+        'stakeholder' => \App\Http\Middleware\StakeholderMiddleware::class,
         'pengawas' => \App\Http\Middleware\PengawasMiddleware::class,
         'user' => \App\Http\Middleware\UserMiddleware::class,
         'checkSuperadminOrStakeholder' => \App\Http\Middleware\CheckSuperadminOrStakeholder::class,

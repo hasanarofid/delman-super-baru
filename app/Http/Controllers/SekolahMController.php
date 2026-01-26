@@ -30,30 +30,26 @@ class SekolahMController extends Controller
 
     public function getdata(Request $request){
         if ($request->ajax()) {
-            // if(Auth::user()->role == 'Super Admin'){
-            //     $post = SekolahM::where('is_aktif',true)->latest()->get();
-            // }else if(Auth::user()->role == 'Admin' || Auth::user()->role == 'Stakeholder' ){
-            //     $kelompok_kabupaten = Kabupaten::find(Auth::user()->kabupaten_id)->kelompok_kabupaten;
-            //     $kabupaten = Kabupaten::where('kelompok_kabupaten',$kelompok_kabupaten)->get();
-            //     $id_filter = [];
-            //     foreach($kabupaten as $kab){
-            //         $id_filter[] = $kab->id;
-            //     }
-    
-                $post =SekolahM::where('is_aktif',true)
-                ->get();
-    
-            // }
+            $user = Auth::user();
+            $query = SekolahM::with('kabupaten')->where('is_aktif', true);
 
-      
-            // dd($post);
+            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+                $query->where('kabupaten_id', $user->kabupaten_id);
+            }
+    
+            $post = $query->latest()->get();
+    
             return Datatables::of($post)
                     ->addIndexColumn()
+                    ->addColumn('kabupaten', function($row){
+                        return !empty($row->kabupaten->nama_kabupaten) ? $row->kabupaten->nama_kabupaten: '-';
+                    })
                     ->addColumn('action', function($row){
                         $user = Auth::user();
                         if ($user && $user->role == 'Super Admin') {
                             $btn = '<a href="'.route('sekolah.edit',$row->id).'" data-toggle="tooltip"  class="edit btn btn-primary btn-sm editPost">Edit</a>';
                             $btn = $btn.' <a href="'.route('sekolah.hapus',$row->id).'" data-toggle="tooltip" data-toggle="modal" data-target="#confirmDeleteModal"    data-original-title="Delete" class="btn btn-danger btn-sm deletePost">Delete</a>';
+                            $btn = $btn.' <button type="button" class="btn btn-warning btn-sm updateKabupatenBtn" data-id="'.$row->id.'" data-kabupaten-id="'.$row->kabupaten_id.'">Update Kabupaten</button>';
      
                              return $btn;
                         } else {
@@ -61,7 +57,7 @@ class SekolahMController extends Controller
                         }
                        
                  })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action','kabupaten'])
                     ->make(true);
         }
         return view('sekolah.index');
@@ -145,5 +141,19 @@ class SekolahMController extends Controller
 
 
         return redirect()->route('sekolah.edit',$request->id)->with('success', 'Sekolah update successfully');
+    }
+
+    public function updateKabupaten(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:sekolah_m,id',
+            'kabupaten_id' => 'required|exists:master_kabupaten,id',
+        ]);
+
+        $sekolah = SekolahM::find($request->id);
+        $sekolah->kabupaten_id = $request->kabupaten_id;
+        $sekolah->save();
+
+        return response()->json(['success' => true, 'message' => 'Kabupaten Sekolah berhasil diupdate']);
     }
 }

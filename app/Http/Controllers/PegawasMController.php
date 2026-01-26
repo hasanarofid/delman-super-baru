@@ -114,7 +114,14 @@ class PegawasMController extends Controller
 
     public function setSekolahBinaan($id){
         $models = User::where('id',$id)->first();
-        $sekolah = SekolahM::get();
+        $user = Auth::user();
+        $query = SekolahM::query();
+
+        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+            $query->where('kabupaten_id', $user->kabupaten_id);
+        }
+
+        $sekolah = $query->get();
         $binaan = SekolahbinaanT::with('sekolah')->where('id_pengawas',$id)->get();
         $total_binaan = SekolahbinaanT::with('sekolah')->where('id_pengawas',$id)->count();
 
@@ -126,23 +133,15 @@ class PegawasMController extends Controller
 
     public function getdata(Request $request){
         if ($request->ajax()) {
-            // if(Auth::user()->role == 'Super Admin'){
-            //     $post = User::with('kabupaten')->where('role','Pengawas')->latest()->get(); 
-            // }else if(Auth::user()->role == 'Admin' || Auth::user()->role == 'Stakeholder' ){
-            //     $kelompok_kabupaten = Kabupaten::find(Auth::user()->kabupaten_id)->kelompok_kabupaten;
-            //     $kabupaten = Kabupaten::where('kelompok_kabupaten',$kelompok_kabupaten)->get();
-            //     $id_filter = [];
-            //     foreach($kabupaten as $kab){
-            //         $id_filter[] = $kab->id;
-            //     }
+            $user = Auth::user();
+            $query = User::with('kabupaten', 'profile')->where('role', 'Pengawas');
+
+            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+                $query->where('kabupaten_id', $user->kabupaten_id);
+            }
     
-                $post = User::with('kabupaten', 'profile')
-                ->where('role','Pengawas')
-                // ->whereIn('kabupaten_id',$id_filter)
-                ->latest()->get();
+            $post = $query->latest()->get();
     
-            // }
-            // dd($post);
             return Datatables::of($post)
                     ->addIndexColumn()
                      ->addColumn('foto', function($row){

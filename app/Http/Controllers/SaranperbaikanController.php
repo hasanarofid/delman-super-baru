@@ -14,18 +14,30 @@ use DataTables;
 class SaranperbaikanController extends Controller
 {
     public function index(){
-        $listPengawas = User::where('role','pengawas')->get();
+        $user = Auth::user();
+        $queryPengawas = User::where('role','pengawas');
+        
+        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+            $queryPengawas->where('kabupaten_id', $user->kabupaten_id);
+        }
+        
+        $listPengawas = $queryPengawas->get();
 
         return view('saranperbaikan.index',compact('listPengawas'));
     }
 
     public function getdata(Request $request){
         if ($request->ajax()) {
-
-    
+            $user = Auth::user();
             $pengawas = $request->input('pengawas', 'all');
 
             $post = TanggapanUmpanbalikT::with('umpanBalikT')->latest();
+
+            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
+                $post->whereHas('umpanBalikT.pengawasnama', function($q) use ($user) {
+                    $q->where('kabupaten_id', $user->kabupaten_id);
+                });
+            }
           
             $post->whereHas('umpanBalikT', function ($q) use ($pengawas) {
                 if ($pengawas !== 'all') {

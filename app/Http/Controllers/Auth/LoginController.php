@@ -101,34 +101,34 @@ class LoginController extends Controller
 
     // Metode untuk login pengawas
     public function superPengawasLogin(Request $request)
-    {
-        $request->validate([
-            'identifier' => 'required', // Bisa email atau NIP
-            'password' => 'required',
-        ]);
+{
+    $request->validate([
+        'identifier' => 'required', // Bisa email atau NIP
+        'password' => 'required',
+    ]);
 
-        // Cari pengguna berdasarkan email atau NIP
-        $user = User::findByEmailOrNip($request->identifier)->first();
+    // Cari pengguna berdasarkan email atau NIP
+    $user = User::findByEmailOrNip($request->identifier)->first();
 
-        if ($user && Hash::check($request->password, $user->password)) {
+    if ($user && Hash::check($request->password, $user->password)) {
             if ($user->role == 'Pengawas') {
-                Auth::login($user);
-                return redirect()->route('pengawas.index');
-            } else {
-                Session::flash('error', 'Anda tidak punya akses untuk halaman ini.');
-                return redirect()->route('pengawas.login');
-            }
+        Auth::login($user);
+            return redirect()->route('pengawas.index');
         } else {
-            return redirect()->route('pengawas.login')->withErrors([
-                'identifier' => 'NIP/Email atau password salah.',
-            ]);
+            Session::flash('error', 'Anda tidak punya akses untuk halaman ini.');
+            return redirect()->route('pengawas.login');
         }
+    } else {
+        return redirect()->route('pengawas.login')->withErrors([
+                'identifier' => 'NIP/Email atau password salah.',
+        ]);
     }
+}
 
     public function logout(Request $request)
     {
         $role = Auth::user() ? Auth::user()->role : null;
-        
+
         Auth::logout();
 
         $request->session()->invalidate();

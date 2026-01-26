@@ -69,12 +69,14 @@
 
             <ul class="menu-sub">
              
+                @if($user->role != 'Stakeholder')
                 <li class="menu-item {{ (request()->is('superadmin/masterkabupaten*')) ? 'active' : '' }}">
                     <a href="{{ route('kabupaten.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons fas fa-map-marker-alt"></i>
                         <div data-i18n="Master Kabupaten">Master Kabupaten</div>
                     </a>
                 </li>
+                @endif
                 <li class="menu-item {{ (request()->is('superadmin/masterpengawas*')) ? 'active' : '' }}">
                     <a href="{{ route('masterpengawas.index') }}" class="menu-link">
                         {{-- <i class="menu-icon tf-icons ti ti-user"></i> --}}
@@ -95,12 +97,14 @@
                         <div data-i18n="Kepala Sekolah"> Kepala Sekolah</div>
                     </a>
                 </li>
+                @if($user->role != 'Stakeholder')
                 <li class="menu-item {{ (request()->is('superadmin/stakeholder*')) ? 'active' : '' }}">
                     <a href="{{ route('stakeholder.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons fa-solid fa-user-tie"></i>
                         <div data-i18n="Stakeholder">Stakeholder</div>
                     </a>
                 </li>
+                @endif
                 
             </ul>
           </li>
@@ -205,12 +209,14 @@
             </a>
 
             <ul class="menu-sub">
+        @if($user->role != 'Stakeholder')
         <li class="menu-item {{ (request()->is('admin/masterkabupaten*')) ? 'active' : '' }}">
             <a href="{{ route('kabupaten.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons fas fa-map-marker-alt"></i>
                 <div data-i18n="Master Kabupaten">Master Kabupaten</div>
             </a>
         </li>
+        @endif
         <li class="menu-item {{ (request()->is('admin/masterpengawas*')) ? 'active' : '' }}">
             <a href="{{ route('masterpengawas.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-user"></i>
@@ -230,12 +236,14 @@
             </a>
         </li>
 
+        @if($user->role != 'Stakeholder')
         <li class="menu-item {{ (request()->is('admin/stakeholder*')) ? 'active' : '' }}">
             <a href="{{ route('stakeholder.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-users"></i>
                 <div data-i18n="Stakeholder">Stakeholder</div>
             </a>
         </li>
+        @endif
             </ul>
         </li>
         @endif

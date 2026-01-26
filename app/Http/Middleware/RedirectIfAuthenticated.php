@@ -22,9 +22,9 @@ class RedirectIfAuthenticated
             $user = Auth::guard($guard)->user();
             
             // Jika user sudah login dan mengakses halaman login, redirect ke dashboard yang sesuai
-            if ($request->is('pengawas/login') || $request->is('stockholder/login') || $request->is('login')) {
+            if ($request->is('pengawas/login') || $request->is('stakeholder/login') || $request->is('login')) {
                 if ($user->role == 'Pengawas') {
-                    return redirect()->route('pengawas.index');
+                return redirect()->route('pengawas.index');
                 }
                 return redirect(RouteServiceProvider::HOME);
             }

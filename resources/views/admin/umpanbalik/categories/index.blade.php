@@ -8,7 +8,9 @@
     <div class="card">
         <div class="card-header">
             <h5 class="card-title">Kategori Umpan Balik</h5>
+            @if(Auth::user()->role != 'Stakeholder')
             <a href="{{ route('umpanbalik.categories.create') }}" class="btn btn-primary btn-sm float-right">Tambah Kategori</a>
+            @endif
         </div>
         <div class="card-body">
             @if (session('success'))
@@ -24,7 +26,9 @@
                             <th>Nama</th>
                             <th>Deskripsi</th>
                             <th>Status</th>
+                            @if(Auth::user()->role != 'Stakeholder')
                             <th>Aksi</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -40,6 +44,7 @@
                                     <span class="badge bg-label-danger">Tidak Aktif</span>
                                 @endif
                             </td>
+                            @if(Auth::user()->role != 'Stakeholder')
                             <td>
                                 <a href="{{ route('umpanbalik.categories.show', $category->id) }}" class="btn btn-info btn-sm">Lihat</a>
                                 <a href="{{ route('umpanbalik.categories.edit', $category->id) }}" class="btn btn-warning btn-sm">Edit</a>
@@ -49,6 +54,7 @@
                                     <button type="submit" class="btn btn-danger btn-sm delete-button">Hapus</button>
                                 </form>
                             </td>
+                            @endif
                         </tr>
                         @endforeach
                     </tbody>

@@ -82,7 +82,7 @@
                   <div class="numbers">
                     <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Stackholder</p>
                     <h5 class="font-weight-bolder">
-                      {{ $total_stockholder  }}
+                      {{ $total_stakeholder  }}
                     </h5>
                   
                   </div>

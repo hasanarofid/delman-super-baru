@@ -27,29 +27,36 @@ class AdminController extends Controller
                 // Pengguna sudah login dan adalah pengawas, lanjutkan ke halaman pengawas
                 return redirect()->route('pengawas.index');
             } else {
-                // if($user->role == 'Super Admin'){
-                    $total_guru = GuruM::where('is_aktif',true)->get()->count();
-                    $total_sekolah = SekolahM::where('is_aktif',true)->get()->count();
-                    // Count all pengawas without kabupaten_id filter
-                    $total_pengawas = User::where('role', 'Pengawas')->count();
-                    $total_stockholder = User::where('role', 'Stakeholder')->count();
-                    $total_rencankerja = RencanaKerjaT::get()->count();
-                    $total_umpanbalik = UmpanbalikT::get()->count();
-                    // }else if($user->role == 'Admin' || $user->role == 'Stakeholder' ){
-                //     $kelompok_kabupaten = Kabupaten::find($user->kabupaten_id)->kelompok_kabupaten;
-                //     $kabupaten = Kabupaten::where('kelompok_kabupaten',$kelompok_kabupaten)->get();
-                //     $id_filter = [];
-                //     foreach($kabupaten as $kab){
-                //         $id_filter[] = $kab->id;
-                //     }
+                $kabupaten_id = ($user->role == 'Stakeholder' || $user->role == 'Admin') ? $user->kabupaten_id : null;
 
-                //     $total_guru = GuruM::where('is_aktif',true)->whereIn('kabupaten_id',$id_filter)->get()->count();
-                //     $total_sekolah = SekolahM::where('is_aktif',true)->whereIn('kabupaten_id',$id_filter)->get()->count();
-                //     $total_pengawas = User::where('role','Pengawas')->whereIn('kabupaten_id',$id_filter)->get()->count();
-                //     $total_stockholder = User::where('role','Stakeholder')->whereIn('kabupaten_id',$id_filter)->get()->count();
-                //      // dd($total_guru);
+                $total_guru_q = GuruM::where('is_aktif', true);
+                $total_sekolah_q = SekolahM::where('is_aktif', true);
+                $total_pengawas_q = User::where('role', 'Pengawas');
+                $total_stakeholder_q = User::where('role', 'Stakeholder');
+                $total_rencankerja_q = RencanaKerjaT::query();
+                $total_umpanbalik_q = UmpanbalikT::query();
 
-                // }
+                if ($kabupaten_id) {
+                    $total_guru_q->where('kabupaten_id', $kabupaten_id);
+                    $total_sekolah_q->where('kabupaten_id', $kabupaten_id);
+                    $total_pengawas_q->where('kabupaten_id', $kabupaten_id);
+                    $total_stakeholder_q->where('kabupaten_id', $kabupaten_id);
+                    
+                    $total_rencankerja_q->whereHas('pengawasnama', function($q) use ($kabupaten_id) {
+                        $q->where('kabupaten_id', $kabupaten_id);
+                    });
+                    $total_umpanbalik_q->whereHas('pengawasnama', function($q) use ($kabupaten_id) {
+                        $q->where('kabupaten_id', $kabupaten_id);
+                    });
+                }
+
+                $total_guru = $total_guru_q->count();
+                $total_sekolah = $total_sekolah_q->count();
+                $total_pengawas = $total_pengawas_q->count();
+                $total_stakeholder = $total_stakeholder_q->count();
+                $total_rencankerja = $total_rencankerja_q->count();
+                $total_umpanbalik = $total_umpanbalik_q->count();
+
             $master = MasterTupoksi::orderBy('urutan')->get();
             $currentMonth = date('n'); // Numeric representation of the current month (1-12)
         $currentYear = date('Y');  // Current year
@@ -82,13 +89,17 @@ class AdminController extends Controller
             ];
         }
 
-        $listPengawas = User::where('role','pengawas')->get();
+        $listPengawas_q = User::where('role', 'pengawas');
+        if ($kabupaten_id) {
+            $listPengawas_q->where('kabupaten_id', $kabupaten_id);
+        }
+        $listPengawas = $listPengawas_q->get();
                 return view('adminNew.index',
                 compact(
                     'total_guru',
                     'total_sekolah',
                     'total_pengawas',
-                    'total_stockholder',
+                    'total_stakeholder',
                     'total_rencankerja',
                     'total_umpanbalik',
                     'months',
@@ -106,9 +117,18 @@ class AdminController extends Controller
         $month = $request->input('bln', 'all');
         $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
 
+        $user = Auth::user();
+        $kabupaten_id = ($user->role == 'Stakeholder' || $user->role == 'Admin') ? $user->kabupaten_id : null;
+
         $query = RencanaKerjaT::with('pengawasnama')
         ->selectRaw('id_pengawas, COUNT(*) as total')
         ->groupBy('id_pengawas');
+
+        if ($kabupaten_id) {
+            $query->whereHas('pengawasnama', function($q) use ($kabupaten_id) {
+                $q->where('kabupaten_id', $kabupaten_id);
+            });
+        }
 
         // Apply the month filter
         if ($month !== 'all') {
@@ -140,6 +160,9 @@ class AdminController extends Controller
         $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
         $pengawas = $request->input('pengawas', 'all');
 
+        $user = Auth::user();
+        $kabupaten_id = ($user->role == 'Stakeholder' || $user->role == 'Admin') ? $user->kabupaten_id : null;
+
         $query = UmpanbalikT::with('pengawasnama', 'rencanakerja')
             ->selectRaw('id_pelaporan, 
                         COUNT(DISTINCT CONCAT(umpanbalik_t.id_user, "-", umpanbalik_t.id_pelaporan)) as total_umpan_balik,
@@ -150,6 +173,12 @@ class AdminController extends Controller
             ->leftJoin('tanggapan_umpanbalik_t', 'tanggapan_umpanbalik_t.id_umpanbalik', '=', 'umpanbalik_t.id')
             // ->whereNotNull('tanggapan_umpanbalik_t.id')  // Abaikan nilai NULL
                ->groupBy('id_pelaporan');
+
+        if ($kabupaten_id) {
+            $query->whereHas('pengawasnama', function($q) use ($kabupaten_id) {
+                $q->where('kabupaten_id', $kabupaten_id);
+            });
+        }
 
         // Apply the filters    COUNT(DISTINCT CONCAT(tanggapan_umpanbalik_t.id_user, "-", tanggapan_umpanbalik_t.id)) as total_respon
         if ($pengawas !== 'all') {
@@ -220,9 +249,18 @@ class AdminController extends Controller
         $month = $request->input('bln', 'all');
         $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
 
+        $user = Auth::user();
+        $kabupaten_id = ($user->role == 'Stakeholder' || $user->role == 'Admin') ? $user->kabupaten_id : null;
+
         $query = RencanaKerjaT::with('aspekprogram')
         ->selectRaw('aspekprogram_id, COUNT(*) as total')
         ->groupBy('aspekprogram_id');
+
+        if ($kabupaten_id) {
+            $query->whereHas('pengawasnama', function($q) use ($kabupaten_id) {
+                $q->where('kabupaten_id', $kabupaten_id);
+            });
+        }
 
         // Apply the month filter
         if ($month !== 'all') {
@@ -254,6 +292,9 @@ class AdminController extends Controller
     {
         $pengawasId = $request->input('pengawas', 'all');
         $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
+
+        $user = Auth::user();
+        $kabupaten_id = ($user->role == 'Stakeholder' || $user->role == 'Admin') ? $user->kabupaten_id : null;
 
         // Define the query to calculate averages
         $query = TanggapanUmpanbalikT::selectRaw(
@@ -306,6 +347,11 @@ class AdminController extends Controller
         ->join('umpanbalik_t as ut', 'ut.id', '=', 'tanggapan_umpanbalik_t.id_umpanbalik')
         ->join('rencakakerja_t as rt', 'rt.id', '=', 'ut.id_pelaporan');
 
+        if ($kabupaten_id) {
+            $query->join('users as u', 'u.id', '=', 'rt.id_pengawas')
+                  ->where('u.kabupaten_id', $kabupaten_id);
+        }
+
         // Apply filter based on pengawasId, if specified
         if ($pengawasId !== 'all') {
             $query->where('rt.id_pengawas', $pengawasId);
@@ -339,10 +385,19 @@ class AdminController extends Controller
         $month = $request->input('bln', 'all');
         $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
 
+        $user = Auth::user();
+        $kabupaten_id = ($user->role == 'Stakeholder' || $user->role == 'Admin') ? $user->kabupaten_id : null;
+
         $query = UmpanbalikT::with('pengawasnama','tanggapanUmpanBalik','rencanakerja')
         ->whereHas('tanggapanUmpanBalik') // hanya ambil yang sudah ada tanggapan
         ->selectRaw('id_pengawas, COUNT(*) as total')
         ->groupBy('id_pengawas');
+
+        if ($kabupaten_id) {
+            $query->whereHas('pengawasnama', function($q) use ($kabupaten_id) {
+                $q->where('kabupaten_id', $kabupaten_id);
+            });
+        }
 
         // Apply the month and year filters on the related rencanakerja table
         $query->whereHas('rencanakerja', function ($q) use ($month, $year) {
@@ -373,6 +428,9 @@ class AdminController extends Controller
         $pengawas = $request->input('pengawas', 'all');
         $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
 
+        $user = Auth::user();
+        $kabupaten_id = ($user->role == 'Stakeholder' || $user->role == 'Admin') ? $user->kabupaten_id : null;
+
         // Buat query untuk menghitung jumlah masing-masing jenis jawaban di jawaban_4
         $query = TanggapanUmpanbalikT::selectRaw("
                 COUNT(CASE WHEN jawaban_4 = 'Ya, melakukan pendampingan di Sekolah' THEN 1 END) as sekolah,
@@ -382,6 +440,11 @@ class AdminController extends Controller
             ")
             ->join('umpanbalik_t as ut', 'ut.id', '=', 'tanggapan_umpanbalik_t.id_umpanbalik')
             ->join('rencakakerja_t as rt', 'rt.id', '=', 'ut.id_pelaporan');
+
+        if ($kabupaten_id) {
+            $query->join('users as u', 'u.id', '=', 'rt.id_pengawas')
+                  ->where('u.kabupaten_id', $kabupaten_id);
+        }
 
         // Tambahkan filter untuk pengawas jika ada
         if ($pengawas !== 'all') {

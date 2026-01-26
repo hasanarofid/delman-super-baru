@@ -30,7 +30,11 @@ class GuruM extends Model
           public function sekolah()
     {
         return $this->hasOne(SekolahM::class, 'id', 'sekolah_id');
+    }
 
+    public function kabupaten()
+    {
+        return $this->hasOne(Kabupaten::class, 'id', 'kabupaten_id');
     }
 
 
