@@ -445,6 +445,9 @@ class AdminController extends Controller
                         return !empty($row->kabupaten->kelompok_kabupaten) ? $row->kabupaten->kelompok_kabupaten : '-';
                     })
                     ->addColumn('action', function($row){
+                        if(Auth::user()->role == 'Stakeholder'){
+                            return '-';
+                        }
                         $btn = '<a href="'.route('admin.edit', $row->id).'" data-toggle="tooltip" class="edit btn btn-primary btn-sm waves-effect waves-light editPost" style="margin-right: 5px;">
                            Edit
                         </a>';

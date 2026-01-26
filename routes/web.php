@@ -193,6 +193,17 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
     });
 
     // route menu pengawas
+    Route::prefix('masterkabupaten')->group(function () {
+        Route::get('/', 'KabupatenController@index')->name('kabupaten.index');
+        Route::get('/get-kabupaten', 'KabupatenController@getdata')->name('kabupaten.getdata');
+        Route::get('/add-kabupaten', 'KabupatenController@add')->name('kabupaten.add');
+        Route::post('/store-kabupaten', 'KabupatenController@store')->name('kabupaten.store');
+        Route::get('/edit-kabupaten/{id}', 'KabupatenController@edit')->name('kabupaten.edit');
+        Route::post('/update-kabupaten', 'KabupatenController@update')->name('kabupaten.update');
+        Route::get('/hapus-kabupaten/{id}', 'KabupatenController@hapus')->name('kabupaten.hapus');
+    });
+
+    // route menu pengawas
     Route::prefix('masterpengawas')->group(function () {
         // route panel menu pengawas
         // dd('masterpengawas');
@@ -912,6 +923,10 @@ Route::middleware(['web', 'pengawas'])->group(function () {
     Route::get('/pengawas/login', 'Auth\LoginController@showPengawasLoginForm')->name('pengawas.login');
     Route::post('/pengawas/login', 'Auth\LoginController@superPengawasLogin')->name('superPengawasLogin');
     Route::post('/pengawas/logout', 'Auth\LoginController@logoutpengawas')->name('pengawas.logout');
+
+    // login logout stakeholder
+    Route::get('/stockholder/login', 'Auth\LoginController@showStakeholderLoginForm')->name('stakeholder.login');
+    Route::post('/stockholder/login', 'Auth\LoginController@stakeholderLogin')->name('stakeholder.login.post');
 });
 
 // Route::prefix('pengawas')->middleware(['auth', 'pengawas'])->group(function () {

@@ -32,7 +32,37 @@ class LoginController extends Controller
         return view('dashboard_pengawas.login');
     }
 
+    // View untuk stakeholder login
+    public function showStakeholderLoginForm()
+    {
+        return view('stakeholder.login');
+    }
 
+    // Metode untuk login stakeholder
+    public function stakeholderLogin(Request $request)
+    {
+        $request->validate([
+            'identifier' => 'required', // Bisa email atau NIP
+            'password' => 'required',
+        ]);
+
+        // Cari pengguna berdasarkan email atau NIP
+        $user = User::findByEmailOrNip($request->identifier)->first();
+
+        if ($user && Hash::check($request->password, $user->password)) {
+            if ($user->role == 'Stakeholder') {
+                Auth::login($user);
+                return redirect()->route('admin.index');
+            } else {
+                Session::flash('error', 'Anda tidak punya akses untuk halaman ini.');
+                return redirect()->route('stakeholder.login');
+            }
+        } else {
+            return redirect()->route('stakeholder.login')->withErrors([
+                'identifier' => 'Email/NIP atau password salah.',
+            ]);
+        }
+    }
 
     // Metode untuk login pengawas
     public function superPengawasLogin(Request $request)

@@ -66,6 +66,12 @@
 
             <ul class="menu-sub">
              
+                <li class="menu-item {{ (request()->is('superadmin/masterkabupaten*')) ? 'active' : '' }}">
+                    <a href="{{ route('kabupaten.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons fas fa-map-marker-alt"></i>
+                        <div data-i18n="Master Kabupaten">Master Kabupaten</div>
+                    </a>
+                </li>
                 <li class="menu-item {{ (request()->is('superadmin/masterpengawas*')) ? 'active' : '' }}">
                     <a href="{{ route('masterpengawas.index') }}" class="menu-link">
                         {{-- <i class="menu-icon tf-icons ti ti-user"></i> --}}
@@ -173,12 +179,12 @@
 
         
 
-        {{-- <li class="menu-item {{ (request()->is('superadmin/stakeholder*')) ? 'active' : '' }}">
+        <li class="menu-item {{ (request()->is('superadmin/stakeholder*')) ? 'active' : '' }}">
             <a href="{{ route('stakeholder.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons fa-solid fa-user-tie"></i>
                 <div data-i18n="Stakeholder">Stakeholder</div>
             </a>
-        </li> --}}
+        </li>
 
         <li class="menu-item {{ (request()->is('superadmin/wablasthistory')) ? 'active' : '' }}">
             <a href="{{ route('wablasthistory.index') }}" class="menu-link">
@@ -190,6 +196,12 @@
         @endif
 
         @if (Auth::user()->role == 'Admin')
+        <li class="menu-item {{ (request()->is('admin/masterkabupaten*')) ? 'active' : '' }}">
+            <a href="{{ route('kabupaten.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons fas fa-map-marker-alt"></i>
+                <div data-i18n="Master Kabupaten">Master Kabupaten</div>
+            </a>
+        </li>
         <li class="menu-item {{ (request()->is('admin/masterpengawas*')) ? 'active' : '' }}">
             <a href="{{ route('masterpengawas.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-user"></i>
