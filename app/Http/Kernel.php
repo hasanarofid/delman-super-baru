@@ -36,6 +36,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\StakeholderReadOnly::class,
         ],
 
         'api' => [
@@ -68,6 +69,7 @@ class Kernel extends HttpKernel
         'pengawas' => \App\Http\Middleware\PengawasMiddleware::class,
         'user' => \App\Http\Middleware\UserMiddleware::class,
         'checkSuperadminOrStakeholder' => \App\Http\Middleware\CheckSuperadminOrStakeholder::class,
+        'stakeholder.readonly' => \App\Http\Middleware\StakeholderReadOnly::class,
 
     ];
 }

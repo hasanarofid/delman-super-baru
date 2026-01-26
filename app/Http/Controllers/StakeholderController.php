@@ -9,9 +9,9 @@ use App\SekolahM;
 use App\Kabupaten;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use DataTables;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Hash;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 class StakeholderController extends Controller
 {
     public function index()
@@ -23,29 +23,36 @@ class StakeholderController extends Controller
     /** get data */
     public function getdata(Request $request){
         if ($request->ajax()) {
-            if(Auth::user()->role == 'Super Admin'){
+            $user = Auth::user();
+            
+            if($user->role == 'Super Admin'){
                 $post = User::with('kabupaten')->where('role','Stakeholder')->latest()->get();
 
-            }else if(Auth::user()->role == 'Admin' || Auth::user()->role == 'Stakeholder' ){
-                $kelompok_kabupaten = Kabupaten::find(Auth::user()->kabupaten_id)->kelompok_kabupaten;
-                $kabupaten = Kabupaten::where('kelompok_kabupaten',$kelompok_kabupaten)->get();
-                $id_filter = [];
-                foreach($kabupaten as $kab){
-                    $id_filter[] = $kab->id;
+            }else {
+                // Admin atau Stakeholder
+                $kabupaten_id = $user->kabupaten_id;
+                if ($kabupaten_id) {
+                    $kab = Kabupaten::find($kabupaten_id);
+                    if ($kab) {
+                        $kelompok_kabupaten = $kab->kelompok_kabupaten;
+                        $kabupaten_ids = Kabupaten::where('kelompok_kabupaten',$kelompok_kabupaten)->pluck('id');
+                        $post = User::with('kabupaten')->where('role','Stakeholder')->whereIn('kabupaten_id',$kabupaten_ids)->latest()->get();
+                    } else {
+                        $post = collect();
+                    }
+                } else {
+                    $post = collect(); // Kosong jika tidak ada kabupaten_id
                 }
-    
-                $post = User::with('kabupaten')->where('role','Stakeholder')->whereIn('kabupaten_id',$id_filter)->latest()->get();
-    
             }
 
             // dd($post);
-            return Datatables::of($post)
+            return DataTables::of($post)
                     ->addIndexColumn()
                      ->addColumn('foto', function($row){
-                        if($row->foto_profile == 'userdefault.jpg'){
+                        if($row->foto_profile == 'userdefault.jpg' || empty($row->foto_profile)){
                             $foto = asset('userdefault.jpg');
                         }else{
-                            $foto =  route('stakeholder',$row->foto_profile );
+                            $foto =  route('fotopengawas',$row->foto_profile );
                         }
 
                      return  '<div class="card card-profile"><img src="'.$foto.'" height="100px" alt="Image placeholder" class="card-img-top"></div>';
@@ -59,49 +66,52 @@ class StakeholderController extends Controller
                         return !empty($row->kabupaten->kelompok_kabupaten) ? $row->kabupaten->kelompok_kabupaten : '-';
                     })
                     ->addColumn('action', function($row){
-                           if(Auth::user()->role == 'Stakeholder'){
+                           $user = Auth::user();
+                           if($user->role == 'Stakeholder'){
                                return '-';
                            }
                            $btn = '<a href="'.route('stakeholder.edit',$row->id).'" data-toggle="tooltip"  class="edit btn btn-primary btn-sm editPost">Edit</a>';
                            $btn = $btn.' <a href="'.route('stakeholder.hapus',$row->id).'" data-toggle="tooltip" data-toggle="modal" data-target="#confirmDeleteModal"    data-original-title="Delete" class="btn btn-danger btn-sm deletePost">Delete</a>';
+                           if ($user->role == 'Super Admin') {
+                               $btn = $btn.' <button type="button" class="btn btn-warning btn-sm updateKabupatenBtn" data-id="'.$row->id.'" data-kabupaten-id="'.$row->kabupaten_id.'">Update Kabupaten</button>';
+                           }
                             return $btn;
                     })
                     ->rawColumns(['no_telp','alamat','action','foto','kabupaten'])
                     ->make(true);
         }
-        return view('stakeholder.data');
     }
     
 
     public function add(){
-        $kelompok_kabupaten = Kabupaten::find(Auth::user()->kabupaten_id)->kelompok_kabupaten;
+        $user = Auth::user() ?: Auth::guard('stakeholder')->user();
                
-        $wilayah = Kabupaten::select('nama_kabupaten', DB::raw('MAX(id) as id'),
-         DB::raw('COUNT(*) as total'))
-        ->groupBy('nama_kabupaten')
-        ->where('kelompok_kabupaten',$kelompok_kabupaten)
-        ->get();
+        $query = Kabupaten::select('nama_kabupaten', DB::raw('MAX(id) as id'), DB::raw('COUNT(*) as total'))
+            ->groupBy('nama_kabupaten');
+
+        if($user->role != 'Super Admin' && $user->kabupaten_id){
+            $kelompok_kabupaten = Kabupaten::find($user->kabupaten_id)->kelompok_kabupaten;
+            $query->where('kelompok_kabupaten', $kelompok_kabupaten);
+        }
+               
+        $wilayah = $query->get();
     
-        // dd($wilayah);
          return view('stakeholder.add',compact('wilayah'));
     }
 
     public function edit($id){
-        // $model = User::find($id);
-        // $wilayah = Kabupaten::select('kelompok_kabupaten', DB::raw('MAX(id) as id'), DB::raw('COUNT(*) as total'))
-        //      ->groupBy('kelompok_kabupaten')
-        //      ->get();
-    
-        // dd($wilayah);
         $models = User::where('id',$id)->first();
-
-        $kelompok_kabupaten = Kabupaten::find(Auth::user()->kabupaten_id)->kelompok_kabupaten;
+        $user = Auth::user() ?: Auth::guard('stakeholder')->user();
                
-        $wilayah = Kabupaten::select('nama_kabupaten', DB::raw('MAX(id) as id'),
-         DB::raw('COUNT(*) as total'))
-        ->groupBy('nama_kabupaten')
-        ->where('kelompok_kabupaten',$kelompok_kabupaten)
-        ->get();
+        $query = Kabupaten::select('nama_kabupaten', DB::raw('MAX(id) as id'), DB::raw('COUNT(*) as total'))
+            ->groupBy('nama_kabupaten');
+
+        if($user->role != 'Super Admin' && $user->kabupaten_id){
+            $kelompok_kabupaten = Kabupaten::find($user->kabupaten_id)->kelompok_kabupaten;
+            $query->where('kelompok_kabupaten', $kelompok_kabupaten);
+        }
+               
+        $wilayah = $query->get();
 
         return view('stakeholder.edit',compact('models','wilayah'));
     }
@@ -113,6 +123,7 @@ class StakeholderController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users',
                 'password' => 'required|string|min:6',
+           'repeatpassword' => 'required|same:password',
             ]);
             $user = new User();
             $user->name = $request->name;
@@ -165,5 +176,33 @@ class StakeholderController extends Controller
     public function hapus($id){
          $user = User::where('id',$id)->delete();
         return redirect()->back()->with('success', 'stakeholder Delete successfully');
+    }
+
+    public function import(){
+        return view('stakeholder.import');
+    }
+
+    public function importfile(Request $request){
+        // Implementasi import jika diperlukan
+        return redirect()->back()->with('success', 'Stakeholder Imported successfully');
+    }
+
+    public function excelcontoh(){
+        // Implementasi download contoh excel jika diperlukan
+        return redirect()->back();
+    }
+
+    public function updateKabupaten(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:users,id',
+            'kabupaten_id' => 'required|exists:master_kabupaten,id',
+        ]);
+
+        $user = User::find($request->id);
+        $user->kabupaten_id = $request->kabupaten_id;
+        $user->save();
+
+        return response()->json(['success' => true, 'message' => 'Kabupaten berhasil diupdate']);
     }
 }

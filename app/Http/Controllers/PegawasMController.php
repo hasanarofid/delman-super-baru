@@ -188,6 +188,7 @@ class PegawasMController extends Controller
                             $btn = '<a href="'.route('masterpengawas.edit',$row->id).'" data-toggle="tooltip"  class="edit btn btn-primary btn-sm editPost">Edit</a>';
                            $btn = $btn.' <a href="'.route('masterpengawas.hapus',$row->id).'" data-toggle="tooltip" data-toggle="modal" data-target="#confirmDeleteModal"    data-original-title="Delete" class="btn btn-danger btn-sm deletePost">Delete</a>';
                            $btn = $btn.' <a href="'.route('masterpengawas.setSekolahBinaan',$row->id).'"  class="btn btn-info btn-sm">Add Sekolah Binaan</a>';
+                           $btn = $btn.' <button type="button" class="btn btn-warning btn-sm updateKabupatenBtn" data-id="'.$row->id.'" data-kabupaten-id="'.$row->kabupaten_id.'">Update Kabupaten</button>';
     
                             return $btn;
                         } else {
@@ -372,6 +373,20 @@ class PegawasMController extends Controller
         }
 
         return redirect()->route('masterpengawas.index',$request->id)->with('success', 'pengawas update successfully');
+    }
+
+    public function updateKabupaten(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:users,id',
+            'kabupaten_id' => 'required|exists:master_kabupaten,id',
+        ]);
+
+        $user = User::find($request->id);
+        $user->kabupaten_id = $request->kabupaten_id;
+        $user->save();
+
+        return response()->json(['success' => true, 'message' => 'Kabupaten berhasil diupdate']);
     }
 
 

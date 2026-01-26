@@ -2,6 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -96,7 +100,7 @@ Route::get('/spider-web-data', 'AdminController@getSpiderWebData')->name('admin.
 
 
 // route penel dashboard for superadmin
-Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder'])->group(function () {
+Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder', 'stakeholder.readonly'])->group(function () {
     // route menu admin
     Route::prefix('admin')->group(function () {
         Route::get('/data', 'AdminController@data')->name('admin.data');
@@ -224,6 +228,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
         Route::get('/setSekolahBinaan/{id}', 'PegawasMController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
+        Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
 
 
 
@@ -263,19 +268,19 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
     });
     // end route panel menu guru
 
-    // route panel menu stakeholder
-    Route::prefix('stakeholder')->group(function () {
-        Route::get('/', 'StakeholderController@index')->name('stakeholder.index');
-        Route::get('/get-stakeholder', 'StakeholderController@getdata')->name('stakeholder.getdata');
-        Route::get('/add-stakeholder', 'StakeholderController@add')->name('stakeholder.add');
-        Route::get('/edit-stakeholder/{id}', 'StakeholderController@edit')->name('stakeholder.edit');
-        Route::post('/update-stakeholder/{id}', 'StakeholderController@update')->name('stakeholder.update');
-        Route::get('/import-stakeholder', 'StakeholderController@import')->name('stakeholder.import');
-        Route::post('/importfile-stakeholder', 'StakeholderController@importfile')->name('stakeholder.importfile');
-        Route::post('/store-stakeholder', 'StakeholderController@store')->name('stakeholder.store');
-        Route::get('/hapus-stakeholder/{id}', 'StakeholderController@hapus')->name('stakeholder.hapus');
-        Route::get('/excelcontoh-stakeholder', 'StakeholderController@excelcontoh')->name('stakeholder.excelcontoh');
-    });
+        Route::prefix('stakeholder')->group(function () {
+            Route::get('/', 'StakeholderController@index')->name('stakeholder.index');
+            Route::get('/get-stakeholder', 'StakeholderController@getdata')->name('stakeholder.getdata');
+            Route::get('/add-stakeholder', 'StakeholderController@add')->name('stakeholder.add');
+            Route::get('/edit-stakeholder/{id}', 'StakeholderController@edit')->name('stakeholder.edit');
+            Route::post('/update-stakeholder/{id}', 'StakeholderController@update')->name('stakeholder.update');
+            Route::get('/import-stakeholder', 'StakeholderController@import')->name('stakeholder.import');
+            Route::post('/importfile-stakeholder', 'StakeholderController@importfile')->name('stakeholder.importfile');
+            Route::post('/store-stakeholder', 'StakeholderController@store')->name('stakeholder.store');
+            Route::get('/hapus-stakeholder/{id}', 'StakeholderController@hapus')->name('stakeholder.hapus');
+            Route::get('/excelcontoh-stakeholder', 'StakeholderController@excelcontoh')->name('stakeholder.excelcontoh');
+            Route::post('/update-kabupaten', 'StakeholderController@updateKabupaten')->name('stakeholder.updateKabupaten');
+        });
     // end route panel menu stakeholder
 
     // route wablasthistory
@@ -323,6 +328,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
 //         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
 //         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
 //         Route::get('/setSekolahBinaan/{id}', 'PegawasMController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
+        Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
 
 
 
@@ -406,6 +412,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
 //         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
 //         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
 //         Route::get('/setSekolahBinaan/{id}', 'PegawasMController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
+        Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
 
 
 
@@ -489,6 +496,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
 //         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
 //         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
 //         Route::get('/setSekolahBinaan/{id}', 'PegawasMController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
+        Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
 
 
 
@@ -572,6 +580,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder']
 //         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
 //         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
 //         Route::get('/setSekolahBinaan/{id}', 'PegawasMController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
+        Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
 
 
 
@@ -922,12 +931,15 @@ Route::middleware(['web', 'pengawas'])->group(function () {
     // login logout pengawas
     Route::get('/pengawas/login', 'Auth\LoginController@showPengawasLoginForm')->name('pengawas.login');
     Route::post('/pengawas/login', 'Auth\LoginController@superPengawasLogin')->name('superPengawasLogin');
-    Route::post('/pengawas/logout', 'Auth\LoginController@logoutpengawas')->name('pengawas.logout');
 
-    // login logout stakeholder
-    Route::get('/stockholder/login', 'Auth\LoginController@showStakeholderLoginForm')->name('stakeholder.login');
-    Route::post('/stockholder/login', 'Auth\LoginController@stakeholderLogin')->name('stakeholder.login.post');
 });
+
+// login logout stakeholder
+Route::get('/stockholder', function() {
+    return redirect()->route('stakeholder.login');
+});
+Route::get('/stockholder/login', 'Auth\LoginController@showStakeholderLoginForm')->name('stakeholder.login');
+Route::post('/stockholder/login', 'Auth\LoginController@stakeholderLogin')->name('stakeholder.login.post');
 
 // Route::prefix('pengawas')->middleware(['auth', 'pengawas'])->group(function () {
 

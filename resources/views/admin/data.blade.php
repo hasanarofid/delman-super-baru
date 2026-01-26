@@ -30,7 +30,9 @@
      
 
                   <div class="btn-group" role="group" aria-label="Basic example">
+                    @if(Auth::user()->role != 'Stakeholder')
                       <a  class="btn btn-sm bg-primary text-white " href="{{  route('admin.add')  }}"><i class="fas fa-plus" aria-hidden="true"></i> Admin </a>
+                    @endif
                    </div>
                    
 

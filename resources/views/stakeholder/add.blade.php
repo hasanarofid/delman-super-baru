@@ -1,44 +1,20 @@
-@extends('layouts.master')
-@section('title','Stakeholder')
-@section('subjudul','add Stakeholder')
-@section('breadcrumbs')
-<li class="breadcrumb-item text-sm"><a class="opacity-5 text-white" href="javascript:;">add Stakeholder</a></li>
-<style>
-#data-table_info{
-   font-size: 12px;
-}
-#data-table_paginate{
-   font-size: 12px;
-}
-#data-table tbody tr {
-    font-size: 12px; /* Adjust the font size to your desired value */
-}
-
-</style>
-@endsection
-@section ('content')
- <div class="container-fluid py-2">
- 
-
+@extends('layouts.admin.home')
+@section('title', 'Add Stakeholder')
+@section('titelcard', 'Add Stakeholder')
+@section('content')
+<div class="content-wrapper">
+    <div class="container-xxl flex-grow-1 container-p-y">
        <div class="row">
          <div class="col-12">
           <div class="card mb-4">
             <div class="card-header pb-0 p-3">
                      <div class="row">
                      <div class="col-6 d-flex align-items-center">
-                        <h6 class="mb-0">Form Add Stakeholder </h6>
+                                <h6 class="mb-0">Add Stakeholder</h6>
                      </div>
-                     
                      </div>
                   </div>
-               <div class="card-body ">
-@if(Session::has('success'))
-    <div class="alert alert-success">
-        {{ Session::get('success') }}
-    </div>
-    {{ Session::forget('success') }}
-@endif
-              
+                    <div class="card-body">
                @if ($errors->any())
     <div class="alert alert-danger">
         <ul>
@@ -49,31 +25,30 @@
     </div>
 @endif
 
-                     <form action="{{ route('stakeholder.store') }}"
-                        method="POST"
-                        enctype="multipart/form-data">
+                        <form class="row g-3" action="{{ route('stakeholder.store') }}" method="POST" enctype="multipart/form-data">
                      @csrf
-                     <div class="form-group">
-                              <label for="name">Nama Stakeholder</label>
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">Nama Stakeholder</label>
                               <input type="text" class="form-control" name="name" id="name" placeholder="Nama Stakeholder" required>
                      </div>
 
-                     
-                     <div class="form-group">
-                        <label for="kabupaten_id">Wilayah Kabupaten </label>
+                            <div class="col-md-6">
+                                <label for="kabupaten_id" class="form-label">Wilayah Kabupaten</label>
                         <select name="kabupaten_id" id="kabupaten_id" class="form-control" required>
                            <option value="">.: Pilih Wilayah :. </option>
                            @foreach ($wilayah as $item)
-                              <option value="{{  $item->id }}">{{  $item->nama_kabupaten }}</option>
+                                    <option value="{{ $item->id }}">{{ $item->nama_kabupaten }}</option>
                            @endforeach
                             </select>
                      </div>
-                     <div class="form-group">
-                        <label for="nip">NIP</label>
+
+                            <div class="col-md-6">
+                                <label for="nip" class="form-label">NIP</label>
                         <input type="text" class="form-control" name="nip" id="nip" placeholder="NIP">
                      </div>
-                     <div class="form-group">
-                        <label for="name">Jenjang Jabatan </label>
+
+                            <div class="col-md-6">
+                                <label for="jenjang_jabatan" class="form-label">Jenjang Jabatan</label>
                         <select name="jenjang_jabatan" id="jenjang_jabatan" class="form-control" required>
                            <option value="">.: Pilih Jenjang Jabatan :. </option>
                            <option value="Pengawas Sekolah Utama"> Pengawas Sekolah Utama </option>
@@ -82,66 +57,93 @@
                         </select>
                      </div>
 
-                     <div class="form-group">
-                        <label for="pangkat">Pangkat</label>
+                            <div class="col-md-6">
+                                <label for="pangkat" class="form-label">Pangkat</label>
                         <input type="text" class="form-control" name="pangkat" id="pangkat" placeholder="Pangkat">
                      </div>
 
-                     <div class="form-group">
-                        <label for="gol_ruang">Gol. Ruang</label>
+                            <div class="col-md-6">
+                                <label for="gol_ruang" class="form-label">Gol. Ruang</label>
                         <input type="text" class="form-control" name="gol_ruang" id="gol_ruang" placeholder="Gol. Ruang">
                      </div>
                      
-                     <div class="form-group">
-                              <label for="no_telp">No WA</label>
+                            <div class="col-md-6">
+                                <label for="no_telp" class="form-label">No WA</label>
                               <input type="number" class="form-control" name="no_telp" id="no_telp" placeholder="No Telp/Wa" required> 
                      </div>
 
-
-
-                         <div class="form-group">
-                              <label for="alamat_lengkap">Alamat</label>
-                              <textarea class="form-control" name="alamat_lengkap" id="alamat_lengkap" cols="10" rows="5" required></textarea>
-                     </div>
-                      <div class="form-group">
-                              <label for="kota">Kota</label>
+                            <div class="col-md-6">
+                                <label for="kota" class="form-label">Kota</label>
                               <input type="text" class="form-control" name="kota" id="kota" placeholder="Kota">
                      </div>
-                     <div class="form-group">
-                              <label for="kode_area">Kode Area</label>
+
+                            <div class="col-12">
+                                <label for="alamat_lengkap" class="form-label">Alamat</label>
+                                <textarea class="form-control" name="alamat_lengkap" id="alamat_lengkap" rows="3" required></textarea>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="kode_area" class="form-label">Kode Area</label>
                               <input type="number" class="form-control" name="kode_area" id="kode_area" placeholder="Kode Area">
                      </div>
+
+                            <div class="col-12">
                      <hr>
-                     <p>Info Login</p>
-                    <div class="form-group">
-                              <label for="email">Email</label>
+                                <h6 class="mb-3">Info Login</h6>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="email" class="form-label">Email</label>
                               <input type="email" class="form-control" name="email" id="email" placeholder="Email" required>
                      </div>
 
-                       <div class="form-group">
-                              <label for="password">Password</label>
-                              <input type="password" class="form-control" name="password"  id="password" placeholder="Password" required>
+                        <div class="col-md-4">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group input-group-merge">
+                                <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
+                                <span class="input-group-text cursor-pointer toggle-password"><i class="ti ti-eye-off"></i></span>
+                            </div>
                            </div>
 
-                                                  <div class="form-group">
-                              <label for="repeatpassword">Ulangi Password</label>
-                              <input type="password" class="form-control" name="repeatpassword"  id="repeatpassword" placeholder="Ulangi Password" required>
+                        <div class="col-md-4">
+                            <label for="repeatpassword" class="form-label">Ulangi Password</label>
+                            <div class="input-group input-group-merge">
+                                <input type="password" class="form-control" name="repeatpassword" id="repeatpassword" placeholder="Ulangi Password" required>
+                                <span class="input-group-text cursor-pointer toggle-password"><i class="ti ti-eye-off"></i></span>
+                            </div>
                            </div>
 
-
-
-                     <button type="submit" class="btn btn-sm btn-success">
-                        <i class="fa fa-save"></i>   Save
+                            <div class="col-12 mt-4">
+                                <button type="submit" class="btn btn-primary me-sm-3 me-1">
+                                    <i class="fa fa-save"></i> Save
                         </button>
-                    
+                                <a href="{{ route('stakeholder.index') }}" class="btn btn-secondary">Cancel</a>
+                            </div>
                   </form>
+                    </div>
                </div>
             </div>
          </div>
       </div>
  </div>
 @endsection
-       @section('js')
+@section('script')
+<script>
+    $(document).ready(function() {
+        $('#kabupaten_id').select2();
+        $('#jenjang_jabatan').select2();
 
+        $('.toggle-password').click(function() {
+            $(this).toggleClass('active');
+            var input = $(this).parent().find('input');
+            if (input.attr('type') == 'password') {
+                input.attr('type', 'text');
+                $(this).find('i').removeClass('ti-eye-off').addClass('ti-eye');
+            } else {
+                input.attr('type', 'password');
+                $(this).find('i').removeClass('ti-eye').addClass('ti-eye-off');
+            }
+        });
+    });
+</script>
        @endsection
-

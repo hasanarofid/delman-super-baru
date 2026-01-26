@@ -20,14 +20,14 @@ class AdminController extends Controller
 {
     public function index()
     {
-        if (Auth::check()) {
+        $user = Auth::user();
+        if ($user) {
             // Periksa apakah pengguna adalah pengawas
-            if (Auth::user()->role == "Pengawas") {
+            if ($user->role == "Pengawas") {
                 // Pengguna sudah login dan adalah pengawas, lanjutkan ke halaman pengawas
-                Auth::logout(); // Logout pengguna yang bukan pengawas
-                return redirect('/pengawas/login');
+                return redirect()->route('pengawas.index');
             } else {
-                // if(Auth::user()->role == 'Super Admin'){
+                // if($user->role == 'Super Admin'){
                     $total_guru = GuruM::where('is_aktif',true)->get()->count();
                     $total_sekolah = SekolahM::where('is_aktif',true)->get()->count();
                     // Count all pengawas without kabupaten_id filter
@@ -35,8 +35,8 @@ class AdminController extends Controller
                     $total_stockholder = User::where('role', 'Stakeholder')->count();
                     $total_rencankerja = RencanaKerjaT::get()->count();
                     $total_umpanbalik = UmpanbalikT::get()->count();
-                    // }else if(Auth::user()->role == 'Admin' || Auth::user()->role == 'Stakeholder' ){
-                //     $kelompok_kabupaten = Kabupaten::find(Auth::user()->kabupaten_id)->kelompok_kabupaten;
+                    // }else if($user->role == 'Admin' || $user->role == 'Stakeholder' ){
+                //     $kelompok_kabupaten = Kabupaten::find($user->kabupaten_id)->kelompok_kabupaten;
                 //     $kabupaten = Kabupaten::where('kelompok_kabupaten',$kelompok_kabupaten)->get();
                 //     $id_filter = [];
                 //     foreach($kabupaten as $kab){

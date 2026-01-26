@@ -26,15 +26,50 @@ class LoginController extends Controller
     use AuthenticatesUsers;
 
 
+    // Override standard login to support email or NIP
+    public function login(Request $request)
+    {
+        $this->validateLogin($request);
+
+        if (method_exists($this, 'hasTooManyLoginAttempts') &&
+            $this->hasTooManyLoginAttempts($request)) {
+            $this->fireLockoutEvent($request);
+
+            return $this->sendLockoutResponse($request);
+        }
+
+        $identifier = $request->input($this->username());
+        $password = $request->password;
+
+        $user = User::findByEmailOrNip($identifier)->first();
+
+        if ($user && Hash::check($password, $user->password)) {
+            Auth::login($user, $request->filled('remember'));
+            return $this->sendLoginResponse($request);
+        }
+
+        $this->incrementLoginAttempts($request);
+
+        return $this->sendFailedLoginResponse($request);
+    }
+
     // View untuk pengawas login
     public function showPengawasLoginForm()
     {
+        // Jika sudah login, arahkan ke dashboard masing-masing
+        if (Auth::check()) {
+            return redirect($this->redirectTo());
+        }
         return view('dashboard_pengawas.login');
     }
 
     // View untuk stakeholder login
     public function showStakeholderLoginForm()
     {
+        // Jika sudah login, arahkan ke dashboard masing-masing
+        if (Auth::check()) {
+            return redirect($this->redirectTo());
+        }
         return view('stakeholder.login');
     }
 
@@ -46,7 +81,7 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        // Cari pengguna berdasarkan email atau NIP
+        // Cari pengguna berdasarkan email atau NIP di tabel users
         $user = User::findByEmailOrNip($request->identifier)->first();
 
         if ($user && Hash::check($request->password, $user->password)) {
@@ -66,46 +101,47 @@ class LoginController extends Controller
 
     // Metode untuk login pengawas
     public function superPengawasLogin(Request $request)
-{
-    
-    $request->validate([
-        'identifier' => 'required', // Bisa email atau NIP
-        'password' => 'required',
-    ]);
-
-    // Cari pengguna berdasarkan email atau NIP
-    $user = User::findByEmailOrNip($request->identifier)->first();
-    // dd($user);
-    if ($user && Hash::check($request->password, $user->password)) {
-        Auth::login($user);
-        
-        if ($user->role == 'Pengawas') {
-            return redirect()->route('pengawas.index');
-        } else {
-            Auth::logout();
-            Session::flash('error', 'Anda tidak punya akses untuk halaman ini.');
-            return redirect()->route('pengawas.login');
-        }
-    } else {
-        return redirect()->route('pengawas.login')->withErrors([
-            'identifier' => 'NIP atau password salah.',
-        ]);
-    }
-}
-
-
-    public function logoutpengawas(Request $request)
     {
-        // Add your custom logout logic here, if needed
+        $request->validate([
+            'identifier' => 'required', // Bisa email atau NIP
+            'password' => 'required',
+        ]);
 
-        // Logout the user
+        // Cari pengguna berdasarkan email atau NIP
+        $user = User::findByEmailOrNip($request->identifier)->first();
+
+        if ($user && Hash::check($request->password, $user->password)) {
+            if ($user->role == 'Pengawas') {
+                Auth::login($user);
+                return redirect()->route('pengawas.index');
+            } else {
+                Session::flash('error', 'Anda tidak punya akses untuk halaman ini.');
+                return redirect()->route('pengawas.login');
+            }
+        } else {
+            return redirect()->route('pengawas.login')->withErrors([
+                'identifier' => 'NIP/Email atau password salah.',
+            ]);
+        }
+    }
+
+    public function logout(Request $request)
+    {
+        $role = Auth::user() ? Auth::user()->role : null;
+        
         Auth::logout();
 
-        // Clear the session data
         $request->session()->invalidate();
-        // dd(2);
-        // Redirect to the login page or any other page you prefer
-        return redirect('/pengawas/login');
+
+        $request->session()->regenerateToken();
+
+        if ($role == 'Stakeholder') {
+            return redirect()->route('stakeholder.login');
+        } elseif ($role == 'Pengawas') {
+            return redirect()->route('pengawas.login');
+        }
+
+        return redirect('/');
     }
 
     /**

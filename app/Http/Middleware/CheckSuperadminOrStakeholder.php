@@ -17,7 +17,8 @@ class CheckSuperadminOrStakeholder
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->user()->role === 'Super Admin' || $request->user()->role === 'Stakeholder') {
+        $user = $request->user();
+        if ($user && ($user->role === 'Super Admin' || $user->role === 'Stakeholder' || $user->role === 'Admin')) {
             return $next($request);
         }
         return redirect('/'); // Ganti dengan route lain sesuai kebutuhan

@@ -76,17 +76,60 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Update Kabupaten -->
+<div class="modal fade" id="updateKabupatenModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Kabupaten Pengawas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="updateKabupatenForm">
+                @csrf
+                <input type="hidden" name="id" id="pengawas_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="kabupaten_id" class="form-label">Pilih Kabupaten</label>
+                        <select class="form-select select2" name="kabupaten_id" id="kabupaten_id_select" required>
+                            <option value="">-- Pilih Kabupaten --</option>
+                            @php
+                                $allKabupaten = \App\Kabupaten::all();
+                            @endphp
+                            @foreach($allKabupaten as $kab)
+                                <option value="{{ $kab->id }}">{{ $kab->nama_kabupaten }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('script')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
    jQuery(document).ready(function() {
     
-   //   alert(3);
+    // Initialize Select2 in Modal
+    $('#updateKabupatenModal').on('shown.bs.modal', function () {
+        $('#kabupaten_id_select').select2({
+            dropdownParent: $('#updateKabupatenModal'),
+            width: '100%'
+        });
+    });
+
     var table = jQuery('#data-table').DataTable({
-     
         processing: true,
         serverSide: true,
         ajax: "{{ route('masterpengawas.getdata') }}",
@@ -110,6 +153,46 @@
 
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ]
+    });
+
+    // Handle Update Kabupaten button click
+    jQuery('#data-table').on('click', '.updateKabupatenBtn', function() {
+        var id = $(this).data('id');
+        var kabupatenId = $(this).data('kabupaten-id');
+        
+        $('#pengawas_id').val(id);
+        $('#kabupaten_id_select').val(kabupatenId).trigger('change');
+        $('#updateKabupatenModal').modal('show');
+    });
+
+    // Handle Update Kabupaten form submission
+    $('#updateKabupatenForm').on('submit', function(e) {
+        e.preventDefault();
+        var formData = $(this).serialize();
+
+        $.ajax({
+            url: "{{ route('masterpengawas.updateKabupaten') }}",
+            type: "POST",
+            data: formData,
+            success: function(response) {
+                if (response.success) {
+                    $('#updateKabupatenModal').modal('hide');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: response.message,
+                    });
+                    table.ajax.reload();
+                }
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Terjadi kesalahan saat mengupdate data.',
+                });
+            }
+        });
     });
 
     // Handle delete button click with SweetAlert2

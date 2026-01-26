@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Kabupaten;
 use Illuminate\Http\Request;
-use DataTables;
+use Yajra\DataTables\Facades\DataTables;
 use Auth;
 
 class KabupatenController extends Controller
@@ -18,7 +18,7 @@ class KabupatenController extends Controller
     {
         if ($request->ajax()) {
             $data = Kabupaten::latest()->get();
-            return Datatables::of($data)
+            return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function($row){
                     $user = Auth::user();

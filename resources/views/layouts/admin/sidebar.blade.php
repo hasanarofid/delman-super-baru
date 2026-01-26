@@ -17,13 +17,16 @@
     </div>
     
     <ul class="menu-inner py-1" style="margin-top: 10px">
+        @php
+            $user = Auth::user();
+        @endphp
         <li class="menu-item {{ request()->is('dashboard') ? 'active' : '' }}">
             <a href="{{ route('admin.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons fas fa-home"></i>
                 <div data-i18n="Dashboard">Dashboard</div>
             </a>
         </li>
-        @if (Auth::user()->role == 'Super Admin' || Auth::user()->role == 'Stakeholder')
+        @if ($user && ($user->role == 'Super Admin' || $user->role == 'Stakeholder'))
 
           <!-- master data -->
           <li class="menu-item {{ ( request()->is('superadmin/mastertupoksi*') || request()->is('superadmin/jenisprogram*')  || request()->is('superadmin/aspekprogram*')   ) ? 'active open' : '' }}">
@@ -58,7 +61,7 @@
            <!-- end master data -->
 
             <!-- master delmansuper -->
-          <li class="menu-item {{ ( request()->is('superadmin/masterpengawas*') || request()->is('superadmin/sekolah*')  || request()->is('superadmin/guru*')   ) ? 'active open' : '' }}">
+          <li class="menu-item {{ ( request()->is('superadmin/masterkabupaten*') || request()->is('superadmin/masterpengawas*') || request()->is('superadmin/sekolah*')  || request()->is('superadmin/guru*') || request()->is('superadmin/stakeholder*')  ) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
               <i class="menu-icon tf-icons fa-solid fas fa-person"></i>
               <div data-i18n="Master DelmanSuper">Master DelmanSuper</div>
@@ -90,6 +93,12 @@
                         {{-- <i class="menu-icon tf-icons ti ti-users"></i> --}}
                         <i class="menu-icon tf-icons fa-solid fas fa-users-line"></i>
                         <div data-i18n="Kepala Sekolah"> Kepala Sekolah</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ (request()->is('superadmin/stakeholder*')) ? 'active' : '' }}">
+                    <a href="{{ route('stakeholder.index') }}" class="menu-link">
+                        <i class="menu-icon tf-icons fa-solid fa-user-tie"></i>
+                        <div data-i18n="Stakeholder">Stakeholder</div>
                     </a>
                 </li>
                 
@@ -179,13 +188,6 @@
 
         
 
-        <li class="menu-item {{ (request()->is('superadmin/stakeholder*')) ? 'active' : '' }}">
-            <a href="{{ route('stakeholder.index') }}" class="menu-link">
-                <i class="menu-icon tf-icons fa-solid fa-user-tie"></i>
-                <div data-i18n="Stakeholder">Stakeholder</div>
-            </a>
-        </li>
-
         <li class="menu-item {{ (request()->is('superadmin/wablasthistory')) ? 'active' : '' }}">
             <a href="{{ route('wablasthistory.index') }}" class="menu-link">
                 {{-- <i class="menu-icon tf-icons ti ti-users"></i> --}}
@@ -195,7 +197,14 @@
         </li>
         @endif
 
-        @if (Auth::user()->role == 'Admin')
+        @if ($user && $user->role == 'Admin')
+        <li class="menu-item {{ ( request()->is('admin/masterkabupaten*') || request()->is('admin/masterpengawas*') || request()->is('admin/sekolah*')  || request()->is('admin/guru*') || request()->is('admin/stakeholder*')  ) ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+              <i class="menu-icon tf-icons fa-solid fas fa-person"></i>
+              <div data-i18n="Master DelmanSuper">Master DelmanSuper</div>
+            </a>
+
+            <ul class="menu-sub">
         <li class="menu-item {{ (request()->is('admin/masterkabupaten*')) ? 'active' : '' }}">
             <a href="{{ route('kabupaten.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons fas fa-map-marker-alt"></i>
@@ -227,16 +236,17 @@
                 <div data-i18n="Stakeholder">Stakeholder</div>
             </a>
         </li>
-        
+            </ul>
+        </li>
         @endif
 
         <li class="menu-item">
             <a class="menu-link" href="{{ route('logout') }}"
-                onclick="event.preventDefault(); document.getElementById('logout-form2').submit();">
+                onclick="event.preventDefault(); document.getElementById('logout-sidebar-form').submit();">
                 <i class="menu-icon fa fa-sign-out"></i>
                 <div data-i18n="Logout">Logout</div>
             </a>
-            <form id="logout-form2" action="{{ route('logout') }}" method="POST" style="display: none;">
+            <form id="logout-sidebar-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
         </li>

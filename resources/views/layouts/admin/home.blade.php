@@ -91,9 +91,15 @@
                     <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
                       <!-- Dashboard Admin Identifier -->
                       <div class="d-flex align-items-center me-3">
-                        <div class="badge bg-primary me-2">
-                          <i class="ti ti-shield-check me-1"></i>
-                          ADMIN
+                        @php
+                            $user = Auth::user();
+                            $badgeClass = ($user && $user->role == 'Stakeholder') ? 'bg-info' : 'bg-primary';
+                            $badgeLabel = ($user && $user->role == 'Stakeholder') ? 'STAKEHOLDER' : 'ADMIN';
+                            $badgeIcon = ($user && $user->role == 'Stakeholder') ? 'ti-user-check' : 'ti-shield-check';
+                        @endphp
+                        <div class="badge {{ $badgeClass }} me-2">
+                          <i class="ti {{ $badgeIcon }} me-1"></i>
+                          {{ $badgeLabel }}
                         </div>
                         <h4 style="margin-top: 15px; margin-bottom: 0;">@yield('titelcard')</h4>
                       </div>
@@ -115,7 +121,11 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a class="dropdown-item" href="{{ route('pengawas.index') }}">
+                                        @php
+                                            $user = Auth::user();
+                                            $profileRoute = ($user && $user->role == 'Pengawas') ? route('pengawas.index') : route('admin.index');
+                                        @endphp
+                                        <a class="dropdown-item" href="{{ $profileRoute }}">
                                             <div class="d-flex">
                                                 <div class="flex-shrink-0 me-3">
                                                     <div class="avatar avatar-online">
@@ -123,8 +133,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <span class="fw-semibold d-block">{{ Auth::user()->name }}</span>
-                                                    <small class="text-muted">{{ Auth::user()->role }}</small>
+                                                    <span class="fw-semibold d-block">{{ $user->name }}</span>
+                                                    <small class="text-muted">{{ $user->role }}</small>
                                                 </div>
                                             </div>
                                         </a>

@@ -24,14 +24,14 @@
                         <form role="form" method="POST" action="{{ route('login') }}">
                             @csrf
                             <div class="mb-4">
-                                <label for="email" class="form-label fw-semibold text-dark">Email</label>
+                                <label for="email" class="form-label fw-semibold text-dark">Email atau NIP</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0">
                                         <i class="ti ti-mail text-primary"></i>
                                     </span>
-                                    <input type="email" id="email"
+                                    <input type="text" id="email"
                                         class="form-control form-control-lg border-start-0 @error('email') is-invalid @enderror"
-                                        placeholder="Masukkan email Anda" aria-label="Email" name="email" value="{{ old('email') }}"
+                                        placeholder="Masukkan email atau NIP Anda" aria-label="Email" name="email" value="{{ old('email') }}"
                                         required autocomplete="email" autofocus>
                                 </div>
                                 @error('email')
