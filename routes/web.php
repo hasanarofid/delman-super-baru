@@ -248,7 +248,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         Route::post('/store-sekolah', 'SekolahMController@store')->name('sekolah.store');
         Route::get('/hapus-sekolah/{id}', 'SekolahMController@hapus')->name('sekolah.hapus');
         Route::get('/excelcontoh-sekolah', 'SekolahMController@excelcontoh')->name('sekolah.excelcontoh');
-            Route::post('/update-kabupaten', 'SekolahMController@updateKabupaten')->name('sekolah.updateKabupaten');
+        Route::post('/update-kabupaten', 'SekolahMController@updateKabupaten')->name('sekolah.updateKabupaten');
         // end route panel menu sekolah
     });
 
@@ -264,7 +264,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         Route::get('/hapus-guru/{id}', 'GuruMController@hapus')->name('guru.hapus');
         Route::get('/excelcontoh-guru', 'GuruMController@excelcontoh')->name('guru.excelcontoh');
         Route::get('/export-guru', 'GuruMController@export')->name('guru.export');
-            Route::post('/update-kabupaten', 'GuruMController@updateKabupaten')->name('guru.updateKabupaten');
+        Route::post('/update-kabupaten', 'GuruMController@updateKabupaten')->name('guru.updateKabupaten');
     });
     // end route panel menu guru
 
@@ -279,7 +279,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         Route::post('/store-stakeholder', 'StakeholderController@store')->name('stakeholder.store');
         Route::get('/hapus-stakeholder/{id}', 'StakeholderController@hapus')->name('stakeholder.hapus');
         Route::get('/excelcontoh-stakeholder', 'StakeholderController@excelcontoh')->name('stakeholder.excelcontoh');
-            Route::post('/update-kabupaten', 'StakeholderController@updateKabupaten')->name('stakeholder.updateKabupaten');
+        Route::post('/update-kabupaten', 'StakeholderController@updateKabupaten')->name('stakeholder.updateKabupaten');
     });
     // end route panel menu stakeholder
 
@@ -328,7 +328,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
 //         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
 //         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
 //         Route::get('/setSekolahBinaan/{id}', 'PegawasMController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
-        Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
+Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
 
 
 
@@ -412,7 +412,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
 //         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
 //         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
 //         Route::get('/setSekolahBinaan/{id}', 'PegawasMController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
-        Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
+Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
 
 
 
@@ -496,7 +496,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
 //         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
 //         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
 //         Route::get('/setSekolahBinaan/{id}', 'PegawasMController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
-        Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
+Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
 
 
 
@@ -580,7 +580,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
 //         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
 //         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
 //         Route::get('/setSekolahBinaan/{id}', 'PegawasMController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
-        Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
+Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
 
 
 
@@ -931,11 +931,12 @@ Route::middleware(['web', 'pengawas'])->group(function () {
     // login logout pengawas
     Route::get('/pengawas/login', 'Auth\LoginController@showPengawasLoginForm')->name('pengawas.login');
     Route::post('/pengawas/login', 'Auth\LoginController@superPengawasLogin')->name('superPengawasLogin');
+    Route::post('/pengawas/logout', 'Auth\LoginController@logout')->name('pengawas.logout');
 
 });
 
 // login logout stakeholder
-Route::get('/stakeholder', function() {
+Route::get('/stakeholder', function () {
     return redirect()->route('stakeholder.login');
 });
 Route::get('/stakeholder/login', 'Auth\LoginController@showStakeholderLoginForm')->name('stakeholder.login');
