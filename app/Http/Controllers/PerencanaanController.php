@@ -182,6 +182,10 @@ class PerencanaanController extends Controller
         $data->tenggat_waktu = $request->post('tenggat_waktu');
         $data->id_umpanbalik_category = $request->post('id_umpanbalik_category');
         $data->save();
+
+        // Sinkronisasi umpan balik dan kirim ulang WA jika perlu
+        $this->kirimWa($data->id);
+
         return redirect()->route('pengawas.perencanaan')->with('success', 'Perencanaan berhasil diedit!');
     }
 
@@ -222,6 +226,14 @@ class PerencanaanController extends Controller
         if ($sekolahs->isEmpty()) {
             throw new \Exception("Tidak ada sekolah sasaran yang dipilih.");
         }
+
+        // Hapus umpan balik yang tidak lagi ada di daftar sekolah rencana kerja ini
+        // Tapi hanya hapus jika belum disubmit (submitted_at is null)
+        $validUserIds = $sekolahs->pluck('kepalaSekolahSatu.id')->filter()->toArray();
+        UmpanbalikT::where('id_pelaporan', $model->id)
+            ->whereNotIn('id_user', $validUserIds)
+            ->whereNull('submitted_at')
+            ->delete();
 
         foreach ($sekolahs as $list) {
             $nama_sekolah = $list->nama_sekolah;

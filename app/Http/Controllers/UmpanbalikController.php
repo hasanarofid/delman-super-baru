@@ -117,8 +117,8 @@ class UmpanbalikController extends Controller
                         return $row->created_at->format('d M Y h:i:s');
                     })
                     ->addColumn('sasaran', function($row){
-                        $rencana = Pelaporan::find($row->id_pelaporan);
-                        return $rencana->sasaran;
+                        $rencana = RencanaKerjaT::find($row->id_pelaporan);
+                        return !empty($rencana) ? $rencana->nama_program_kerja : '-';
                     })
 
                ->addColumn('action', function($row){
