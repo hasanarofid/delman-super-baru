@@ -9,6 +9,22 @@ use Illuminate\Database\Eloquent\Model;
 class RencanaKerjaT extends Model
 {
     protected $table = 'rencakakerja_t';
+    protected $fillable = [
+        'id_pengawas',
+        'nama_program_kerja',
+        'kategoriprogram_id',
+        'jenisprogram_id',
+        'aspekprogram_id',
+        'bulan',
+        'tahun_ajaran',
+        'sekolah_id',
+        'deskripsi_permasalahan',
+        'target_capaian',
+        'tenggat_waktu',
+        'id_umpanbalik_category',
+        'is_mandiri',
+        'status'
+    ];
     public function pengawasnama()
     {
         return $this->belongsTo(User::class, 'id_pengawas', 'id');

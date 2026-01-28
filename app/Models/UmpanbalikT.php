@@ -15,6 +15,7 @@ class UmpanbalikT extends Model
     protected $dates = ['submitted_at', 'tgl_rtl', 'tgl_pendampingan'];
     protected $fillable = [
         'id_user',
+        'id_user_pengawas',
         'id_pelaporan',
         'generate_url',
         'id_pengawas',
@@ -32,6 +33,11 @@ class UmpanbalikT extends Model
     }
     public function user(){
         return $this->belongsTo(GuruM::class, 'id_user', 'id');
+    }
+
+    public function user_pengawas()
+    {
+        return $this->belongsTo(User::class, 'id_user_pengawas', 'id');
     }
 
     public function rencanakerja()

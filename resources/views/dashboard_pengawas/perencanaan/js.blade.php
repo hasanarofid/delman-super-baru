@@ -33,6 +33,66 @@
 
         $(document).ready(function () {
             initSelect2();
+
+            // Store original options for Jenis Program
+            const originalJenisOptions = $('#jenisprogram_id').html();
+            const originalJenisOptionsEdit = $('#jenisprogram_id_edit').html();
+
+            // Dynamic logic for Add Form
+            $('#kategoriprogram_id').on('change', function() {
+                handleDynamicLogic($(this).val(), '', originalJenisOptions);
+            });
+
+            // Dynamic logic for Edit Form
+            $('#kategoriprogram_id_edit').on('change', function() {
+                handleDynamicLogic($(this).val(), '_edit', originalJenisOptionsEdit);
+            });
+
+            function handleDynamicLogic(kategoriId, suffix, originalOptions) {
+                let jenisSelect = $('#jenisprogram_id' + suffix);
+                let umpanbalikSelect = $('#id_umpanbalik_category' + suffix);
+                let sekolahSelect = $('#sekolah_id' + suffix);
+
+                // Restore original options first
+                jenisSelect.html(originalOptions);
+
+                if (kategoriId == '9' || kategoriId == '10') { // RHK 1 & 2
+                    // Filter: Only Pendampingan (1), Monev (2), Bimtek (3)
+                    jenisSelect.find('option').each(function() {
+                        let val = $(this).val();
+                        if (val != '' && val != '1' && val != '2' && val != '3') {
+                            $(this).remove();
+                        }
+                    });
+                    umpanbalikSelect.val('0').trigger('change'); // Default
+                    sekolahSelect.prop('disabled', false).trigger('change');
+                } else if (kategoriId == '11') { // RHK 3
+                    // Filter: Only Rakor (7), Narasumber (8), Kegiatan Lainnya (9)
+                    jenisSelect.find('option').each(function() {
+                        let val = $(this).val();
+                        if (val != '' && val != '7' && val != '8' && val != '9') {
+                            $(this).remove();
+                        }
+                    });
+                    umpanbalikSelect.val('2').trigger('change'); // Pengembangan Kompetensi Pengawas
+                    sekolahSelect.val([]).prop('disabled', true).trigger('change');
+                } else {
+                    // Default behavior for other categories
+                    sekolahSelect.prop('disabled', false).trigger('change');
+                }
+                
+                // Refresh Select2
+                jenisSelect.select2({
+                    placeholder: jenisSelect.data('placeholder'),
+                    allowClear: true,
+                    dropdownParent: jenisSelect.closest('.modal')
+                });
+
+                // Clear selection if current one is gone
+                if (!jenisSelect.find('option:selected').length) {
+                    jenisSelect.val('').trigger('change');
+                }
+            }
         });
 
 
