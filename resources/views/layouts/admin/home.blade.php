@@ -83,25 +83,31 @@
                 <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
                     id="layout-navbar">
                     <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-                        <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                        <a class="nav-item nav-link btn btn-icon btn-label-primary rounded-pill px-0 me-xl-4" href="javascript:void(0)">
                             <i class="ti ti-menu-2 ti-sm"></i>
                         </a>
                     </div>
 
                     <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
                       <!-- Dashboard Admin Identifier -->
-                      <div class="d-flex align-items-center me-3">
+                      <div class="d-flex align-items-center flex-grow-1 overflow-hidden me-2">
                         @php
                             $user = Auth::user();
-                            $badgeClass = ($user && $user->role == 'Stakeholder') ? 'bg-info' : 'bg-primary';
+                            $badgeClass = ($user && $user->role == 'Stakeholder') ? 'bg-label-info border-info' : 'bg-label-primary border-primary';
                             $badgeLabel = ($user && $user->role == 'Stakeholder') ? 'STAKEHOLDER' : 'ADMIN';
                             $badgeIcon = ($user && $user->role == 'Stakeholder') ? 'ti-user-check' : 'ti-shield-check';
                         @endphp
-                        <div class="badge {{ $badgeClass }} me-2">
-                          <i class="ti {{ $badgeIcon }} me-1"></i>
-                          {{ $badgeLabel }}
+                        <!-- Desktop Badge -->
+                        <div class="badge {{ $badgeClass }} me-2 me-lg-3 py-2 px-3 border d-none d-sm-flex align-items-center">
+                          <i class="ti {{ $badgeIcon }} ti-xs me-1"></i>
+                          <span class="fw-bold">{{ $badgeLabel }}</span>
                         </div>
-                        <h4 style="margin-top: 15px; margin-bottom: 0;">@yield('titelcard')</h4>
+                        <!-- Mobile Badge (Icon Only) -->
+                        <div class="badge {{ $badgeClass }} p-2 border d-flex d-sm-none align-items-center me-2">
+                          <i class="ti {{ $badgeIcon }} ti-xs"></i>
+                        </div>
+                        <div class="vr me-2 me-lg-3 d-none d-sm-block" style="height: 24px;"></div>
+                        <h5 class="mb-0 fw-bold text-truncate" style="font-size: clamp(0.9rem, 4vw, 1.25rem);">@yield('titelcard')</h5>
                       </div>
                         <ul class="navbar-nav flex-row align-items-center ms-auto">
                             @php

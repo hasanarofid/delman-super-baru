@@ -315,6 +315,7 @@ class ListumpanbalikController extends Controller
         if ($umpanbalik) {
             $umpanbalik->is_rtl = $request->is_rtl;
             $umpanbalik->tgl_rtl = now(); // Set current date and time
+            $umpanbalik->catatan_rtl = $request->catatan_rtl;
             $umpanbalik->save();
             return response()->json(['success' => true]);
         }

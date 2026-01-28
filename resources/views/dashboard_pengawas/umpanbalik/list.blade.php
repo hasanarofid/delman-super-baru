@@ -80,6 +80,7 @@
                                 <th>Kategori</th>
                                 <th>Status Tanggapan</th>
                                 <th>Rencana Tindak Lanjut (RTL)</th>
+                                <th>Catatan RTL</th>
                             </tr>
                           </thead>
                       </table>
@@ -152,10 +153,19 @@
                 orderable: false,
                 searchable: false,
                 render: function (data, type, row) {
-                    var isRtlChecked = row.is_rtl == 1 ? 'checked' : '';
-                    var isDisabled = row.is_rtl == 1 ? 'disabled' : '';
-                    var rtlDate = row.tgl_rtl ? ` (${row.tgl_rtl})` : '';
-                    return `<input type="checkbox" class="form-check-input rtl-checkbox" data-id="${row.id}" ${isRtlChecked} ${isDisabled}>${rtlDate}`;
+                    if (row.is_rtl == 1) {
+                        var rtlDate = row.tgl_rtl ? `<br><small class="text-muted">(${row.tgl_rtl})</small>` : '';
+                        return `<span class="badge bg-label-success">Sudah ditindak lanjuti</span>${rtlDate}`;
+                    } else {
+                        return `<button type="button" class="btn btn-sm btn-outline-danger rtl-btn" data-id="${row.id}">Belum ditindak lanjuti</button>`;
+                    }
+                }
+            },
+            {
+                data: 'catatan_rtl',
+                name: 'catatan_rtl',
+                render: function(data) {
+                    return data ? data : '-';
                 }
             }
         ],
@@ -178,61 +188,65 @@
             ]
     });
 
-    $(document).on('change', '.rtl-checkbox', function() {
+    $(document).on('click', '.rtl-btn', function() {
         var id = $(this).data('id');
-        var isChecked = $(this).is(':checked') ? 1 : 0;
 
-        if (isChecked == 1) {
-            Swal.fire({
-                title: 'Konfirmasi',
-                text: "Apakah Anda yakin ingin menandai RTL ini?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, tandai!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: "{{ route('pengawas.updateRTL') }}", // Adjust this route to your actual update route
-                        type: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            id: id,
-                            is_rtl: isChecked
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                Swal.fire(
-                                    'Berhasil!',
-                                    'RTL berhasil ditandai.',
-                                    'success'
-                                );
-                                $('#dataTable').DataTable().ajax.reload();
-                            } else {
-                                Swal.fire(
-                                    'Error!',
-                                    'Terjadi kesalahan saat memperbarui RTL.',
-                                    'error'
-                                );
-                                $('#dataTable').DataTable().ajax.reload(); // Reload to reflect original state
-                            }
-                        },
-                        error: function(xhr) {
+        Swal.fire({
+            title: 'Konfirmasi RTL',
+            html: `
+                <div class="text-start">
+                    <p>Apakah Anda yakin ingin menandai RTL ini?</p>
+                    <label class="form-label">Catatan Rencana Tindak Lanjut (Opsional):</label>
+                    <textarea id="catatan_rtl" class="form-control" rows="3" placeholder="Tulis catatan rencana di sini..."></textarea>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, simpan!',
+            cancelButtonText: 'Batal',
+            preConfirm: () => {
+                return document.getElementById('catatan_rtl').value;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var catatan = result.value;
+                $.ajax({
+                    url: "{{ route('pengawas.updateRTL') }}",
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: id,
+                        is_rtl: 1,
+                        catatan_rtl: catatan
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire(
+                                'Berhasil!',
+                                'RTL dan catatan berhasil disimpan.',
+                                'success'
+                            );
+                            $('#dataTable').DataTable().ajax.reload();
+                        } else {
                             Swal.fire(
                                 'Error!',
-                                'Terjadi kesalahan saat berkomunikasi dengan server.',
+                                'Terjadi kesalahan saat memperbarui RTL.',
                                 'error'
                             );
-                            $('#dataTable').DataTable().ajax.reload(); // Reload to reflect original state
                         }
-                    });
-                } else {
-                    $(this).prop('checked', false); // Revert checkbox if not confirmed
-                }
-            });
-        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire(
+                            'Error!',
+                            'Terjadi kesalahan saat berkomunikasi dengan server.',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
     });
   });
 

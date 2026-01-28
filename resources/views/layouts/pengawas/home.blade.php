@@ -226,19 +226,25 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
               class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
               id="layout-navbar">
               <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-                <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                <a class="nav-item nav-link btn btn-icon btn-label-primary rounded-pill px-0 me-xl-4" href="javascript:void(0)">
                   <i class="ti ti-menu-2 ti-sm"></i>
                 </a>
               </div>
   
               <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
                 <!-- Dashboard Pengawas Identifier -->
-                <div class="d-flex align-items-center me-3">
-                  <div class="badge bg-success me-2">
-                    <i class="ti ti-user-check me-1"></i>
-                    PENGAWAS
+                <div class="d-flex align-items-center flex-grow-1 overflow-hidden me-2">
+                  <!-- Desktop Badge -->
+                  <div class="badge bg-label-success me-2 me-lg-3 py-2 px-3 border border-success d-none d-sm-flex align-items-center">
+                    <i class="ti ti-user-check ti-xs me-1"></i>
+                    <span class="fw-bold">PENGAWAS</span>
                   </div>
-                  <h4 style="margin-top: 15px; margin-bottom: 0;">@yield('titelcard')</h4>
+                  <!-- Mobile Badge (Icon Only) -->
+                  <div class="badge bg-label-success p-2 border border-success d-flex d-sm-none align-items-center me-2">
+                    <i class="ti ti-user-check ti-xs"></i>
+                  </div>
+                  <div class="vr me-2 me-lg-3 d-none d-sm-block" style="height: 24px;"></div>
+                  <h5 class="mb-0 fw-bold text-truncate" style="font-size: clamp(0.9rem, 4vw, 1.25rem);">@yield('titelcard')</h5>
                 </div>
 
                 <ul class="navbar-nav flex-row align-items-center ms-auto">

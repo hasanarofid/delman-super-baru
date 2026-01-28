@@ -24,6 +24,7 @@ class UmpanbalikT extends Model
         'id_updated_by',
         'tgl_rtl',
         'tgl_pendampingan',
+        'catatan_rtl',
     ];
     public function pengawasnama()
     {

@@ -94,6 +94,7 @@
                                 <th>Kategori</th>
                                 <th>Status</th>
                                 <th>Rencana Tindak Lanjut (RTL)</th>
+                                <th>Catatan RTL</th>
                                 <th>Preview</th>
                                 {{-- <th>#</th> --}}
                             </tr>
@@ -179,6 +180,13 @@
                     return `${rtlStatus}${rtlDate}`;
                 }
             },
+            {
+                data: 'catatan_rtl',
+                name: 'catatan_rtl',
+                render: function(data) {
+                    return data ? data : '-';
+                }
+            },
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
             dom: 'Bfrtip', // Enables the buttons at the top of the DataTable
@@ -191,7 +199,7 @@
                     orientation: 'landscape',
                     pageSize: 'A4',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                     },
                     customize: function (doc) {
                         doc.styles.tableHeader.alignment = 'left';
