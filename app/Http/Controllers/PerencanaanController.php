@@ -139,7 +139,10 @@ class PerencanaanController extends Controller
         $sekolah_id_input = $request->post('sekolah_id');
         $sekolah_ids = is_array($sekolah_id_input) ? implode(',', $sekolah_id_input) : '';
         $kategori_id = $request->post('kategoriprogram_id');
-        $is_mandiri = ($kategori_id == 11) ? 1 : 0;
+        $umpanbalik_cat = $request->post('id_umpanbalik_category');
+        
+        // Jika RHK 3 ATAU Umpan Balik bukan Default (0), maka dianggap Mandiri
+        $is_mandiri = ($kategori_id == 11 || ($umpanbalik_cat != 0 && !empty($umpanbalik_cat))) ? 1 : 0;
 
         try {
             return \DB::transaction(function () use ($request, $sekolah_ids, $is_mandiri) {
@@ -176,7 +179,10 @@ class PerencanaanController extends Controller
         $sekolah_id_input = $request->post('sekolah_id');
         $sekolah_ids = is_array($sekolah_id_input) ? implode(',', $sekolah_id_input) : '';
         $kategori_id = $request->post('kategoriprogram_id');
-        $is_mandiri = ($kategori_id == 11) ? 1 : 0;
+        $umpanbalik_cat = $request->post('id_umpanbalik_category');
+        
+        // Jika RHK 3 ATAU Umpan Balik bukan Default (0), maka dianggap Mandiri
+        $is_mandiri = ($kategori_id == 11 || ($umpanbalik_cat != 0 && !empty($umpanbalik_cat))) ? 1 : 0;
 
         $data->tahun_ajaran = date('Y');
         $data->id_pengawas = Auth::user()->id;
@@ -233,7 +239,7 @@ class PerencanaanController extends Controller
         if ($model->is_mandiri == 1) {
             // Logika untuk Mandiri (RHK 3)
             $pengawas = Auth::user();
-            $no_telp = $pengawas->no_hp;
+            $no_telp = $pengawas->no_telp;
             $nama_pengawas = $pengawas->name;
             $id_pengawas = $pengawas->id;
 

@@ -43,10 +43,27 @@
                 handleDynamicLogic($(this).val(), '', originalJenisOptions);
             });
 
+            $('#id_umpanbalik_category').on('change', function() {
+                handleFeedbackCategoryLogic($(this).val(), '');
+            });
+
             // Dynamic logic for Edit Form
             $('#kategoriprogram_id_edit').on('change', function() {
                 handleDynamicLogic($(this).val(), '_edit', originalJenisOptionsEdit);
             });
+
+            $('#id_umpanbalik_category_edit').on('change', function() {
+                handleFeedbackCategoryLogic($(this).val(), '_edit');
+            });
+
+            function handleFeedbackCategoryLogic(feedbackId, suffix) {
+                let sekolahSelect = $('#sekolah_id' + suffix);
+                if (feedbackId != '0' && feedbackId != '') {
+                    sekolahSelect.val([]).prop('disabled', true).trigger('change');
+                } else {
+                    sekolahSelect.prop('disabled', false).trigger('change');
+                }
+            }
 
             function handleDynamicLogic(kategoriId, suffix, originalOptions) {
                 let jenisSelect = $('#jenisprogram_id' + suffix);
@@ -65,7 +82,6 @@
                         }
                     });
                     umpanbalikSelect.val('0').trigger('change'); // Default
-                    sekolahSelect.prop('disabled', false).trigger('change');
                 } else if (kategoriId == '11') { // RHK 3
                     // Filter: Only Rakor (7), Narasumber (8), Kegiatan Lainnya (9)
                     jenisSelect.find('option').each(function() {
@@ -75,11 +91,10 @@
                         }
                     });
                     umpanbalikSelect.val('2').trigger('change'); // Pengembangan Kompetensi Pengawas
-                    sekolahSelect.val([]).prop('disabled', true).trigger('change');
-                } else {
-                    // Default behavior for other categories
-                    sekolahSelect.prop('disabled', false).trigger('change');
                 }
+                
+                // Re-run feedback logic to ensure school target state is correct
+                handleFeedbackCategoryLogic(umpanbalikSelect.val(), suffix);
                 
                 // Refresh Select2
                 jenisSelect.select2({
