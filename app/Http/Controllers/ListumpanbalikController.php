@@ -120,7 +120,7 @@ class ListumpanbalikController extends Controller
     public function getdata(Request $request){
         if ($request->ajax()) {
             $user = Auth::user();
-            $query = UmpanbalikT::with(['rencanakerja', 'category'])->latest();
+            $query = UmpanbalikT::with(['rencanakerja', 'category', 'user_pengawas'])->latest();
 
             if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
                 $query->whereHas('pengawasnama', function($q) use ($user) {
@@ -160,8 +160,11 @@ class ListumpanbalikController extends Controller
                         return $user->nip.' - '.$user->name;
                     })
                     ->addColumn('kepala_sekolah', function($row){
-                        $cariguru = GuruM::findorFail($row->id_user);
-                        return $cariguru->nama;
+                        if ($row->id_user == 0 && $row->id_user_pengawas != 0) {
+                            return $row->user_pengawas->name ?? '-';
+                        }
+                        $cariguru = GuruM::find($row->id_user);
+                        return $cariguru ? $cariguru->nama : '-';
                     })
                     ->addColumn('sasaran', function($row){
                         $rencana = RencanaKerjaT::find($row->id_pelaporan);
@@ -191,9 +194,13 @@ class ListumpanbalikController extends Controller
                         return $row->is_rtl == 1 && $row->tgl_rtl ? Carbon::parse($row->tgl_rtl)->format('d M Y H:i:s') : '';
                     })
                     ->addColumn('nama_sekolah', function($row) {
-                        $cariguru = GuruM::findorFail($row->id_user);
-                        $sekolahs = SekolahM::findorFail($cariguru->sekolah_id);
-                        return $sekolahs->nama_sekolah;
+                        if ($row->id_user == 0 && $row->id_user_pengawas != 0) {
+                            return 'Mandiri (Refleksi Pengawas)';
+                        }
+                        $cariguru = GuruM::find($row->id_user);
+                        if (!$cariguru) return '-';
+                        $sekolahs = SekolahM::find($cariguru->sekolah_id);
+                        return $sekolahs ? $sekolahs->nama_sekolah : '-';
                     })
                        ->addColumn('action', function($row){
                             $tanggapan = TanggapanUmpanbalikT::where('id_umpanbalik', $row->id)->first();
@@ -220,7 +227,7 @@ class ListumpanbalikController extends Controller
 
     public function getdatapengawas(Request $request){
         if ($request->ajax()) {
-            $query = UmpanbalikT::with(['rencanakerja', 'category'])
+            $query = UmpanbalikT::with(['rencanakerja', 'category', 'user_pengawas'])
             ->where('umpanbalik_t.id_pengawas', Auth::user()->id)
             ->latest();
 
@@ -250,8 +257,11 @@ class ListumpanbalikController extends Controller
                         return $user->nip.' - '.$user->name;
                     })
                     ->addColumn('kepala_sekolah', function($row){
-                        $cariguru = GuruM::findorFail($row->id_user);
-                        return $cariguru->nama;
+                        if ($row->id_user == 0 && $row->id_user_pengawas != 0) {
+                            return $row->user_pengawas->name ?? '-';
+                        }
+                        $cariguru = GuruM::find($row->id_user);
+                        return $cariguru ? $cariguru->nama : '-';
                     })
                     ->addColumn('sasaran', function($row){
                         $rencana = RencanaKerjaT::find($row->id_pelaporan);
@@ -281,9 +291,13 @@ class ListumpanbalikController extends Controller
                         return $row->is_rtl == 1 && $row->tgl_rtl ? Carbon::parse($row->tgl_rtl)->format('d M Y H:i:s') : '';
                     })
                     ->addColumn('nama_sekolah', function($row) {
-                        $cariguru = GuruM::findorFail($row->id_user);
-                        $sekolahs = SekolahM::findorFail($cariguru->sekolah_id);
-                        return $sekolahs->nama_sekolah;
+                        if ($row->id_user == 0 && $row->id_user_pengawas != 0) {
+                            return 'Mandiri (Refleksi Pengawas)';
+                        }
+                        $cariguru = GuruM::find($row->id_user);
+                        if (!$cariguru) return '-';
+                        $sekolahs = SekolahM::find($cariguru->sekolah_id);
+                        return $sekolahs ? $sekolahs->nama_sekolah : '-';
                     })
                        ->addColumn('action', function($row){
                             $tanggapan = TanggapanUmpanbalikT::where('id_umpanbalik', $row->id)->first();

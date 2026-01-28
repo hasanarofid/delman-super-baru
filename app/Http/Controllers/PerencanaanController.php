@@ -11,6 +11,7 @@ use App\Models\TugaskerjaT;
 use App\Models\UmpanbalikT;
 use App\Models\WhatsappMessagesLog;
 use App\SekolahM;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -238,8 +239,14 @@ class PerencanaanController extends Controller
 
         if ($model->is_mandiri == 1) {
             // Logika untuk Mandiri (RHK 3)
-            $pengawas = Auth::user();
+            $pengawas = User::with('profile')->find(Auth::user()->id);
+            
+            // Cek nomor telpon di tabel users dulu, jika kosong cek di profile
             $no_telp = $pengawas->no_telp;
+            if (empty($no_telp) && $pengawas->profile) {
+                $no_telp = $pengawas->profile->no_telp;
+            }
+
             $nama_pengawas = $pengawas->name;
             $id_pengawas = $pengawas->id;
 
@@ -330,7 +337,7 @@ class PerencanaanController extends Controller
             . "Terimakasih\n"
             . "DelmanSuper Platform";
 
-        $this->sendWhatsAppMessage($no_telp, $pesan, 0, $model);
+        $this->sendWhatsAppMessage($no_telp, $pesan, null, $model);
     }
 
     public function buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp)
@@ -536,9 +543,8 @@ Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengaw
 
         } catch (\Exception $e) {
             $logEntry->is_sent = false;
-            if (empty($logEntry->failure_reason)) {
-                $logEntry->failure_reason = $e->getMessage();
-            }
+            $error_message = $e->getMessage();
+            $logEntry->failure_reason = substr($error_message, 0, 250); // Truncate to fit column
             $logEntry->save();
             throw $e;
         }
