@@ -41,10 +41,10 @@ class WablasthistoryController extends Controller
             return Datatables::of($query->get())
                 ->addIndexColumn()
                 ->addColumn('rencana', function($row) {
-                    return $row->rencanakerja->nama_program_kerja;
+                    return $row->rencanakerja->nama_program_kerja ?? '-';
                 })
                 ->addColumn('kepalasekolah', function($row) {
-                    return $row->kepalasekolah->nama;
+                    return $row->kepalasekolah->nama ?? '-';
                 })
              
                 ->addColumn('status', function($row) {
@@ -54,8 +54,8 @@ class WablasthistoryController extends Controller
                 })
                 ->addColumn('action', function($row) {
                     $user = Auth::user();
-                    $id_sekolah = $row->kepalasekolah->id;
-                    if ($user && $user->role == 'Super Admin') {
+                    $id_sekolah = $row->kepalasekolah->id ?? null;
+                    if ($user && $user->role == 'Super Admin' && $id_sekolah) {
                         return '<a id="sendWaButton-' . $row->rencana_kerja_id . '" onclick="kirimWaBlast(' . $row->rencana_kerja_id . ','.$id_sekolah.')" class="btn btn-sm bg-success text-white">
                         <i class="fa fa-envelope"></i> Kirim Wa
                     </a>';

@@ -52,9 +52,11 @@ class PerencanaanController extends Controller
         ];
 
         // Generate the current and next 11 months in Indonesian
+
+        $start = Carbon::now()->startOfMonth();
         for ($i = 0; $i < 12; $i++) {
-            $timestamp = strtotime("+$i month");
-            $monthNumber = date('n', $timestamp);
+            $date = $start->copy()->addMonths($i);
+            $monthNumber = $date->month;
             $months[] = [
                 'value' => $monthNumber,                // Month number (1-12)
                 'name' => $monthNamesIndo[$monthNumber] // Full month name in Indonesian
