@@ -299,7 +299,7 @@ class DokumentasipendampinganController extends Controller
     });
 
     // Generate the PDF using the filtered data
-    $pdf = PDF::loadView('dokumentasipendampingan.dokumentasi', ['data' => $data]);
+    $pdf = PDF::loadView('dokumentasipendampingan.dokumentasi', ['data' => $data])->setPaper('a4', 'landscape');
 
     // Return the PDF as a downloadable file
     return $pdf->download('Laporan_Dokumentasi.pdf');
@@ -484,7 +484,11 @@ class DokumentasipendampinganController extends Controller
         });
 
         // Generate the PDF using the filtered data
-        $pdf = PDF::loadView('dashboard_pengawas.umpanbalik.dokumentasi_pdf', ['data' => $data]);
+        // Generate the PDF using the filtered data
+        $pdf = PDF::loadView('dashboard_pengawas.umpanbalik.dokumentasi_pdf', [
+            'data' => $data,
+            'user' => Auth::user()
+        ])->setPaper('a4', 'landscape');
 
         // Return the PDF as a downloadable file
         return $pdf->download('Laporan_Dokumentasi.pdf');

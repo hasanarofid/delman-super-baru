@@ -6,6 +6,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 11px;
         }
         table, th, td {
             border: 1px solid black;
@@ -50,5 +51,17 @@
             @endforeach
         </tbody>
     </table>
+    
+    <br><br>
+    
+    <div style="width: 100%; text-align: right;">
+        <div style="display: inline-block; text-align: left; padding-right: 50px;">
+            <p>Mengetahui,</p>
+            <p>Pengawas Pembina</p>
+            <br><br><br><br>
+            <p style="font-weight: bold; text-decoration: underline;">{{ $user->name }}</p>
+            <p>NIP. {{ $user->nip }}</p>
+        </div>
+    </div>
 </body>
 </html>
