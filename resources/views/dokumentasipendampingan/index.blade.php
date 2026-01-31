@@ -23,7 +23,7 @@
             <div class="app-card-body px-4 w-100">
 
               <div class="row mb-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="filter-pengawas">Filter by Pengawas:</label>
                     <select
                     id="filter-pengawas"
@@ -38,8 +38,22 @@
                 </select>
 
                 </div>
+                <div class="col-md-3">
+                    <label for="filter-kategori">Filter Kategori Program:</label>
+                    <select
+                    id="filter-kategori"
+                    name="kategori"
+                    class="select2 form-select"
+                    required
+                >
+                    <option value="all">All</option>
+                    @foreach ($kategori as $item)
+                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                    @endforeach
+                </select>
+                </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="filter-pengawas">Filter Bulan:</label>
                     <select
                     id="filter-bln"
@@ -56,7 +70,7 @@
                 </select>
 
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="filter-tahun">Filter Tahun:</label>
                     <select
                         id="filter-tahun"
@@ -90,6 +104,8 @@
                       <th>Foto Bukti Pendampingan</th>
                       <th>Sekolah</th>
                       <th>Program Kerja</th>
+                      <th>Rencana Tindak Lanjut (RTL)</th>
+                      <th>Catatan RTL</th>
                       <th>Pengawas</th>
                     </tr>
                   </thead>
@@ -120,9 +136,10 @@
             var pengawas = $('#filter-pengawas').val() || 'all';
             var bln = $('#filter-bln').val() || 'all';
             var tahun = $('#filter-tahun').val() || 'all';
+            var kategori = $('#filter-kategori').val() || 'all';
             var searchQuery = $('#dataTable').DataTable().search();
             var url = "{{ route('dokumentasipendampingan.exportPDF') }}";
-    url += `?pengawas=${pengawas}&bln=${bln}&tahun=${tahun}&search=${searchQuery}`;
+    url += `?pengawas=${pengawas}&bln=${bln}&tahun=${tahun}&search=${searchQuery}&kategori=${kategori}`;
 
     // console.log(url);
     //         // Construct the URL dynamically with the selected filter values
@@ -142,6 +159,7 @@
     $('#filter-pengawas').select2();
         $('#filter-bln').select2();
         $('#filter-tahun').select2();
+        $('#filter-kategori').select2();
 
 
 
@@ -159,6 +177,9 @@ $('#filter-bln').change(function () {
 $('#filter-tahun').change(function () {
     $('#dataTable').DataTable().ajax.reload(); // Reload the table when filter changes
 });
+$('#filter-kategori').change(function () {
+    $('#dataTable').DataTable().ajax.reload(); // Reload the table when filter changes
+});
 
     $('#dataTable').DataTable({
         processing: true,
@@ -169,6 +190,7 @@ $('#filter-tahun').change(function () {
             d.pengawas = $('#filter-pengawas').val();
             d.bln = $('#filter-bln').val();
             d.tahun = $('#filter-tahun').val();
+            d.kategori = $('#filter-kategori').val();
           }
         },
         columns: [
@@ -177,6 +199,8 @@ $('#filter-tahun').change(function () {
           {data: 'foto', name: 'foto'},
           {data: 'nama_sekolah', name: 'nama_sekolah'},
           {data: 'program', name: 'program'},
+          {data: 'rtl_status', name: 'rtl_status'},
+          {data: 'catatan_rtl', name: 'catatan_rtl'},
           {data: 'pengawas', name: 'pengawas'},
         ]
       });

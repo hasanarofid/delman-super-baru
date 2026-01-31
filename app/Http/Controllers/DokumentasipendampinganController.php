@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\GuruM;
 use App\Models\RencanaKerjaT;
+use App\Models\Kategory;
 use App\Models\UmpanbalikT;
 use App\SekolahM;
 use App\TanggapanUmpanbalikT;
@@ -13,6 +14,7 @@ use Auth;
 use DataTables;
 use Illuminate\Support\Facades\File;
 use Barryvdh\DomPDF\Facade as PDF;
+use Carbon\Carbon;
 class DokumentasipendampinganController extends Controller
 {
     public function indexpengawas(){
@@ -39,9 +41,10 @@ class DokumentasipendampinganController extends Controller
         ];
 
         // Generate the current and next 11 months in Indonesian
+        $start = Carbon::now()->startOfMonth();
         for ($i = 0; $i < 12; $i++) {
-            $timestamp = strtotime("+$i month");
-            $monthNumber = date('n', $timestamp);
+            $date = $start->copy()->addMonths($i);
+            $monthNumber = $date->month;
             $months[] = [
                 'value' => $monthNumber,                // Month number (1-12)
                 'name' => $monthNamesIndo[$monthNumber] // Full month name in Indonesian
@@ -49,11 +52,13 @@ class DokumentasipendampinganController extends Controller
         }
 
         $listPengawas = User::where('role','pengawas')->get();
+        $kategori = Kategory::all();
 
         return view('dashboard_pengawas.umpanbalik.dokumentasi',compact('listPengawas',
         'months',
         'currentYear',
-        'years'
+        'years',
+        'kategori'
     ));
     }
 
@@ -92,19 +97,23 @@ class DokumentasipendampinganController extends Controller
         ];
 
         // Generate the current and next 11 months in Indonesian
+        $start = Carbon::now()->startOfMonth();
         for ($i = 0; $i < 12; $i++) {
-            $timestamp = strtotime("+$i month");
-            $monthNumber = date('n', $timestamp);
+            $date = $start->copy()->addMonths($i);
+            $monthNumber = $date->month;
             $months[] = [
                 'value' => $monthNumber,                // Month number (1-12)
                 'name' => $monthNamesIndo[$monthNumber] // Full month name in Indonesian
             ];
         }
 
+        $kategori = Kategory::all();
+
         return view('dokumentasipendampingan.index',compact('listPengawas',
         'months',
         'currentYear',
-        'years'
+        'years',
+        'kategori'
     ));
     }
 
@@ -114,6 +123,7 @@ class DokumentasipendampinganController extends Controller
             $pengawas = $request->input('pengawas', 'all');
             $tahun = $request->input('tahun', 'all');
             $bln = $request->input('bln', 'all');
+            $kategori = $request->input('kategori', 'all');
             
             $monthNamesIndo = [
                 'Januari' => 1,
@@ -155,6 +165,12 @@ class DokumentasipendampinganController extends Controller
                 }
             });
 
+            if ($kategori !== 'all') {
+                $post->whereHas('umpanBalikT.rencanakerja', function ($q) use ($kategori) {
+                    $q->where('kategoriprogram_id', $kategori);
+                });
+            }
+
 
                 return Datatables::of($post->get())
                 ->addIndexColumn()
@@ -183,7 +199,15 @@ class DokumentasipendampinganController extends Controller
                     $sekolahs = SekolahM::findOrFail($cariguru->sekolah_id);
                     return $sekolahs->nama_sekolah;
                 })
-                ->rawColumns(['tanggal', 'foto', 'program', 'pengawas', 'nama_sekolah'])
+                ->addColumn('rtl_status', function($row) {
+                    $rtlStatus = $row->umpanBalikT->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan';
+                    $rtlDate = $row->umpanBalikT->tgl_rtl ? ' (' . $row->umpanBalikT->tgl_rtl->format('Y-m-d H:i:s') . ')' : '';
+                    return $rtlStatus . $rtlDate;
+                })
+                ->addColumn('catatan_rtl', function($row) {
+                    return $row->umpanBalikT->catatan_rtl ?? '-';
+                })
+                ->rawColumns(['tanggal', 'foto', 'program', 'pengawas', 'nama_sekolah', 'rtl_status', 'catatan_rtl'])
                 ->make(true);
            }
     }
@@ -195,6 +219,7 @@ class DokumentasipendampinganController extends Controller
     $tahun = $request->input('tahun', 'all');
     $bln = $request->input('bln', 'all');
     $search = $request->input('search', '');
+    $kategori = $request->input('kategori', 'all');
 
     // Define month names mapping for Indonesian months
     $monthNamesIndo = [
@@ -233,6 +258,12 @@ class DokumentasipendampinganController extends Controller
         });
     }
 
+    if ($kategori !== 'all') {
+        $query->whereHas('umpanBalikT.rencanakerja', function ($q) use ($kategori) {
+            $q->where('kategoriprogram_id', $kategori);
+        });
+    }
+
     // Apply search filter
     if (!empty($search)) {
         $query->where(function ($q) use ($search) {
@@ -262,6 +293,8 @@ class DokumentasipendampinganController extends Controller
             'nama_sekolah' => optional(SekolahM::find(optional(GuruM::find($row->umpanBalikT->id_user))->sekolah_id))->nama_sekolah ?? '-',
             'program' => $row->umpanBalikT->rencanakerja->nama_program_kerja ?? '-',
             'pengawas' => $row->umpanBalikT->pengawasnama->name ?? '-',
+            'rtl_status' => ($row->umpanBalikT->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan') . ($row->umpanBalikT->tgl_rtl ? ' (' . $row->umpanBalikT->tgl_rtl->format('Y-m-d H:i:s') . ')' : ''),
+            'catatan_rtl' => $row->umpanBalikT->catatan_rtl ?? '-',
         ];
     });
 
@@ -281,6 +314,7 @@ class DokumentasipendampinganController extends Controller
             $pengawas = $request->input('pengawas', 'all');
             $tahun = $request->input('tahun', 'all');
             $bln = $request->input('bln', 'all');
+            $kategori = $request->input('kategori', 'all');
             $monthNamesIndo = [
                 'Januari' => 1,
                 'Februari' => 2,
@@ -320,6 +354,12 @@ class DokumentasipendampinganController extends Controller
                 }
             });
 
+            if ($kategori !== 'all') {
+                $post->whereHas('umpanBalikT.rencanakerja', function ($q) use ($kategori) {
+                    $q->where('kategoriprogram_id', $kategori);
+                });
+            }
+
 
                 return Datatables::of($post->get())
                 ->addIndexColumn()
@@ -348,7 +388,15 @@ class DokumentasipendampinganController extends Controller
                     $sekolahs = SekolahM::findOrFail($cariguru->sekolah_id);
                     return $sekolahs->nama_sekolah;
                 })
-                ->rawColumns(['tanggal', 'foto', 'program', 'pengawas', 'nama_sekolah'])
+                ->addColumn('rtl_status', function($row) {
+                    $rtlStatus = $row->umpanBalikT->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan';
+                    $rtlDate = $row->umpanBalikT->tgl_rtl ? ' (' . $row->umpanBalikT->tgl_rtl->format('Y-m-d H:i:s') . ')' : '';
+                    return $rtlStatus . $rtlDate;
+                })
+                ->addColumn('catatan_rtl', function($row) {
+                    return $row->umpanBalikT->catatan_rtl ?? '-';
+                })
+                ->rawColumns(['tanggal', 'foto', 'program', 'pengawas', 'nama_sekolah', 'rtl_status', 'catatan_rtl'])
                 ->make(true);
            }
     }
@@ -360,6 +408,7 @@ class DokumentasipendampinganController extends Controller
         $tahun = $request->input('tahun', 'all');
         $bln = $request->input('bln', 'all');
         $search = $request->input('search', '');
+        $kategori = $request->input('kategori', 'all');
 
         // Define month names mapping for Indonesian months
         $monthNamesIndo = [
@@ -394,6 +443,12 @@ class DokumentasipendampinganController extends Controller
             });
         }
 
+        if ($kategori !== 'all') {
+            $query->whereHas('umpanBalikT.rencanakerja', function ($q) use ($kategori) {
+                $q->where('kategoriprogram_id', $kategori);
+            });
+        }
+
         // Apply search filter
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
@@ -423,6 +478,8 @@ class DokumentasipendampinganController extends Controller
                 'nama_sekolah' => optional(SekolahM::find(optional(GuruM::find($row->umpanBalikT->id_user))->sekolah_id))->nama_sekolah ?? '-',
                 'program' => $row->umpanBalikT->rencanakerja->nama_program_kerja ?? '-',
                 'pengawas' => $row->umpanBalikT->pengawasnama->name ?? '-',
+                'rtl_status' => ($row->umpanBalikT->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan') . ($row->umpanBalikT->tgl_rtl ? ' (' . $row->umpanBalikT->tgl_rtl->format('Y-m-d H:i:s') . ')' : ''),
+                'catatan_rtl' => $row->umpanBalikT->catatan_rtl ?? '-',
             ];
         });
 
