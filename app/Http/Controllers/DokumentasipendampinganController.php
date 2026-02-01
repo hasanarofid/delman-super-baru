@@ -159,9 +159,13 @@ class DokumentasipendampinganController extends Controller
             }
 
             if ($kategori !== 'all') {
-                $post->whereHas('rencanakerja', function ($q) use ($kategori) {
-                    $q->where('kategoriprogram_id', $kategori);
-                });
+                if ($kategori === 'rhk3') {
+                     $post->whereColumn('id_user', 'id_pengawas');
+                } else {
+                    $post->whereHas('rencanakerja', function ($q) use ($kategori) {
+                        $q->where('kategoriprogram_id', $kategori);
+                    });
+                }
             }
 
 
@@ -270,9 +274,13 @@ class DokumentasipendampinganController extends Controller
         }
 
         if ($kategori !== 'all') {
-            $query->whereHas('rencanakerja', function ($q) use ($kategori) {
-                $q->where('kategoriprogram_id', $kategori);
-            });
+            if ($kategori === 'rhk3') {
+                 $query->whereColumn('id_user', 'id_pengawas');
+            } else {
+                $query->whereHas('rencanakerja', function ($q) use ($kategori) {
+                    $q->where('kategoriprogram_id', $kategori);
+                });
+            }
         }
 
         // Apply search filter
@@ -389,9 +397,13 @@ class DokumentasipendampinganController extends Controller
             }
 
             if ($kategori !== 'all') {
-                $post->whereHas('rencanakerja', function ($q) use ($kategori) {
-                    $q->where('kategoriprogram_id', $kategori);
-                });
+                if ($kategori === 'rhk3') {
+                     $post->whereColumn('id_user', 'id_pengawas');
+                } else {
+                    $post->whereHas('rencanakerja', function ($q) use ($kategori) {
+                        $q->where('kategoriprogram_id', $kategori);
+                    });
+                }
             }
 
 
@@ -498,9 +510,13 @@ class DokumentasipendampinganController extends Controller
         }
 
         if ($kategori !== 'all') {
-            $query->whereHas('rencanakerja', function ($q) use ($kategori) {
-                $q->where('kategoriprogram_id', $kategori);
-            });
+            if ($kategori === 'rhk3') {
+                 $query->whereColumn('id_user', 'id_pengawas');
+            } else {
+                $query->whereHas('rencanakerja', function ($q) use ($kategori) {
+                    $q->where('kategoriprogram_id', $kategori);
+                });
+            }
         }
 
         // Apply search filter (Updated for UmpanbalikT relations)

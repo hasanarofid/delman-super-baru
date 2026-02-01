@@ -36,6 +36,7 @@
                     @foreach ($kategori as $item)
                         <option value="{{ $item->id }}">{{ $item->nama }}</option>
                     @endforeach
+                    <option value="rhk3">Laporan RHK 3 (Mandiri / Refleksi Pengawas)</option>
                 </select>
                 </div>
                 
