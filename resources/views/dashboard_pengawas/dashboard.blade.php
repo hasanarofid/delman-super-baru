@@ -98,6 +98,31 @@
 
             </div>
 
+            <div class="row mt-4">
+                <div class="col-lg-12 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header pb-0 p-3 d-flex justify-content-between">
+                            <h6 class="mb-0">Grafik Analisis Umpan Balik</h6>
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="row">
+                                <div class="col-lg-4 mb-3">
+                                    <h6 class="text-center text-sm">Pengembangan Profesional</h6>
+                                    <canvas id="chartQ1"></canvas>
+                                </div>
+                                <div class="col-lg-4 mb-3">
+                                    <h6 class="text-center text-sm">Aspek Kompetensi</h6>
+                                    <canvas id="chartQ2"></canvas>
+                                </div>
+                                <div class="col-lg-4 mb-3">
+                                    <h6 class="text-center text-sm">Kebermanfaatan</h6>
+                                    <canvas id="chartQ4"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @endsection
@@ -536,6 +561,64 @@
             fetchChartDataPie();
 
             // end chart 4
+
+
+            // Dynamic Charts for Q1, Q2, Q4
+            function fetchDynamicChart(questionId, canvasId, chartType, label) {
+                fetch(`{{ route('pengawas.chartDynamicData') }}?question_id=${questionId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const ctx = document.getElementById(canvasId).getContext('2d');
+                        const labels = data.map(item => item.answer);
+                        const counts = data.map(item => item.total);
+
+                        const backgroundColors = [
+                            'rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)'
+                        ];
+                        const borderColors = [
+                            'rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)'
+                        ];
+
+                        new Chart(ctx, {
+                            type: chartType,
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: label,
+                                    data: counts,
+                                    backgroundColor: backgroundColors,
+                                    borderColor: borderColors,
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: (chartType === 'radar') ? {
+                                    r: {
+                                        angleLines: {
+                                            display: false
+                                        },
+                                        suggestedMin: 0
+                                    }
+                                } : (chartType === 'pie') ? {} : {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .catch(error => console.error('Error fetching dynamic chart data:', error));
+            }
+
+            // ID 12: Pengembangan Profesional (Bar)
+            fetchDynamicChart(12, 'chartQ1', 'bar', 'Pengembangan Profesional');
+            // ID 14: Aspek Kompetensi (Pie)
+            fetchDynamicChart(14, 'chartQ2', 'pie', 'Aspek Kompetensi');
+            // ID 15: Kebermanfaatan (Pie)
+            fetchDynamicChart(15, 'chartQ4', 'pie', 'Kebermanfaatan');
 
         });
     </script>

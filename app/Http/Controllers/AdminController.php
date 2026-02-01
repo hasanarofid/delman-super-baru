@@ -607,4 +607,49 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'admin Delete successfully');
     }
 
+
+    public function getDynamicChartData(Request $request)
+    {
+        $questionId = $request->input('question_id');
+        $pengawasId = $request->input('pengawas', 'all');
+        $month = $request->input('bln', 'all');
+        $year = $request->input('tahun', date('Y'));
+
+        $user = Auth::user();
+        $kabupaten_id = ($user->role == 'Stakeholder' || $user->role == 'Admin') ? $user->kabupaten_id : null;
+
+        $query = \App\Models\UmpanbalikAnswer::select('umpanbalik_answers.answer', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->join('umpanbalik_t', 'umpanbalik_answers.id_umpanbalik_t', '=', 'umpanbalik_t.id')
+            ->join('rencakakerja_t', 'umpanbalik_t.id_pelaporan', '=', 'rencakakerja_t.id');
+
+        if ($kabupaten_id) {
+            $query->join('users', 'umpanbalik_t.id_pengawas', '=', 'users.id')
+                  ->where('users.kabupaten_id', $kabupaten_id);
+        }
+
+        if ($pengawasId !== 'all') {
+            $query->where('umpanbalik_t.id_pengawas', $pengawasId);
+        }
+
+        if ($questionId) {
+            $query->where('umpanbalik_answers.id_question', $questionId);
+        }
+
+        // Apply the month filter
+        if ($month !== 'all') {
+            $query->where('rencakakerja_t.bulan', $month);
+        }
+
+        // Apply the year filter
+        if ($year !== 'all') {
+            $query->where('rencakakerja_t.tahun_ajaran', $year);
+        } else {
+            $query->where('rencakakerja_t.tahun_ajaran', date('Y'));
+        }
+
+        $data = $query->groupBy('umpanbalik_answers.answer')->get();
+
+        return response()->json($data);
+    }
 }
+

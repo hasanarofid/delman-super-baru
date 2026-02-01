@@ -66,7 +66,7 @@ return [
 
         'shared' => [
             'driver' => 'local',
-            'root' => '/home/u144635195/shared-storage', // Path absolut di Hostinger
+            'root' => file_exists('/home/u144635195/shared-storage') ? '/home/u144635195/shared-storage' : storage_path('shared'), // Fallback for local dev
             'url' => env('APP_URL').'/shared',
             'visibility' => 'public',
         ],

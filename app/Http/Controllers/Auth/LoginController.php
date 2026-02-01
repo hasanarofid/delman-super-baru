@@ -111,9 +111,9 @@ class LoginController extends Controller
     $user = User::findByEmailOrNip($request->identifier)->first();
 
     if ($user && Hash::check($request->password, $user->password)) {
-            if ($user->role == 'Pengawas') {
-        Auth::login($user);
-            return redirect()->route('pengawas.index');
+        if ($user->role == 'Pengawas') {
+            Auth::login($user);
+            return redirect()->route('pengawas.dashboard');
         } else {
             Session::flash('error', 'Anda tidak punya akses untuk halaman ini.');
             return redirect()->route('pengawas.login');

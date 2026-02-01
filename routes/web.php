@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -62,6 +63,8 @@ Route::get('/chartTerkonfirmasi', 'AdminController@chartTerkonfirmasi')->name('a
 Route::get('/chartpie', 'AdminController@chartpie')->name('admin.chartpie')->middleware(['auth']);
 
 Route::get('/spider-web-data', 'AdminController@getSpiderWebData')->name('admin.spiderWebData')->middleware(['auth']);
+Route::get('/chart-dynamic-data', 'AdminController@getDynamicChartData')->name('admin.chartDynamicData')->middleware(['auth']);
+
 
 // Route::get('/', 'AdminController@index')
 //     ->name('admin.index')
@@ -821,6 +824,8 @@ Route::middleware(['web', 'pengawas'])->group(function () {
     Route::post('/ubahpassword', 'PengawasController@ubahpassword')->name('pengawas.ubahpassword');
     Route::get('/chart-data-pengawas', 'PengawasController@chartData')->name('pengawas.chartData');
     Route::get('/chart-data2-pengawas', 'PengawasController@chartData2')->name('pengawas.chartData2');
+    Route::get('/chart-dynamic-data-pengawas', 'PengawasController@getDynamicChartData')->name('pengawas.chartDynamicData');
+
     Route::get('/dashboard', 'PengawasController@dashboard')->name('pengawas.dashboard');
     Route::get('/spider-web-data-pengawas', 'PengawasController@getSpiderWebDataPengawas')->name('pengawas.spiderWebData');
     Route::get('/chartTerkonfirmasi-pengawas', 'PengawasController@chartTerkonfirmasiPengawas')->name('pengawas.chartTerkonfirmasi');
@@ -987,7 +992,33 @@ Route::get('fotopengawas/{filename}', function ($filename) {
     $response->header("Content-Type", $type);
 
     return $response;
+    $type = File::mimeType($path);
+    $response = Response::make($file, 200);
+    return $response;
 })->name('fotopengawas');
+
+Route::get('umpanbalik-dynamic/{filename}', function ($filename) {
+    if (Storage::disk('shared')->exists('umpanbalik_dynamic/' . $filename)) {
+        $path = Storage::disk('shared')->path('umpanbalik_dynamic/' . $filename);
+        $file = File::get($path);
+        $type = File::mimeType($path);
+
+        $response = Response::make($file, 200);
+        $response->header("Content-Type", $type);
+
+        return $response;
+    } else {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+})->name('umpanbalik.dynamic.file');
 
 Route::get('favicon/{filename?}', function ($filename) {
     $path = '/home/u144635195/shared-storage/favicon/' . $filename;

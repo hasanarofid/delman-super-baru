@@ -102,7 +102,7 @@ class DynamicUmpanbalikController extends Controller
             } elseif ($question->type_input == 'file' && $request->hasFile('answer_' . $question->id)) {
                 $image = $request->file('answer_' . $question->id);
                 $imageName = now()->format('YmdHis') . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-                $image->storeAs('umpanbalik_dynamic', $imageName, 'public');
+                $image->storeAs('umpanbalik_dynamic', $imageName, 'shared');
                 $answer_value = $imageName;
             }
             

@@ -126,86 +126,97 @@ class DokumentasipendampinganController extends Controller
             $kategori = $request->input('kategori', 'all');
             
             $monthNamesIndo = [
-                'Januari' => 1,
-                'Februari' => 2,
-                'Maret' => 3,
-                'April' => 4,
-                'Mei' => 5,
-                'Juni' => 6,
-                'Juli' => 7,
-                'Agustus' => 8,
-                'September' => 9,
-                'Oktober' => 10,
-                'November' => 11,
-                'Desember' => 12
+                'Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4,
+                'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8,
+                'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12
             ];
 
             // Cek apakah nama bulan sesuai dengan bulan yang diterima dalam bahasa Indonesia
             $monthNumber = isset($monthNamesIndo[$bln]) ? $monthNamesIndo[$bln] : 'all';
 
-            $post = TanggapanUmpanbalikT::with('umpanBalikT','umpanBalikT.rencanakerja')->latest();
+            // Unified Query using UmpanbalikT
+            $post = UmpanbalikT::with('rencanakerja', 'answers.question', 'tanggapanUmpanBalik', 'pengawasnama', 'user.sekolah')
+                ->whereNotNull('submitted_at')
+                ->latest('submitted_at');
 
+            // Admin/Stakeholder Filter: Only show data from their Kabupaten
             if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-                $post->whereHas('umpanBalikT.pengawasnama', function($q) use ($user) {
+                $post->whereHas('pengawasnama', function($q) use ($user) {
                     $q->where('kabupaten_id', $user->kabupaten_id);
                 });
             }
+
              // Apply filter for 'bln' (bulan)
              if ($bln !== 'all') {
-                $post->whereMonth('created_at', $monthNumber);
+                $post->whereMonth('submitted_at', $monthNumber);
             }
             if ($tahun !== 'all') {
-                $post->whereYear('created_at', $tahun);
+                $post->whereYear('submitted_at', $tahun);
             }
 
-
-            $post->whereHas('umpanBalikT', function ($q) use ($pengawas) {
-                if ($pengawas !== 'all') {
-                    $q->where('id_pengawas', $pengawas);
-                }
-            });
+            if ($pengawas !== 'all') {
+                 $post->where('id_pengawas', $pengawas);
+            }
 
             if ($kategori !== 'all') {
-                $post->whereHas('umpanBalikT.rencanakerja', function ($q) use ($kategori) {
+                $post->whereHas('rencanakerja', function ($q) use ($kategori) {
                     $q->where('kategoriprogram_id', $kategori);
                 });
             }
 
 
-                return Datatables::of($post->get())
+            return Datatables::of($post->get())
                 ->addIndexColumn()
                 ->addColumn('tanggal', function($row){
-                    return !empty($row->umpanBalikT->rencanakerja->created_at) ? $row->umpanBalikT->rencanakerja->created_at->format('d M Y') : '-';
+                    return !empty($row->rencanakerja->created_at) ? $row->rencanakerja->created_at->format('d M Y') : '-';
                 })
                 ->addColumn('foto', function($row){
-                    if(!empty($row->foto)){
-                        $foto = route('umpanbalikfoto', $row->foto);
+                     // Priority 1: Dynamic Image (Q13 or generic file input)
+                     $fileAnswer = $row->answers->first(function($a){
+                        return $a->id_question == 13 || optional($a->question)->type_input == 'file';
+                   });
 
-                        return  ' <img src="'.$foto.'" height="100px" alt="Image placeholder" class="card-img-top">';
-                    }else{
-                        return  '-';
-                    }
+                   if($fileAnswer && !empty($fileAnswer->answer)){
+                        $fotoUrl = route('umpanbalik.dynamic.file', $fileAnswer->answer);
+                        return  ' <img src="'.$fotoUrl.'" height="100px" alt="Bukti" class="card-img-top">';
+                   }
+                   
+                   // Priority 2: Legacy Image
+                   $legacy = $row->tanggapanUmpanBalik->first();
+                   if($legacy && !empty($legacy->foto)){
+                       $foto = route('umpanbalikfoto', $legacy->foto);
+                       return  ' <img src="'.$foto.'" height="100px" alt="Image placeholder" class="card-img-top">';
+                   }
 
+                   return '-';
                 })
 
                 ->addColumn('program', function($row){
-                    return !empty($row->umpanBalikT->rencanakerja) ? $row->umpanBalikT->rencanakerja->nama_program_kerja : '-';
+                    return !empty($row->rencanakerja) ? $row->rencanakerja->nama_program_kerja : '-';
                 })
                 ->addColumn('pengawas', function($row){
-                    return !empty($row->umpanBalikT->rencanakerja) ? $row->umpanBalikT->pengawasnama->name : '-';
+                    return !empty($row->pengawasnama) ? $row->pengawasnama->name : '-';
                 })
                 ->addColumn('nama_sekolah', function($row) {
-                    $cariguru = GuruM::findOrFail($row->umpanBalikT->id_user);
-                    $sekolahs = SekolahM::findOrFail($cariguru->sekolah_id);
-                    return $sekolahs->nama_sekolah;
+                    // Try getting Guru -> Sekolah
+                    $cariguru = GuruM::find($row->id_user);
+                    if ($cariguru) {
+                         $sekolah = SekolahM::find($cariguru->sekolah_id);
+                         return $sekolah ? $sekolah->nama_sekolah : '-';
+                    }
+                    // Fallback: Check if user is the supervisor (Self-Reflection)
+                    if ($row->id_user == $row->id_pengawas) {
+                         return 'Mandiri (Refleksi Pengawas)';
+                    }
+                    return '-';
                 })
                 ->addColumn('rtl_status', function($row) {
-                    $rtlStatus = $row->umpanBalikT->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan';
-                    $rtlDate = $row->umpanBalikT->tgl_rtl ? ' (' . $row->umpanBalikT->tgl_rtl->format('Y-m-d H:i:s') . ')' : '';
+                    $rtlStatus = $row->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan';
+                    $rtlDate = $row->tgl_rtl ? ' (' . $row->tgl_rtl->format('Y-m-d H:i:s') . ')' : '';
                     return $rtlStatus . $rtlDate;
                 })
                 ->addColumn('catatan_rtl', function($row) {
-                    return $row->umpanBalikT->catatan_rtl ?? '-';
+                    return $row->catatan_rtl ?? '-';
                 })
                 ->rawColumns(['tanggal', 'foto', 'program', 'pengawas', 'nama_sekolah', 'rtl_status', 'catatan_rtl'])
                 ->make(true);
@@ -213,100 +224,125 @@ class DokumentasipendampinganController extends Controller
     }
 
     public function exportPDF(Request $request)
-{
-    // Retrieve filter values from the request
-    $pengawas = $request->input('pengawas', 'all');
-    $tahun = $request->input('tahun', 'all');
-    $bln = $request->input('bln', 'all');
-    $search = $request->input('search', '');
-    $kategori = $request->input('kategori', 'all');
+    {
+        // Retrieve filter values from the request
+        $pengawas = $request->input('pengawas', 'all');
+        $tahun = $request->input('tahun', 'all');
+        $bln = $request->input('bln', 'all');
+        $search = $request->input('search', '');
+        $kategori = $request->input('kategori', 'all');
 
-    // Define month names mapping for Indonesian months
-    $monthNamesIndo = [
-        'Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4,
-        'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8,
-        'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12,
-    ];
-
-    // Convert the month name to the corresponding number, or use 'all'
-    $monthNumber = isset($monthNamesIndo[$bln]) ? $monthNamesIndo[$bln] : 'all';
-
-    // Start the query
-    $userAuth = Auth::user();
-    $query = TanggapanUmpanbalikT::with('umpanBalikT', 'umpanBalikT.rencanakerja', 'umpanBalikT.pengawasnama')->latest();
-
-    if ($userAuth->role == 'Stakeholder' || $userAuth->role == 'Admin') {
-        $query->whereHas('umpanBalikT.pengawasnama', function($q) use ($userAuth) {
-            $q->where('kabupaten_id', $userAuth->kabupaten_id);
-        });
-    }
-
-    // Apply month filter
-    if ($bln !== 'all') {
-        $query->whereMonth('created_at', $monthNumber);
-    }
-
-    // Apply year filter
-    if ($tahun !== 'all') {
-        $query->whereYear('created_at', $tahun);
-    }
-
-    // Apply pengawas filter
-    if ($pengawas !== 'all') {
-        $query->whereHas('umpanBalikT', function ($q) use ($pengawas) {
-            $q->where('id_pengawas', $pengawas);
-        });
-    }
-
-    if ($kategori !== 'all') {
-        $query->whereHas('umpanBalikT.rencanakerja', function ($q) use ($kategori) {
-            $q->where('kategoriprogram_id', $kategori);
-        });
-    }
-
-    // Apply search filter
-    if (!empty($search)) {
-        $query->where(function ($q) use ($search) {
-            // Search by nama_sekolah via relationships
-            $q->orWhereHas('umpanBalikT.user.sekolah', function ($subQuery) use ($search) {
-                $subQuery->where('nama_sekolah', 'like', "%{$search}%");
-            });
-
-            // Search by nama_program_kerja
-            $q->orWhereHas('umpanBalikT.rencanakerja', function ($subQuery) use ($search) {
-                $subQuery->where('nama_program_kerja', 'like', "%{$search}%");
-            });
-
-            // Search by pengawas name
-            $q->orWhereHas('umpanBalikT.pengawasnama', function ($subQuery) use ($search) {
-                $subQuery->where('name', 'like', "%{$search}%");
-            });
-        });
-    }
-
-
-    // Get the filtered data and map it
-    $data = $query->get()->map(function ($row) {
-        return [
-            'tanggal' => $row->created_at->format('d M Y'),
-            'foto' => $row->foto,
-            'nama_sekolah' => optional(SekolahM::find(optional(GuruM::find($row->umpanBalikT->id_user))->sekolah_id))->nama_sekolah ?? '-',
-            'program' => $row->umpanBalikT->rencanakerja->nama_program_kerja ?? '-',
-            'pengawas' => $row->umpanBalikT->pengawasnama->name ?? '-',
-            'rtl_status' => ($row->umpanBalikT->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan') . ($row->umpanBalikT->tgl_rtl ? ' (' . $row->umpanBalikT->tgl_rtl->format('Y-m-d H:i:s') . ')' : ''),
-            'catatan_rtl' => $row->umpanBalikT->catatan_rtl ?? '-',
+        // Define month names mapping for Indonesian months
+        $monthNamesIndo = [
+            'Januari' => 1, 'Februari' => 2, 'Maret' => 3, 'April' => 4,
+            'Mei' => 5, 'Juni' => 6, 'Juli' => 7, 'Agustus' => 8,
+            'September' => 9, 'Oktober' => 10, 'November' => 11, 'Desember' => 12,
         ];
-    });
 
-    // Generate the PDF using the filtered data
-    $pdf = PDF::loadView('dokumentasipendampingan.dokumentasi', ['data' => $data])->setPaper('a4', 'landscape');
+        // Convert the month name to the corresponding number, or use 'all'
+        $monthNumber = isset($monthNamesIndo[$bln]) ? $monthNamesIndo[$bln] : 'all';
 
-    // Return the PDF as a downloadable file
-    return $pdf->download('Laporan_Dokumentasi.pdf');
-}
+        // Start the query
+        $userAuth = Auth::user();
+        $query = UmpanbalikT::with('rencanakerja', 'answers.question', 'tanggapanUmpanBalik', 'pengawasnama', 'user.sekolah')
+            ->whereNotNull('submitted_at')
+            ->latest('submitted_at');
+
+        if ($userAuth->role == 'Stakeholder' || $userAuth->role == 'Admin') {
+            $query->whereHas('pengawasnama', function($q) use ($userAuth) {
+                $q->where('kabupaten_id', $userAuth->kabupaten_id);
+            });
+        }
+
+        // Apply month filter
+        if ($bln !== 'all') {
+            $query->whereMonth('submitted_at', $monthNumber);
+        }
+
+        // Apply year filter
+        if ($tahun !== 'all') {
+            $query->whereYear('submitted_at', $tahun);
+        }
+
+        // Apply pengawas filter
+        if ($pengawas !== 'all') {
+             $query->where('id_pengawas', $pengawas);
+        }
+
+        if ($kategori !== 'all') {
+            $query->whereHas('rencanakerja', function ($q) use ($kategori) {
+                $q->where('kategoriprogram_id', $kategori);
+            });
+        }
+
+        // Apply search filter
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                // Search by nama_sekolah via relationships
+                $q->orWhereHas('user.sekolah', function ($subQuery) use ($search) {
+                    $subQuery->where('nama_sekolah', 'like', "%{$search}%");
+                });
+
+                // Search by nama_program_kerja
+                $q->orWhereHas('rencanakerja', function ($subQuery) use ($search) {
+                    $subQuery->where('nama_program_kerja', 'like', "%{$search}%");
+                });
+
+                // Search by pengawas name
+                $q->orWhereHas('pengawasnama', function ($subQuery) use ($search) {
+                    $subQuery->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
 
 
+        // Get the filtered data and map it
+        $data = $query->get()->map(function ($row) {
+            $fotoUrl = '';
+             // Priority 1: Dynamic Image
+            $fileAnswer = $row->answers->first(function($a){
+                 return $a->id_question == 13 || optional($a->question)->type_input == 'file';
+            });
+            
+            if ($fileAnswer && !empty($fileAnswer->answer)) {
+                $fotoUrl = route('umpanbalik.dynamic.file', $fileAnswer->answer);
+            } else {
+                 // Priority 2: Legacy Image
+                $legacy = $row->tanggapanUmpanBalik->first();
+                if ($legacy && !empty($legacy->foto)) {
+                    $fotoUrl = route('umpanbalikfoto', $legacy->foto);
+                }
+            }
 
+            // Logic for School Name (safe check)
+            $namaSekolah = '-';
+            $cariguru = GuruM::find($row->id_user);
+            if ($cariguru) {
+                 $sekolah = SekolahM::find($cariguru->sekolah_id);
+                 $namaSekolah = $sekolah ? $sekolah->nama_sekolah : '-';
+            } elseif ($row->id_user == $row->id_pengawas) {
+                 $namaSekolah = 'Mandiri (Refleksi Pengawas)';
+            }
+
+
+            return [
+                'tanggal' => $row->submitted_at ? $row->submitted_at->format('d M Y') : ($row->created_at ? $row->created_at->format('d M Y') : '-'),
+                'foto' => $fotoUrl, // Warning: View expects 'foto' or 'foto_url'? Check view.
+                'foto_url' => $fotoUrl,
+                'nama_sekolah' => $namaSekolah,
+                'program' => $row->rencanakerja->nama_program_kerja ?? '-',
+                'pengawas' => $row->pengawasnama->name ?? '-',
+                'rtl_status' => ($row->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan') . ($row->tgl_rtl ? ' (' . $row->tgl_rtl->format('Y-m-d H:i:s') . ')' : ''),
+                'catatan_rtl' => $row->catatan_rtl ?? '-',
+            ];
+        });
+
+        // Generate the PDF using the filtered data
+        $pdf = PDF::loadView('dokumentasipendampingan.dokumentasi', ['data' => $data])->setPaper('a4', 'landscape');
+
+        // Return the PDF as a downloadable file
+        return $pdf->download('Laporan_Dokumentasi.pdf');
+    }
 
     public function getdatapengawas(Request $request){
         if ($request->ajax()) {
@@ -333,72 +369,91 @@ class DokumentasipendampinganController extends Controller
             // Cek apakah nama bulan sesuai dengan bulan yang diterima dalam bahasa Indonesia
             $monthNumber = isset($monthNamesIndo[$bln]) ? $monthNamesIndo[$bln] : 'all';
 
-            $post = TanggapanUmpanbalikT::
-            with('umpanBalikT','umpanBalikT.rencanakerja')
-            ->whereHas('umpanBalikT', function ($query) {
-                $query->where('id_pengawas', Auth::user()->id);
-            })
-            ->latest();
-             // Apply filter for 'bln' (bulan)
-             if ($bln !== 'all') {
-                $post->whereMonth('created_at', $monthNumber);
+            // Change base query to UmpanbalikT to include dynamic submissions
+            $post = UmpanbalikT::with('rencanakerja', 'answers.question', 'tanggapanUmpanBalik', 'pengawasnama')
+                ->where('id_pengawas', Auth::user()->id)
+                ->whereNotNull('submitted_at')
+                ->latest('submitted_at');
+
+            // Apply filter for 'bln' (bulan)
+            if ($bln !== 'all') {
+                $post->whereMonth('submitted_at', $monthNumber);
             }
             if ($tahun !== 'all') {
-                $post->whereYear('created_at', $tahun);
+                $post->whereYear('submitted_at', $tahun);
             }
 
 
-            $post->whereHas('umpanBalikT', function ($q) use ($pengawas) {
-                if ($pengawas !== 'all') {
-                    $q->where('id_pengawas', $pengawas);
-                }
-            });
+            if ($pengawas !== 'all') {
+                 $post->where('id_pengawas', $pengawas);
+            }
 
             if ($kategori !== 'all') {
-                $post->whereHas('umpanBalikT.rencanakerja', function ($q) use ($kategori) {
+                $post->whereHas('rencanakerja', function ($q) use ($kategori) {
                     $q->where('kategoriprogram_id', $kategori);
                 });
             }
 
 
-                return Datatables::of($post->get())
+            return Datatables::of($post->get())
                 ->addIndexColumn()
                 ->addColumn('tanggal', function($row){
-                    return !empty($row->umpanBalikT->rencanakerja->created_at) ? $row->umpanBalikT->rencanakerja->created_at->format('d M Y') : '-';
+                    return !empty($row->rencanakerja->created_at) ? $row->rencanakerja->created_at->format('d M Y') : '-';
                 })
                 ->addColumn('foto', function($row){
-                    if(!empty($row->foto)){
-                        $foto = route('umpanbalikfoto', $row->foto);
+                    // Priority 1: Dynamic Image (Q13 or generic file input)
+                    $fileAnswer = $row->answers->first(function($a){
+                         // Check for Q13 specific or any file input type
+                         return $a->id_question == 13 || optional($a->question)->type_input == 'file';
+                    });
 
+                    if($fileAnswer && !empty($fileAnswer->answer)){
+                         $fotoUrl = route('umpanbalik.dynamic.file', $fileAnswer->answer);
+                         return  ' <img src="'.$fotoUrl.'" height="100px" alt="Bukti" class="card-img-top">';
+                    }
+                    
+                    // Priority 2: Legacy Image
+                    $legacy = $row->tanggapanUmpanBalik->first();
+                    if($legacy && !empty($legacy->foto)){
+                        $foto = route('umpanbalikfoto', $legacy->foto);
                         return  ' <img src="'.$foto.'" height="100px" alt="Image placeholder" class="card-img-top">';
-                    }else{
-                        return  '-';
                     }
 
+                    return '-';
                 })
 
                 ->addColumn('program', function($row){
-                    return !empty($row->umpanBalikT->rencanakerja) ? $row->umpanBalikT->rencanakerja->nama_program_kerja : '-';
+                    return !empty($row->rencanakerja) ? $row->rencanakerja->nama_program_kerja : '-';
                 })
                 ->addColumn('pengawas', function($row){
-                    return !empty($row->umpanBalikT->rencanakerja) ? $row->umpanBalikT->pengawasnama->name : '-';
+                    return !empty($row->pengawasnama) ? $row->pengawasnama->name : '-';
                 })
                 ->addColumn('nama_sekolah', function($row) {
-                    $cariguru = GuruM::findOrFail($row->umpanBalikT->id_user);
-                    $sekolahs = SekolahM::findOrFail($cariguru->sekolah_id);
-                    return $sekolahs->nama_sekolah;
+                    // Try getting Guru -> Sekolah
+                    $cariguru = GuruM::find($row->id_user);
+                    if ($cariguru) {
+                         $sekolah = SekolahM::find($cariguru->sekolah_id);
+                         return $sekolah ? $sekolah->nama_sekolah : '-';
+                    }
+                    
+                    // Fallback: Check if user is the supervisor (Self-Reflection)
+                    if ($row->id_user == $row->id_pengawas) {
+                         return 'Mandiri (Refleksi Pengawas)';
+                    }
+                    
+                    return '-';
                 })
                 ->addColumn('rtl_status', function($row) {
-                    $rtlStatus = $row->umpanBalikT->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan';
-                    $rtlDate = $row->umpanBalikT->tgl_rtl ? ' (' . $row->umpanBalikT->tgl_rtl->format('Y-m-d H:i:s') . ')' : '';
+                    $rtlStatus = $row->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan';
+                    $rtlDate = $row->tgl_rtl ? ' (' . $row->tgl_rtl->format('Y-m-d H:i:s') . ')' : '';
                     return $rtlStatus . $rtlDate;
                 })
                 ->addColumn('catatan_rtl', function($row) {
-                    return $row->umpanBalikT->catatan_rtl ?? '-';
+                    return $row->catatan_rtl ?? '-';
                 })
                 ->rawColumns(['tanggal', 'foto', 'program', 'pengawas', 'nama_sekolah', 'rtl_status', 'catatan_rtl'])
                 ->make(true);
-           }
+        }
     }
 
     public function exportPDFPengawas(Request $request)
@@ -420,50 +475,49 @@ class DokumentasipendampinganController extends Controller
         // Convert the month name to the corresponding number, or use 'all'
         $monthNumber = isset($monthNamesIndo[$bln]) ? $monthNamesIndo[$bln] : 'all';
 
-        // Start the query
-        $query = TanggapanUmpanbalikT::with('umpanBalikT', 'umpanBalikT.rencanakerja', 'umpanBalikT.pengawasnama')
-        ->whereHas('umpanBalikT', function ($query) {
-            $query->where('id_pengawas', Auth::user()->id);
-        })->latest();
+        // Start the query: Query UmpanbalikT directly
+        $query = UmpanbalikT::with('rencanakerja', 'answers.question', 'tanggapanUmpanBalik', 'pengawasnama')
+            ->where('id_pengawas', Auth::user()->id)
+            ->whereNotNull('submitted_at')
+            ->latest('submitted_at');
+
 
         // Apply month filter
         if ($bln !== 'all') {
-            $query->whereMonth('created_at', $monthNumber);
+            $query->whereMonth('submitted_at', $monthNumber);
         }
 
         // Apply year filter
         if ($tahun !== 'all') {
-            $query->whereYear('created_at', $tahun);
+            $query->whereYear('submitted_at', $tahun);
         }
 
         // Apply pengawas filter
         if ($pengawas !== 'all') {
-            $query->whereHas('umpanBalikT', function ($q) use ($pengawas) {
-                $q->where('id_pengawas', $pengawas);
-            });
+             $query->where('id_pengawas', $pengawas);
         }
 
         if ($kategori !== 'all') {
-            $query->whereHas('umpanBalikT.rencanakerja', function ($q) use ($kategori) {
+            $query->whereHas('rencanakerja', function ($q) use ($kategori) {
                 $q->where('kategoriprogram_id', $kategori);
             });
         }
 
-        // Apply search filter
+        // Apply search filter (Updated for UmpanbalikT relations)
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                // Search by nama_sekolah via relationships
-                $q->orWhereHas('umpanBalikT.user.sekolah', function ($subQuery) use ($search) {
+                // Search by nama_sekolah via relationships (Guru check)
+                $q->orWhereHas('user.sekolah', function ($subQuery) use ($search) {
                     $subQuery->where('nama_sekolah', 'like', "%{$search}%");
                 });
 
                 // Search by nama_program_kerja
-                $q->orWhereHas('umpanBalikT.rencanakerja', function ($subQuery) use ($search) {
+                $q->orWhereHas('rencanakerja', function ($subQuery) use ($search) {
                     $subQuery->where('nama_program_kerja', 'like', "%{$search}%");
                 });
 
                 // Search by pengawas name
-                $q->orWhereHas('umpanBalikT.pengawasnama', function ($subQuery) use ($search) {
+                $q->orWhereHas('pengawasnama', function ($subQuery) use ($search) {
                     $subQuery->where('name', 'like', "%{$search}%");
                 });
             });
@@ -472,14 +526,42 @@ class DokumentasipendampinganController extends Controller
 
         // Get the filtered data and map it
         $data = $query->get()->map(function ($row) {
+            
+            $fotoUrl = '';
+             // Priority 1: Dynamic Image
+            $fileAnswer = $row->answers->first(function($a){
+                 return $a->id_question == 13 || optional($a->question)->type_input == 'file';
+            });
+            
+            if ($fileAnswer && !empty($fileAnswer->answer)) {
+                $fotoUrl = route('umpanbalik.dynamic.file', $fileAnswer->answer);
+            } else {
+                 // Priority 2: Legacy Image
+                $legacy = $row->tanggapanUmpanBalik->first();
+                if ($legacy && !empty($legacy->foto)) {
+                    $fotoUrl = route('umpanbalikfoto', $legacy->foto);
+                }
+            }
+            
+            // Logic for School Name (safe check)
+            $namaSekolah = '-';
+            $cariguru = GuruM::find($row->id_user);
+            if ($cariguru) {
+                 $sekolah = SekolahM::find($cariguru->sekolah_id);
+                 $namaSekolah = $sekolah ? $sekolah->nama_sekolah : '-';
+            } elseif ($row->id_user == $row->id_pengawas) {
+                 $namaSekolah = 'Mandiri (Refleksi Pengawas)';
+            }
+
+
             return [
-                'tanggal' => $row->created_at->format('d M Y'),
-                'foto' => $row->foto,
-                'nama_sekolah' => optional(SekolahM::find(optional(GuruM::find($row->umpanBalikT->id_user))->sekolah_id))->nama_sekolah ?? '-',
-                'program' => $row->umpanBalikT->rencanakerja->nama_program_kerja ?? '-',
-                'pengawas' => $row->umpanBalikT->pengawasnama->name ?? '-',
-                'rtl_status' => ($row->umpanBalikT->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan') . ($row->umpanBalikT->tgl_rtl ? ' (' . $row->umpanBalikT->tgl_rtl->format('Y-m-d H:i:s') . ')' : ''),
-                'catatan_rtl' => $row->umpanBalikT->catatan_rtl ?? '-',
+                'tanggal' => $row->submitted_at ? $row->submitted_at->format('d M Y') : ($row->created_at ? $row->created_at->format('d M Y') : '-'),
+                'foto_url' => $fotoUrl,
+                'nama_sekolah' => $namaSekolah,
+                'program' => $row->rencanakerja->nama_program_kerja ?? '-',
+                'pengawas' => $row->pengawasnama->name ?? '-',
+                'rtl_status' => ($row->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan') . ($row->tgl_rtl ? ' (' . $row->tgl_rtl->format('Y-m-d H:i:s') . ')' : ''),
+                'catatan_rtl' => $row->catatan_rtl ?? '-',
             ];
         });
 

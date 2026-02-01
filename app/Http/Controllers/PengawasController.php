@@ -738,4 +738,24 @@ return response()->json($chartData);
     
 
 
+
+    public function getDynamicChartData(Request $request)
+    {
+        $questionId = $request->input('question_id');
+        $user = Auth::user();
+
+        if (!$questionId) {
+            return response()->json(['error' => 'Question ID is required'], 400);
+        }
+
+        $data = \App\Models\UmpanbalikAnswer::select('umpanbalik_answers.answer', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+            ->join('umpanbalik_t', 'umpanbalik_answers.id_umpanbalik_t', '=', 'umpanbalik_t.id')
+            ->where('umpanbalik_t.id_pengawas', $user->id)
+            ->where('umpanbalik_answers.id_question', $questionId)
+            ->groupBy('umpanbalik_answers.answer')
+            ->get();
+
+        return response()->json($data);
+    }
 }
+

@@ -199,9 +199,9 @@
                                             @elseif($question->type_input === 'file')
                                                 <div class="mt-2">
                                                     @if($val && $val !== '-')
-                                                        <a href="{{ asset('storage/umpanbalik_dynamic/' . $val) }}" target="_blank" class="btn btn-sm btn-outline-primary mb-2">View File</a>
+                                                        <a href="{{ route('umpanbalik.dynamic.file', $val) }}" target="_blank" class="btn btn-sm btn-outline-primary mb-2">View File</a>
                                                         <br>
-                                                        <img src="{{ asset('storage/umpanbalik_dynamic/' . $val) }}" style="max-width: 500px;" class="img-fluid border rounded shadow-sm">
+                                                        <img src="{{ route('umpanbalik.dynamic.file', $val) }}" style="max-width: 500px;" class="img-fluid border rounded shadow-sm">
                                                     @else
                                                         <p class="text-muted">Tidak ada file diunggah.</p>
                                                     @endif

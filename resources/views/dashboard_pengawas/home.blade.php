@@ -128,9 +128,6 @@
                 </div>
             </div>
 
-            <div class="col-lg-12">
-
-            </div>
 
 
               {{-- end chart --}}
@@ -434,9 +431,11 @@ $('#filter-bln-last, #filter-tahun-last').change(function() {
     fetchChartData2(month, year, 'all');
 });
 
+
+
+
+
+
 });
-
-
-
 </script>
 
