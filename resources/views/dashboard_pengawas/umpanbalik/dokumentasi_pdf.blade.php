@@ -16,9 +16,22 @@
         th {
             background-color: #f2f2f2;
         }
+        .copyright-footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 10px;
+            color: #888;
+            font-style: italic;
+            padding: 10px 0;
+        }
     </style>
 </head>
 <body>
+    <div class="copyright-footer">
+        File ini digenerate dari Delman Super
+    </div>
     <h1>Laporan Dokumentasi Pendampingan</h1>
     <table>
         <thead>
