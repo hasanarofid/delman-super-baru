@@ -334,9 +334,9 @@ class DokumentasipendampinganController extends Controller
 
 
             return [
-                'tanggal' => $row->submitted_at ? $row->submitted_at->format('d M Y') : ($row->created_at ? $row->created_at->format('d M Y') : '-'),
+                'tanggal' => $row->tgl_pendampingan ? $row->tgl_pendampingan->format('d M Y') : ($row->submitted_at ? $row->submitted_at->format('d M Y') : '-'),
                 'foto' => $fotoUrl, // Warning: View expects 'foto' or 'foto_url'? Check view.
-                'foto_url' => $fotoUrl,
+                'foto_url' => $fotoUrl . '?w=200',
                 'nama_sekolah' => $namaSekolah,
                 'program' => $row->rencanakerja->nama_program_kerja ?? '-',
                 'pengawas' => $row->pengawasnama->name ?? '-',
@@ -571,8 +571,8 @@ class DokumentasipendampinganController extends Controller
 
 
             return [
-                'tanggal' => $row->submitted_at ? $row->submitted_at->format('d M Y') : ($row->created_at ? $row->created_at->format('d M Y') : '-'),
-                'foto_url' => $fotoUrl,
+                'tanggal' => $row->tgl_pendampingan ? $row->tgl_pendampingan->format('d M Y') : ($row->submitted_at ? $row->submitted_at->format('d M Y') : '-'),
+                'foto_url' => $fotoUrl . '?w=200',
                 'nama_sekolah' => $namaSekolah,
                 'program' => $row->rencanakerja->nama_program_kerja ?? '-',
                 'pengawas' => $row->pengawasnama->name ?? '-',

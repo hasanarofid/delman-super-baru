@@ -60,8 +60,10 @@
     <div style="width: 100%; text-align: right;">
         <div style="display: inline-block; text-align: left; padding-right: 50px;">
             <p>Mengetahui,</p>
-            <p>Pengawas Pembina</p>
-            <br><br><br><br>
+            <p>Pengawas Sekolah</p>
+            <br><br>
+            <p style="text-align: left; font-size: 24px; font-weight: bold; color: #000;">#</p>
+            <br>
             <p style="font-weight: bold; text-decoration: underline;">{{ $user->name }}</p>
             <p>NIP. {{ $user->nip }}</p>
         </div>

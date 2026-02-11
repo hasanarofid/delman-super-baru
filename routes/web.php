@@ -1000,19 +1000,73 @@ Route::get('fotopengawas/{filename}', function ($filename) {
 Route::get('umpanbalik-dynamic/{filename}', function ($filename) {
     if (Storage::disk('shared')->exists('umpanbalik_dynamic/' . $filename)) {
         $path = Storage::disk('shared')->path('umpanbalik_dynamic/' . $filename);
-        $file = File::get($path);
-        $type = File::mimeType($path);
-
-        $response = Response::make($file, 200);
-        $response->header("Content-Type", $type);
-
-        return $response;
     } else {
         abort(404);
     }
 
     $file = File::get($path);
     $type = File::mimeType($path);
+    $width = request()->input('w');
+
+    if ($width && is_numeric($width) && extension_loaded('gd')) {
+        // Create image from string
+        $srcInfo = getimagesize($path);
+        $srcWidth = $srcInfo[0];
+        $srcHeight = $srcInfo[1];
+        
+        // Calculate new height maintaining aspect ratio
+        $newWidth = (int)$width;
+        $newHeight = (int)(($srcHeight / $srcWidth) * $newWidth);
+
+        // Load image based on type
+        switch ($srcInfo[2]) {
+            case IMAGETYPE_JPEG:
+                $source = imagecreatefromjpeg($path);
+                break;
+            case IMAGETYPE_PNG:
+                $source = imagecreatefrompng($path);
+                break;
+            case IMAGETYPE_GIF:
+                $source = imagecreatefromgif($path);
+                break;
+            default:
+                // Return original if type not supported
+                $response = Response::make($file, 200);
+                $response->header("Content-Type", $type);
+                return $response;
+        }
+
+        // Create new image
+        $destination = imagecreatetruecolor($newWidth, $newHeight);
+
+        // Preserve transparency for PNG
+        if ($srcInfo[2] == IMAGETYPE_PNG) {
+            imagealphablending($destination, false);
+            imagesavealpha($destination, true);
+        }
+
+        // Resize
+        imagecopyresampled($destination, $source, 0, 0, 0, 0, $newWidth, $newHeight, $srcWidth, $srcHeight);
+
+        // Output to buffer
+        ob_start();
+        if ($srcInfo[2] == IMAGETYPE_JPEG) {
+            imagejpeg($destination, null, 75); // Quality 75
+        } elseif ($srcInfo[2] == IMAGETYPE_PNG) {
+            imagepng($destination);
+        } elseif ($srcInfo[2] == IMAGETYPE_GIF) {
+            imagegif($destination);
+        }
+        $resizedFile = ob_get_clean();
+
+        // Cleanup
+        imagedestroy($source);
+        imagedestroy($destination);
+
+        $response = Response::make($resizedFile, 200);
+        $response->header("Content-Type", $type);
+        return $response;
+    }
 
     $response = Response::make($file, 200);
     $response->header("Content-Type", $type);
