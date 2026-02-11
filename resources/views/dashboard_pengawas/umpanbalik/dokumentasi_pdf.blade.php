@@ -52,8 +52,8 @@
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $row['tanggal'] }}</td>
                 <td>
-                    @if(!empty($row['foto_url']))
-                    <img src="{{ $row['foto_url'] }}" alt="Foto Bukti 1" width="100px">
+                    @if(!empty($row['foto_base64']))
+                    <img src="{{ $row['foto_base64'] }}" alt="Foto Bukti 1" width="100px">
                     @else
                     -
                     @endif

@@ -10,9 +10,10 @@ use App\SekolahM;
 use App\TanggapanUmpanbalikT;
 use App\User;
 use Illuminate\Http\Request;
-use Auth;
-use DataTables;
+use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
 class DokumentasipendampinganController extends Controller
@@ -306,19 +307,26 @@ class DokumentasipendampinganController extends Controller
 
         // Get the filtered data and map it
         $data = $query->get()->map(function ($row) {
-            $fotoUrl = '';
-             // Priority 1: Dynamic Image
+            $fotoBase64 = null;
+            // Priority 1: Dynamic Image
             $fileAnswer = $row->answers->first(function($a){
                  return $a->id_question == 13 || optional($a->question)->type_input == 'file';
             });
             
             if ($fileAnswer && !empty($fileAnswer->answer)) {
-                $fotoUrl = route('umpanbalik.dynamic.file', $fileAnswer->answer);
-            } else {
+                $filename = $fileAnswer->answer;
+                $path = Storage::disk('shared')->path('umpanbalik_dynamic/' . $filename);
+                $fotoBase64 = $this->imageToBase64($path);
+            } 
+            
+            if (!$fotoBase64) {
                  // Priority 2: Legacy Image
                 $legacy = $row->tanggapanUmpanBalik->first();
                 if ($legacy && !empty($legacy->foto)) {
-                    $fotoUrl = route('umpanbalikfoto', $legacy->foto);
+                    $filename = $legacy->foto;
+                    $root = config('filesystems.disks.shared.root');
+                    $path = $root . '/umpanbalik/' . $filename;
+                    $fotoBase64 = $this->imageToBase64($path);
                 }
             }
 
@@ -335,8 +343,7 @@ class DokumentasipendampinganController extends Controller
 
             return [
                 'tanggal' => $row->tgl_pendampingan ? $row->tgl_pendampingan->format('d M Y') : ($row->submitted_at ? $row->submitted_at->format('d M Y') : '-'),
-                'foto' => $fotoUrl, // Warning: View expects 'foto' or 'foto_url'? Check view.
-                'foto_url' => $fotoUrl . '?w=200',
+                'foto_base64' => $fotoBase64,
                 'nama_sekolah' => $namaSekolah,
                 'program' => $row->rencanakerja->nama_program_kerja ?? '-',
                 'pengawas' => $row->pengawasnama->name ?? '-',
@@ -543,19 +550,26 @@ class DokumentasipendampinganController extends Controller
         // Get the filtered data and map it
         $data = $query->get()->map(function ($row) {
             
-            $fotoUrl = '';
-             // Priority 1: Dynamic Image
+            $fotoBase64 = null;
+            // Priority 1: Dynamic Image
             $fileAnswer = $row->answers->first(function($a){
                  return $a->id_question == 13 || optional($a->question)->type_input == 'file';
             });
             
             if ($fileAnswer && !empty($fileAnswer->answer)) {
-                $fotoUrl = route('umpanbalik.dynamic.file', $fileAnswer->answer);
-            } else {
+                $filename = $fileAnswer->answer;
+                $path = Storage::disk('shared')->path('umpanbalik_dynamic/' . $filename);
+                $fotoBase64 = $this->imageToBase64($path);
+            } 
+            
+            if (!$fotoBase64) {
                  // Priority 2: Legacy Image
                 $legacy = $row->tanggapanUmpanBalik->first();
                 if ($legacy && !empty($legacy->foto)) {
-                    $fotoUrl = route('umpanbalikfoto', $legacy->foto);
+                    $filename = $legacy->foto;
+                    $root = config('filesystems.disks.shared.root');
+                    $path = $root . '/umpanbalik/' . $filename;
+                    $fotoBase64 = $this->imageToBase64($path);
                 }
             }
             
@@ -572,7 +586,7 @@ class DokumentasipendampinganController extends Controller
 
             return [
                 'tanggal' => $row->tgl_pendampingan ? $row->tgl_pendampingan->format('d M Y') : ($row->submitted_at ? $row->submitted_at->format('d M Y') : '-'),
-                'foto_url' => $fotoUrl . '?w=200',
+                'foto_base64' => $fotoBase64,
                 'nama_sekolah' => $namaSekolah,
                 'program' => $row->rencanakerja->nama_program_kerja ?? '-',
                 'pengawas' => $row->pengawasnama->name ?? '-',
@@ -590,6 +604,16 @@ class DokumentasipendampinganController extends Controller
 
         // Return the PDF as a downloadable file
         return $pdf->download('Laporan_Dokumentasi.pdf');
+    }
+
+    private function imageToBase64($path)
+    {
+        if (file_exists($path)) {
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $data = file_get_contents($path);
+            return 'data:image/' . $type . ';base64,' . base64_encode($data);
+        }
+        return null;
     }
 
 
