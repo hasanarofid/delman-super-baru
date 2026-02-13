@@ -3,15 +3,25 @@
 <head>
     <title>Laporan Dokumentasi</title>
     <style>
+        h1 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 11px;
+            page-break-inside: auto;
         }
         table, th, td {
             border: 1px solid black;
             text-align: left;
             padding: 8px;
+        }
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
         }
         th {
             background-color: #f2f2f2;

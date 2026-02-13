@@ -147,12 +147,33 @@ class DokumentasipendampinganController extends Controller
                 });
             }
 
-             // Apply filter for 'bln' (bulan)
-             if ($bln !== 'all') {
-                $post->whereMonth('submitted_at', $monthNumber);
-            }
-            if ($tahun !== 'all') {
-                $post->whereYear('submitted_at', $tahun);
+             // Apply filter for 'bln' (bulan) and 'tahun'
+             if ($bln !== 'all' || $tahun !== 'all') {
+                $post->where(function($q) use ($bln, $tahun, $monthNumber) {
+                    if ($bln !== 'all' && $tahun !== 'all') {
+                        $q->where(function($sq) use ($monthNumber, $tahun) {
+                            $sq->whereNotNull('tgl_pendampingan')
+                               ->whereMonth('tgl_pendampingan', $monthNumber)
+                               ->whereYear('tgl_pendampingan', $tahun);
+                        })->orWhere(function($sq) use ($monthNumber, $tahun) {
+                            $sq->whereNull('tgl_pendampingan')
+                               ->whereMonth('submitted_at', $monthNumber)
+                               ->whereYear('submitted_at', $tahun);
+                        });
+                    } elseif ($bln !== 'all') {
+                        $q->whereMonth('tgl_pendampingan', $monthNumber)
+                          ->orWhere(function($sq) use ($monthNumber) {
+                              $sq->whereNull('tgl_pendampingan')
+                                 ->whereMonth('submitted_at', $monthNumber);
+                          });
+                    } elseif ($tahun !== 'all') {
+                        $q->whereYear('tgl_pendampingan', $tahun)
+                          ->orWhere(function($sq) use ($tahun) {
+                              $sq->whereNull('tgl_pendampingan')
+                                 ->whereYear('submitted_at', $tahun);
+                          });
+                    }
+                });
             }
 
             if ($pengawas !== 'all') {
@@ -173,7 +194,8 @@ class DokumentasipendampinganController extends Controller
             return Datatables::of($post->get())
                 ->addIndexColumn()
                 ->addColumn('tanggal', function($row){
-                    return !empty($row->rencanakerja->created_at) ? $row->rencanakerja->created_at->format('d M Y') : '-';
+                    $date = $row->tgl_pendampingan ?? $row->submitted_at;
+                    return $date ? $date->format('d M Y') : '-';
                 })
                 ->addColumn('foto', function($row){
                      // Priority 1: Dynamic Image (Q13 or generic file input)
@@ -259,14 +281,33 @@ class DokumentasipendampinganController extends Controller
             });
         }
 
-        // Apply month filter
-        if ($bln !== 'all') {
-            $query->whereMonth('submitted_at', $monthNumber);
-        }
-
-        // Apply year filter
-        if ($tahun !== 'all') {
-            $query->whereYear('submitted_at', $tahun);
+        // Apply filter for 'bln' (bulan) and 'tahun'
+        if ($bln !== 'all' || $tahun !== 'all') {
+            $query->where(function($q) use ($bln, $tahun, $monthNumber) {
+                if ($bln !== 'all' && $tahun !== 'all') {
+                    $q->where(function($sq) use ($monthNumber, $tahun) {
+                        $sq->whereNotNull('tgl_pendampingan')
+                           ->whereMonth('tgl_pendampingan', $monthNumber)
+                           ->whereYear('tgl_pendampingan', $tahun);
+                    })->orWhere(function($sq) use ($monthNumber, $tahun) {
+                        $sq->whereNull('tgl_pendampingan')
+                           ->whereMonth('submitted_at', $monthNumber)
+                           ->whereYear('submitted_at', $tahun);
+                    });
+                } elseif ($bln !== 'all') {
+                    $q->whereMonth('tgl_pendampingan', $monthNumber)
+                      ->orWhere(function($sq) use ($monthNumber) {
+                          $sq->whereNull('tgl_pendampingan')
+                             ->whereMonth('submitted_at', $monthNumber);
+                      });
+                } elseif ($tahun !== 'all') {
+                    $q->whereYear('tgl_pendampingan', $tahun)
+                      ->orWhere(function($sq) use ($tahun) {
+                          $sq->whereNull('tgl_pendampingan')
+                             ->whereYear('submitted_at', $tahun);
+                      });
+                }
+            });
         }
 
         // Apply pengawas filter
@@ -390,12 +431,33 @@ class DokumentasipendampinganController extends Controller
                 ->whereNotNull('submitted_at')
                 ->latest('submitted_at');
 
-            // Apply filter for 'bln' (bulan)
-            if ($bln !== 'all') {
-                $post->whereMonth('submitted_at', $monthNumber);
-            }
-            if ($tahun !== 'all') {
-                $post->whereYear('submitted_at', $tahun);
+            // Apply filter for 'bln' (bulan) and 'tahun'
+            if ($bln !== 'all' || $tahun !== 'all') {
+                $post->where(function($q) use ($bln, $tahun, $monthNumber) {
+                    if ($bln !== 'all' && $tahun !== 'all') {
+                        $q->where(function($sq) use ($monthNumber, $tahun) {
+                            $sq->whereNotNull('tgl_pendampingan')
+                               ->whereMonth('tgl_pendampingan', $monthNumber)
+                               ->whereYear('tgl_pendampingan', $tahun);
+                        })->orWhere(function($sq) use ($monthNumber, $tahun) {
+                            $sq->whereNull('tgl_pendampingan')
+                               ->whereMonth('submitted_at', $monthNumber)
+                               ->whereYear('submitted_at', $tahun);
+                        });
+                    } elseif ($bln !== 'all') {
+                        $q->whereMonth('tgl_pendampingan', $monthNumber)
+                          ->orWhere(function($sq) use ($monthNumber) {
+                              $sq->whereNull('tgl_pendampingan')
+                                 ->whereMonth('submitted_at', $monthNumber);
+                          });
+                    } elseif ($tahun !== 'all') {
+                        $q->whereYear('tgl_pendampingan', $tahun)
+                          ->orWhere(function($sq) use ($tahun) {
+                              $sq->whereNull('tgl_pendampingan')
+                                 ->whereYear('submitted_at', $tahun);
+                          });
+                    }
+                });
             }
 
 
@@ -417,7 +479,8 @@ class DokumentasipendampinganController extends Controller
             return Datatables::of($post->get())
                 ->addIndexColumn()
                 ->addColumn('tanggal', function($row){
-                    return !empty($row->rencanakerja->created_at) ? $row->rencanakerja->created_at->format('d M Y') : '-';
+                    $date = $row->tgl_pendampingan ?? $row->submitted_at;
+                    return $date ? $date->format('d M Y') : '-';
                 })
                 ->addColumn('foto', function($row){
                     // Priority 1: Dynamic Image (Q13 or generic file input)
@@ -502,13 +565,33 @@ class DokumentasipendampinganController extends Controller
 
 
         // Apply month filter
-        if ($bln !== 'all') {
-            $query->whereMonth('submitted_at', $monthNumber);
-        }
-
-        // Apply year filter
-        if ($tahun !== 'all') {
-            $query->whereYear('submitted_at', $tahun);
+        // Apply filter for 'bln' (bulan) and 'tahun'
+        if ($bln !== 'all' || $tahun !== 'all') {
+            $query->where(function($q) use ($bln, $tahun, $monthNumber) {
+                if ($bln !== 'all' && $tahun !== 'all') {
+                    $q->where(function($sq) use ($monthNumber, $tahun) {
+                        $sq->whereNotNull('tgl_pendampingan')
+                           ->whereMonth('tgl_pendampingan', $monthNumber)
+                           ->whereYear('tgl_pendampingan', $tahun);
+                    })->orWhere(function($sq) use ($monthNumber, $tahun) {
+                        $sq->whereNull('tgl_pendampingan')
+                           ->whereMonth('submitted_at', $monthNumber)
+                           ->whereYear('submitted_at', $tahun);
+                    });
+                } elseif ($bln !== 'all') {
+                    $q->whereMonth('tgl_pendampingan', $monthNumber)
+                      ->orWhere(function($sq) use ($monthNumber) {
+                          $sq->whereNull('tgl_pendampingan')
+                             ->whereMonth('submitted_at', $monthNumber);
+                      });
+                } elseif ($tahun !== 'all') {
+                    $q->whereYear('tgl_pendampingan', $tahun)
+                      ->orWhere(function($sq) use ($tahun) {
+                          $sq->whereNull('tgl_pendampingan')
+                             ->whereYear('submitted_at', $tahun);
+                      });
+                }
+            });
         }
 
         // Apply pengawas filter
