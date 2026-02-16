@@ -9,8 +9,9 @@ use App\SekolahM;
 use App\TanggapanUmpanbalikT;
 use App\User;
 use Illuminate\Http\Request;
-use Auth;
-use DataTables;
+use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Facades\DataTables;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class LayanandibutuhkanController extends Controller
 {
@@ -119,5 +120,92 @@ class LayanandibutuhkanController extends Controller
                        ->rawColumns(['nama_sekolah','layanan'])
                        ->make(true);
            }
+    }
+    public function exportPDF(Request $request)
+    {
+        $pengawas = $request->input('pengawas', 'all');
+        $search = $request->input('search', '');
+
+        $query = TanggapanUmpanbalikT::with('umpanBalikT.pengawasnama', 'umpanBalikT.user.sekolah')
+            ->latest();
+
+        $userAuth = Auth::user();
+        if ($userAuth->role == 'Stakeholder' || $userAuth->role == 'Admin') {
+            $query->whereHas('umpanBalikT.pengawasnama', function($q) use ($userAuth) {
+                $q->where('kabupaten_id', $userAuth->kabupaten_id);
+            });
+        }
+
+        $query->whereHas('umpanBalikT', function ($q) use ($pengawas) {
+            if ($pengawas !== 'all') {
+                $q->where('id_pengawas', $pengawas);
+            }
+        });
+
+        // Fetch supervisor profile if specific pengawas is selected
+        $pengawasProfile = null;
+        if ($pengawas !== 'all' && $pengawas != 0) {
+            $pengawasProfile = User::with('profile')->find($pengawas);
+        }
+
+        $data = $query->get()->map(function ($row) {
+            $namaSekolah = '-';
+            try {
+                $cariguru = GuruM::find($row->umpanBalikT->id_user);
+                if ($cariguru) {
+                    $sekolah = SekolahM::find($cariguru->sekolah_id);
+                    $namaSekolah = $sekolah ? $sekolah->nama_sekolah : '-';
+                }
+            } catch (\Exception $e) {}
+
+            return [
+                'nama_sekolah' => $namaSekolah,
+                'layanan' => $row->jawaban_11 ?? '-',
+            ];
+        });
+
+        $pdf = PDF::loadView('layanandibutuhkan.layanan_pdf', [
+            'data' => $data,
+            'pengawasProfile' => $pengawasProfile,
+            'generateDate' => now()->format('d F Y')
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download('Daftar_Kebutuhan_Layanan.pdf');
+    }
+
+    public function exportPDFPengawas(Request $request)
+    {
+        $userAuth = Auth::user();
+        $query = TanggapanUmpanbalikT::with('umpanBalikT.pengawasnama', 'umpanBalikT.user.sekolah')
+            ->whereHas('umpanBalikT', function ($q) use ($userAuth) {
+                $q->where('id_pengawas', $userAuth->id);
+            })
+            ->latest();
+
+        $pengawasProfile = User::with('profile')->find($userAuth->id);
+
+        $data = $query->get()->map(function ($row) {
+            $namaSekolah = '-';
+            try {
+                $cariguru = GuruM::find($row->umpanBalikT->id_user);
+                if ($cariguru) {
+                    $sekolah = SekolahM::find($cariguru->sekolah_id);
+                    $namaSekolah = $sekolah ? $sekolah->nama_sekolah : '-';
+                }
+            } catch (\Exception $e) {}
+
+            return [
+                'nama_sekolah' => $namaSekolah,
+                'layanan' => $row->jawaban_11 ?? '-',
+            ];
+        });
+
+        $pdf = PDF::loadView('layanandibutuhkan.layanan_pdf', [
+            'data' => $data,
+            'pengawasProfile' => $pengawasProfile,
+            'generateDate' => now()->format('d F Y')
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download('Daftar_Kebutuhan_Layanan.pdf');
     }
 }

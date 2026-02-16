@@ -92,9 +92,7 @@
                       <th>Foto Bukti Pendampingan</th>
                       <th>Sekolah</th>
                       <th>Program Kerja</th>
-                      <th>Rencana Tindak Lanjut (RTL)</th>
                       <th>Catatan RTL</th>
-                      <th>Pengawas</th>
                     </tr>
                   </thead>
                 </table>
@@ -172,9 +170,7 @@ $('#filter-kategori').change(function () {
           {data: 'foto', name: 'foto'},
           {data: 'nama_sekolah', name: 'nama_sekolah'},
           {data: 'program', name: 'program'},
-          {data: 'rtl_status', name: 'rtl_status'},
           {data: 'catatan_rtl', name: 'catatan_rtl'},
-          {data: 'pengawas', name: 'pengawas'},
         ]
       });
   });

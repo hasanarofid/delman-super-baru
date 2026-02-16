@@ -26,6 +26,11 @@
   
               
               <div class="app-card-body px-4 w-100">
+                <div class="row mb-3">
+                  <div class="col-md-4">
+                      <a href="#" id="downloadPDF" class="btn btn-danger">Download PDF</a>
+                  </div>
+                </div>
               
                   <div class="table-responsive">
                       <table class="table table-bordered table-striped" id="dataTable">
@@ -77,24 +82,15 @@ $('#dataTable').DataTable({
             {data: 'nama_sekolah', name: 'nama_sekolah'},
             {data: 'layanan', name: 'layanan'},
         ],
-        dom: 'Bfrtip',
-        buttons: [
-            {
-                extend: 'pdfHtml5',
-                text: '<i class="fas fa-file-pdf"></i> Export PDF',
-                className: 'btn btn-danger',
-                title: 'List Layanan yang dibutuhkan',
-                orientation: 'landscape',
-                pageSize: 'A4',
-                exportOptions: {
-                  columns: [0, 1,2], // Ekspor semua kolom yang terlihat
-                    modifier: {
-                        page: 'all' // Ekspor semua halaman
-                    }
-                }
-            }
-        ]
     });
+
+    $('#downloadPDF').click(function (event) {
+            event.preventDefault(); 
+            var searchQuery = $('#dataTable').DataTable().search();
+            var url = "{{ route('pengawas.layanandibutuhkan.exportPDF') }}";
+            url += `?search=${searchQuery}`;
+            window.open(url, '_blank');
+        });
   });
 
 

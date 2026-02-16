@@ -173,6 +173,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
     Route::prefix('layanandibutuhkan')->group(function () {
         Route::get('/', 'LayanandibutuhkanController@index')->name('layanandibutuhkan.index');
         Route::get('/get-layanandibutuhkan', 'LayanandibutuhkanController@getdata')->name('layanandibutuhkan.getdata');
+        Route::get('/export-pdf', 'LayanandibutuhkanController@exportPDF')->name('layanandibutuhkan.exportPDF');
     });
 
 
@@ -851,6 +852,7 @@ Route::middleware(['web', 'pengawas'])->group(function () {
     Route::prefix('pengawas/layanandibutuhkan')->group(function () {
         Route::get('/', 'LayanandibutuhkanController@indexpengawas')->name('pengawas.layanandibutuhkan.index');
         Route::get('/get-layanandibutuhkan', 'LayanandibutuhkanController@getdatapengawas')->name('pengawas.layanandibutuhkan.getdata');
+        Route::get('/export-pdf', 'LayanandibutuhkanController@exportPDFPengawas')->name('pengawas.layanandibutuhkan.exportPDF');
     });
 
 

@@ -346,6 +346,23 @@ class DokumentasipendampinganController extends Controller
         }
 
 
+        // Fetch supervisor profile if specific pengawas is selected
+        $pengawasProfile = null;
+        if ($pengawas !== 'all' && $pengawas != 0) {
+            $pengawasProfile = User::with('profile')->find($pengawas);
+        }
+
+        // Fetch category name if filtered
+        $kategoriName = 'Semua Kategori';
+        if ($kategori !== 'all') {
+            if ($kategori === 'rhk3') {
+                $kategoriName = 'RHK 3 (Refleksi Pengawas)';
+            } else {
+                $kat = Kategory::find($kategori);
+                $kategoriName = $kat ? $kat->nama : 'Semua Kategori';
+            }
+        }
+
         // Get the filtered data and map it
         $data = $query->get()->map(function ($row) {
             $fotoBase64 = null;
@@ -356,7 +373,7 @@ class DokumentasipendampinganController extends Controller
             
             if ($fileAnswer && !empty($fileAnswer->answer)) {
                 $filename = $fileAnswer->answer;
-                $path = Storage::disk('shared')->path('umpanbalik_dynamic/' . $filename);
+                $path = config('filesystems.disks.shared.root') . '/umpanbalik_dynamic/' . $filename;
                 $fotoBase64 = $this->imageToBase64($path);
             } 
             
@@ -381,7 +398,6 @@ class DokumentasipendampinganController extends Controller
                  $namaSekolah = 'Mandiri (Refleksi Pengawas)';
             }
 
-
             return [
                 'tanggal' => $row->tgl_pendampingan ? $row->tgl_pendampingan->format('d M Y') : ($row->submitted_at ? $row->submitted_at->format('d M Y') : '-'),
                 'foto_base64' => $fotoBase64,
@@ -394,7 +410,14 @@ class DokumentasipendampinganController extends Controller
         });
 
         // Generate the PDF using the filtered data
-        $pdf = PDF::loadView('dokumentasipendampingan.dokumentasi', ['data' => $data])->setPaper('a4', 'landscape');
+        $pdf = PDF::loadView('dokumentasipendampingan.export_pdf', [
+            'data' => $data,
+            'pengawasProfile' => $pengawasProfile,
+            'bln' => $bln,
+            'tahun' => $tahun,
+            'kategoriName' => $kategoriName,
+            'generateDate' => now()->format('d F Y')
+        ])->setPaper('a4', 'landscape');
 
         // Return the PDF as a downloadable file
         return $pdf->download('Laporan_Dokumentasi.pdf');
@@ -630,6 +653,21 @@ class DokumentasipendampinganController extends Controller
         }
 
 
+        // Fetch supervisor profile (always needed for pengawas export)
+        $userAuth = Auth::user();
+        $pengawasProfile = User::with('profile')->find($userAuth->id);
+
+        // Fetch category name if filtered
+        $kategoriName = 'Semua Kategori';
+        if ($kategori !== 'all') {
+            if ($kategori === 'rhk3') {
+                $kategoriName = 'RHK 3 (Refleksi Pengawas)';
+            } else {
+                $kat = Kategory::find($kategori);
+                $kategoriName = $kat ? $kat->nama : 'Semua Kategori';
+            }
+        }
+
         // Get the filtered data and map it
         $data = $query->get()->map(function ($row) {
             
@@ -641,7 +679,7 @@ class DokumentasipendampinganController extends Controller
             
             if ($fileAnswer && !empty($fileAnswer->answer)) {
                 $filename = $fileAnswer->answer;
-                $path = Storage::disk('shared')->path('umpanbalik_dynamic/' . $filename);
+                $path = config('filesystems.disks.shared.root') . '/umpanbalik_dynamic/' . $filename;
                 $fotoBase64 = $this->imageToBase64($path);
             } 
             
@@ -679,10 +717,13 @@ class DokumentasipendampinganController extends Controller
         });
 
         // Generate the PDF using the filtered data
-        // Generate the PDF using the filtered data
-        $pdf = PDF::loadView('dashboard_pengawas.umpanbalik.dokumentasi_pdf', [
+        $pdf = PDF::loadView('dokumentasipendampingan.export_pdf', [
             'data' => $data,
-            'user' => Auth::user()
+            'pengawasProfile' => $pengawasProfile,
+            'bln' => $bln,
+            'tahun' => $tahun,
+            'kategoriName' => $kategoriName,
+            'generateDate' => now()->format('d F Y')
         ])->setPaper('a4', 'landscape');
 
         // Return the PDF as a downloadable file
@@ -693,6 +734,41 @@ class DokumentasipendampinganController extends Controller
     {
         if (file_exists($path)) {
             $type = pathinfo($path, PATHINFO_EXTENSION);
+            
+            // Resize image to reduce PDF size
+            try {
+                $img = null;
+                if ($type == 'jpg' || $type == 'jpeg') {
+                    $img = @imagecreatefromjpeg($path);
+                } elseif ($type == 'png') {
+                    $img = @imagecreatefrompng($path);
+                }
+
+                if ($img) {
+                    $width = imagesx($img);
+                    $height = imagesy($img);
+                    
+                    // Max width 600px, keep aspect ratio
+                    $newWidth = 600;
+                    if ($width > $newWidth) {
+                        $newHeight = floor($height * ($newWidth / $width));
+                        $tmpImg = imagecreatetruecolor($newWidth, $newHeight);
+                        imagecopyresampled($tmpImg, $img, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+                        
+                        ob_start();
+                        imagejpeg($tmpImg, null, 70); // 70 quality is usually good enough
+                        $data = ob_get_clean();
+                        
+                        imagedestroy($img);
+                        imagedestroy($tmpImg);
+                        
+                        return 'data:image/jpeg;base64,' . base64_encode($data);
+                    }
+                }
+            } catch (\Exception $e) {
+                // Fallback to original if resize fails
+            }
+
             $data = file_get_contents($path);
             return 'data:image/' . $type . ';base64,' . base64_encode($data);
         }
