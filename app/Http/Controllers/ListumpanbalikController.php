@@ -14,6 +14,7 @@ use DataTables;
 use \Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str; // Add Str for slug generation
+use Barryvdh\DomPDF\Facade as PDF;
 
 class ListumpanbalikController extends Controller
 {
@@ -336,4 +337,61 @@ class ListumpanbalikController extends Controller
         return response()->json(['success' => false]);
     }
 
+    public function exportPDF(Request $request)
+    {
+        $userAuth = Auth::user();
+        $pengawasId = $request->input('pengawas', 'all');
+        $bln = $request->input('bln', 'all');
+        $tahun = $request->input('tahun', 'all');
+
+        $query = UmpanbalikT::with(['rencanakerja.kategoriprogram', 'pengawasnama', 'user_pengawas', 'user.sekolah']);
+
+        if (strtolower($userAuth->role) == 'pengawas') {
+            $query->where('umpanbalik_t.id_pengawas', $userAuth->id);
+            $pengawasId = $userAuth->id;
+        } else {
+            if ($userAuth->role == 'Stakeholder' || $userAuth->role == 'Admin') {
+                $query->whereHas('pengawasnama', function ($q) use ($userAuth) {
+                    $q->where('kabupaten_id', $userAuth->kabupaten_id);
+                });
+            }
+            if ($pengawasId !== 'all') {
+                $query->where('umpanbalik_t.id_pengawas', $pengawasId);
+            }
+        }
+
+        if ($bln !== 'all') {
+            $query->whereHas('rencanakerja', function ($q) use ($bln) {
+                $q->where('bulan', $bln);
+            });
+        }
+
+        if ($tahun !== 'all') {
+            $query->whereHas('rencanakerja', function ($q) use ($tahun) {
+                $q->where('tahun_ajaran', $tahun);
+            });
+        }
+
+        $data = $query->latest()->get();
+
+        $pengawasProfile = null;
+        if ($pengawasId !== 'all' && $pengawasId != 0 && $pengawasId != 'null') {
+            $pengawasProfile = User::with('profile')->find($pengawasId);
+        }
+
+        // Ensure pengawas login automatically gets their profile
+        if (!$pengawasProfile && strtolower($userAuth->role) == 'pengawas') {
+            $pengawasProfile = User::with('profile')->find($userAuth->id);
+        }
+
+        $pdf = PDF::loadView('listumpanbalik.export_pdf', [
+            'data' => $data,
+            'pengawasProfile' => $pengawasProfile,
+            'bln' => $bln,
+            'tahun' => $tahun,
+            'generateDate' => now()->format('d F Y')
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('Daftar_Umpan_Balik.pdf');
+    }
 }

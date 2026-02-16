@@ -192,17 +192,14 @@
             dom: 'Bfrtip', // Enables the buttons at the top of the DataTable
             buttons: [
                 {
-                    extend: 'pdfHtml5',
-                    title: 'List Umpan Balik',
                     text: '<i class="fas fa-file-pdf"></i> Export PDF',
                     className: 'btn btn-danger',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-                    },
-                    customize: function (doc) {
-                        doc.styles.tableHeader.alignment = 'left';
+                    action: function ( e, dt, node, config ) {
+                        var pengawas = $('#filter-pengawas').val();
+                        var bln = $('#filter-bln').val();
+                        var tahun = $('#filter-tahun').val();
+                        var url = "{{ route('listumpanbalik.exportPDF') }}?pengawas=" + pengawas + "&bln=" + bln + "&tahun=" + tahun;
+                        window.open(url, '_blank');
                     }
                 }
             ]

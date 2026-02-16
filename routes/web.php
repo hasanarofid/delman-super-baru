@@ -155,6 +155,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         Route::get('/edit-listumpanbalik/{id}', 'ListumpanbalikController@edit')->name('listumpanbalik.edit');
         Route::post('/update-listumpanbalik/{id}', 'ListumpanbalikController@update')->name('listumpanbalik.update');
         Route::get('/hapus-listumpanbalik{id}', 'ListumpanbalikController@hapus')->name('listumpanbalik.hapus');
+        Route::get('/export-pdf', 'ListumpanbalikController@exportPDF')->name('listumpanbalik.exportPDF');
     });
 
     Route::prefix('dokumentasipendampingan')->group(function () {
@@ -837,6 +838,7 @@ Route::middleware(['web', 'pengawas'])->group(function () {
         Route::get('/', 'ListumpanbalikController@indexpengawas')->name('pengawas.listumpanbalik.index');
         Route::get('/get-listumpanbalik', 'ListumpanbalikController@getdatapengawas')->name('pengawas.listumpanbalik.getdata');
         Route::post('/update-rtl', 'ListumpanbalikController@updateRTL')->name('pengawas.updateRTL');
+        Route::get('/export-pdf', 'ListumpanbalikController@exportPDF')->name('pengawas.listumpanbalik.exportPDF');
     });
 
     Route::prefix('pengawas/dokumentasipendampingan')->group(function () {
@@ -1013,10 +1015,10 @@ Route::get('umpanbalik-dynamic/{filename}', function ($filename) {
         $srcInfo = getimagesize($path);
         $srcWidth = $srcInfo[0];
         $srcHeight = $srcInfo[1];
-        
+
         // Calculate new height maintaining aspect ratio
-        $newWidth = (int)$width;
-        $newHeight = (int)(($srcHeight / $srcWidth) * $newWidth);
+        $newWidth = (int) $width;
+        $newHeight = (int) (($srcHeight / $srcWidth) * $newWidth);
 
         // Load image based on type
         switch ($srcInfo[2]) {
