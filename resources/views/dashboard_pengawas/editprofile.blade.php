@@ -69,7 +69,7 @@
                         @csrf
                             <div class="mb-3">
                                 <label class="form-label" for="bs-validation-upload-file">Ubah Foto Profile</label>
-                                <input type="file" name="foto" id="foto" class="form-control" id="bs-validation-upload-file" required="">
+                                <input type="file" name="foto" id="foto" class="form-control">
                               </div>
 
                                 <div class="mb-3">

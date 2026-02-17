@@ -158,8 +158,9 @@
                     <thead>
                       <tr>
                         <th>No</th>
+                        <th>Kategori</th>
                         <th>Nama Program</th>
-                        <th>Total Sekolah</th>
+                        <th>Jumlah Kegiatan</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -170,12 +171,16 @@
                       @php
                       $sekolahIds = explode(',', $item->sekolah_id);
                       $sekolahs = count($sekolahIds);
-
+                      $kategori = $item->kategoriprogram ? $item->kategoriprogram->nama : '-';
+                      if (preg_match('/RHK\s*\d+/i', $kategori, $matches)) {
+                          $kategoriDisplay = strtoupper($matches[0]);
+                      } else {
+                          $kategoriDisplay = $kategori;
+                      }
                 @endphp
-                      {{-- $sekolahIds = explode(',', $value->rencanakerja->sekolah_id);
-                      $sekolahdilayani += count($sekolahIds); --}}
                       <tr>
                         <td> {{ $no++}} </td>
+                        <td> {{ $kategoriDisplay }} </td>
                         <td> {{ $item->nama_program_kerja}} </td>
                         <td>{{ $sekolahs }}</td>
                       </tr>
@@ -198,6 +203,7 @@
                     <tr>
                         <th>No</th>
                         <th>Nama Sekolah</th>
+                        <th>Jumlah Kegiatan</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -215,6 +221,7 @@
                                 <tr>
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $sekolah->nama_sekolah }}</td>
+                                    <td>{{ $schoolKegiatanCount[$sekolah->id] ?? 0 }}</td>
                                 </tr>
                                 @php
                                     $displayedSekolahIds[] = $sekolah->id; // Tandai sekolah_id sebagai sudah ditampilkan

@@ -111,7 +111,7 @@
                 <td>{{ $pengawasProfile->nip }}</td>
                 <td><strong>Golongan</strong></td>
                 <td>:</td>
-                <td>{{ $pengawasProfile->gol_ruang ?? '-' }}</td>
+                <td>{{ $pengawasProfile->pangkat ?? '-' }} - {{ $pengawasProfile->gol_ruang ?? '-' }}</td>
             </tr>
             <tr>
                 <td><strong>No HP</strong></td>
@@ -127,10 +127,11 @@
             <tr>
                 <th width="4%">No</th>
                 <th width="12%">Tanggal</th>
-                <th width="18%">Foto Bukti</th>
-                <th width="20%">Sekolah</th>
-                <th width="23%">Program Kerja</th>
-                <th width="23%">Catatan RTL</th>
+                <th width="15%">Foto Bukti</th>
+                <th width="18%">Sekolah</th>
+                <th width="12%">Kategori</th>
+                <th width="18%">Program Kerja</th>
+                <th width="21%">Catatan RTL</th>
             </tr>
         </thead>
         <tbody>
@@ -146,6 +147,7 @@
                     @endif
                 </td>
                 <td>{{ $row['nama_sekolah'] }}</td>
+                <td>{{ $row['kategori'] ?? '-' }}</td>
                 <td>{{ $row['program'] }}</td>
                 <td>
                     @if(!empty($row['catatan_rtl']) && $row['catatan_rtl'] != '-')
@@ -161,12 +163,9 @@
 
     <div class="signature-section">
         <div class="signature-box">
-            <p>{{ now()->format('d F Y') }}</p>
             <p>Pengawas Sekolah,</p>
-            <br>
-            <p style="font-size: 24px; font-weight: bold; color: #000; margin: 0;">#</p>
-            <br>
-            <p><strong><span style="text-decoration: underline;">{{ $pengawasProfile ? $pengawasProfile->name : '..........................................' }}</span></strong></p>
+            <div style="font-size: 24px; font-weight: bold; margin: 10px 0;">#</div>
+            <p><strong><u>{{ $pengawasProfile ? $pengawasProfile->name : '..........................................' }}</u></strong></p>
             <p>NIP. {{ $pengawasProfile ? $pengawasProfile->nip : '..........................................' }}</p>
         </div>
     </div>

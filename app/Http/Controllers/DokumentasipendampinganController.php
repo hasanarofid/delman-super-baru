@@ -398,11 +398,19 @@ class DokumentasipendampinganController extends Controller
                  $namaSekolah = 'Mandiri (Refleksi Pengawas)';
             }
 
+            $kategori = $row->rencanakerja && $row->rencanakerja->kategoriprogram ? $row->rencanakerja->kategoriprogram->nama : '-';
+            if (preg_match('/RHK\s*\d+/i', $kategori, $matches)) {
+                $kategoriDisplay = strtoupper($matches[0]);
+            } else {
+                $kategoriDisplay = $kategori;
+            }
+
             return [
                 'tanggal' => $row->tgl_pendampingan ? $row->tgl_pendampingan->format('d M Y') : ($row->submitted_at ? $row->submitted_at->format('d M Y') : '-'),
                 'foto_base64' => $fotoBase64,
                 'nama_sekolah' => $namaSekolah,
                 'program' => $row->rencanakerja->nama_program_kerja ?? '-',
+                'kategori' => $kategoriDisplay,
                 'pengawas' => $row->pengawasnama->name ?? '-',
                 'rtl_status' => ($row->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan') . ($row->tgl_rtl ? ' (' . $row->tgl_rtl->format('Y-m-d H:i:s') . ')' : ''),
                 'catatan_rtl' => $row->catatan_rtl ?? '-',
@@ -705,11 +713,20 @@ class DokumentasipendampinganController extends Controller
             }
 
 
+            $kategori = $row->rencanakerja && $row->rencanakerja->kategoriprogram ? $row->rencanakerja->kategoriprogram->nama : '-';
+            if (preg_match('/RHK\s*\d+/i', $kategori, $matches)) {
+                $kategoriDisplay = strtoupper($matches[0]);
+            } else {
+                $kategoriDisplay = $kategori;
+            }
+
+
             return [
                 'tanggal' => $row->tgl_pendampingan ? $row->tgl_pendampingan->format('d M Y') : ($row->submitted_at ? $row->submitted_at->format('d M Y') : '-'),
                 'foto_base64' => $fotoBase64,
                 'nama_sekolah' => $namaSekolah,
                 'program' => $row->rencanakerja->nama_program_kerja ?? '-',
+                'kategori' => $kategoriDisplay,
                 'pengawas' => $row->pengawasnama->name ?? '-',
                 'rtl_status' => ($row->is_rtl == 1 ? 'Sudah dilakukan' : 'Belum dilakukan') . ($row->tgl_rtl ? ' (' . $row->tgl_rtl->format('Y-m-d H:i:s') . ')' : ''),
                 'catatan_rtl' => $row->catatan_rtl ?? '-',

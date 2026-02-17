@@ -52,10 +52,21 @@ class PengawasController extends Controller
             ->where('id_pengawas',Auth::user()->id)
             ->count();
 
-            $listsekolahdilayani = RencanaKerjaT::where('bulan',$bulanini)
+            $listsekolahdilayani = RencanaKerjaT::with('kategoriprogram')->where('bulan',$bulanini)
             ->where('tahun_ajaran',$tahunini)
             ->where('id_pengawas',Auth::user()->id)
             ->get();
+
+            $schoolKegiatanCount = [];
+            foreach ($listsekolahdilayani as $item) {
+                $sekolahIds = explode(',', $item->sekolah_id);
+                foreach ($sekolahIds as $id) {
+                    $id = trim($id);
+                    if ($id) {
+                        $schoolKegiatanCount[$id] = ($schoolKegiatanCount[$id] ?? 0) + 1;
+                    }
+                }
+            }
 
 
             $sekolahdilayani = 0;
@@ -116,7 +127,8 @@ class PengawasController extends Controller
                 'years2',  
                 'totalRencankerja',
                 'sekolahdilayani',
-                'listsekolahdilayani'
+                'listsekolahdilayani',
+                'schoolKegiatanCount'
                 )
         );
         } else {
@@ -136,6 +148,7 @@ class PengawasController extends Controller
     }
     //update profile
     public function updateprofile(Request $request){
+        $user = User::find(Auth::user()->id);
         if ($request->hasFile('foto')) {
             $image = $request->file('foto');
 
@@ -144,12 +157,9 @@ class PengawasController extends Controller
         
             // Store the image in the "blog" directory within the "shared" disk.
             $request->foto->storeAs('pengawas', $imageName, 'shared');
-            
-        }else{
-            $imageName = 'userdefault.jpg';
+
+            $user->foto_profile = $imageName;
         }
-        $user = User::find(Auth::user()->id);
-        $user->foto_profile = $imageName;
         $user->name = $request->post('nama');
         $user->save();
         $profile = Profile::where('user_id',$user->id)->first();
@@ -777,10 +787,21 @@ return response()->json($chartData);
             ->where('id_pengawas', $user->id)
             ->count();
 
-        $listsekolahdilayani = RencanaKerjaT::where('bulan', $bulanini)
+        $listsekolahdilayani = RencanaKerjaT::with('kategoriprogram')->where('bulan', $bulanini)
             ->where('tahun_ajaran', $tahunini)
             ->where('id_pengawas', $user->id)
             ->get();
+
+        $schoolKegiatanCount = [];
+        foreach ($listsekolahdilayani as $item) {
+            $sekolahIds = explode(',', $item->sekolah_id);
+            foreach ($sekolahIds as $id) {
+                $id = trim($id);
+                if ($id) {
+                    $schoolKegiatanCount[$id] = ($schoolKegiatanCount[$id] ?? 0) + 1;
+                }
+            }
+        }
 
         $uniqueSekolahIds = [];
         $sekolahdilayani = 0;
@@ -807,6 +828,7 @@ return response()->json($chartData);
             'sekolahdilayani' => $sekolahdilayani,
             'listsekolahdilayani' => $listsekolahdilayani,
             'listSekolahBinaan' => $listSekolahBinaan,
+            'schoolKegiatanCount' => $schoolKegiatanCount,
             'generateDate' => now()->format('d F Y'),
             
             // Charts (Base64 from request)

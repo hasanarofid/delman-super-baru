@@ -168,7 +168,7 @@
                 <td>{{ $user->nip }}</td>
                 <td><strong>Golongan</strong></td>
                 <td>:</td>
-                <td>{{ $user->gol_ruang ?? '-' }}</td>
+                <td>{{ $user->pangkat ?? '-' }} - {{ $user->gol_ruang ?? '-' }}</td>
             </tr>
             <tr>
                 <td><strong>No HP</strong></td>
@@ -276,19 +276,27 @@
         <thead>
             <tr>
                 <th width="5%">No</th>
+                <th width="15%">Kategori</th>
                 <th>Nama Program</th>
-                <th width="20%">Total Sekolah</th>
+                <th width="20%">Jumlah Kegiatan</th>
             </tr>
         </thead>
         <tbody>
             @foreach($listsekolahdilayani as $index => $item)
                 @php
                     $sekolahCount = count(explode(',', $item->sekolah_id));
+                    $kategori = $item->kategoriprogram ? $item->kategoriprogram->nama : '-';
+                    if (preg_match('/RHK\s*\d+/i', $kategori, $matches)) {
+                        $kategoriDisplay = strtoupper($matches[0]);
+                    } else {
+                        $kategoriDisplay = $kategori;
+                    }
                 @endphp
                 <tr>
                     <td>{{ $index + 1 }}</td>
+                    <td>{{ $kategoriDisplay }}</td>
                     <td>{{ $item->nama_program_kerja }}</td>
-                    <td>{{ $sekolahCount }} Sekolah</td>
+                    <td>{{ $sekolahCount }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -301,6 +309,7 @@
                 <th width="10%">No</th>
                 <th>Nama Sekolah</th>
                 <th>Alamat</th>
+                <th width="20%">Jumlah Kegiatan</th>
             </tr>
         </thead>
         <tbody>
@@ -309,19 +318,18 @@
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $sekolah->nama_sekolah }}</td>
                     <td>{{ $sekolah->alamat ?? '-' }}</td>
+                    <td>{{ $schoolKegiatanCount[$sekolah->id] ?? 0 }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 
     <div class="signature-section">
-        <div class="signature-box">
-            <p>Dicetak secara digital oleh sistem,</p>
-            <p><strong>{{ $user->name }}</strong></p>
-            <div class="signature-space">
-                #TTE-DELMANSUPER
-            </div>
-            <p>NIP. {{ $user->nip }}</p>
+        <div class="signature-box" style="float: right; width: 300px; text-align: center;">
+            <p style="margin-bottom: 5px;">Pengawas Sekolah,</p>
+            <div style="font-size: 24px; font-weight: bold; margin: 10px 0;">#</div>
+            <p style="margin-bottom: 0;"><strong><u>{{ $user->name }}</u></strong></p>
+            <p style="margin-top: 5px;">NIP. {{ $user->nip }}</p>
         </div>
         <div style="clear: both;"></div>
     </div>

@@ -107,7 +107,7 @@
                 <td>{{ $pengawasProfile->nip }}</td>
                 <td><strong>Golongan</strong></td>
                 <td>:</td>
-                <td>{{ $pengawasProfile->gol_ruang ?? '-' }}</td>
+                <td>{{ $pengawasProfile->pangkat ?? '-' }} - {{ $pengawasProfile->gol_ruang ?? '-' }}</td>
             </tr>
             <tr>
                 <td><strong>No HP</strong></td>
@@ -168,14 +168,11 @@
     </table>
 
     <div style="width: 100%; margin-top: 50px;">
-        <div style="float: right; width: 250px; text-align: left;">
-            <p>{{ now()->format('d F Y') }}</p>
-            <p>Pengawas Sekolah,</p>
-            <br>
-            <p style="font-size: 24px; font-weight: bold; color: #000; margin: 0;">#</p>
-            <br>
-            <p><strong><span style="text-decoration: underline;">{{ $pengawasProfile ? $pengawasProfile->name : '..........................................' }}</span></strong></p>
-            <p>NIP. {{ $pengawasProfile ? $pengawasProfile->nip : '..........................................' }}</p>
+        <div style="float: right; width: 300px; text-align: center;">
+            <p style="margin-bottom: 5px;">Pengawas Sekolah,</p>
+            <div style="font-size: 24px; font-weight: bold; margin: 10px 0;">#</div>
+            <p style="margin-bottom: 0;"><strong><u>{{ $pengawasProfile ? $pengawasProfile->name : '..........................................' }}</u></strong></p>
+            <p style="margin-top: 5px;">NIP. {{ $pengawasProfile ? $pengawasProfile->nip : '..........................................' }}</p>
         </div>
     </div>
 
