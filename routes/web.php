@@ -900,6 +900,7 @@ Route::middleware(['web', 'pengawas'])->group(function () {
         Route::get('/get-perencanaan', 'PerencanaanController@getdata')->name('pengawas.perencanaan.getdata');
         Route::get('/edit-perencanaan/{id}', 'PerencanaanController@edit')->name('pengawas.perencanaan.edit');
         Route::delete('/hapus-perencanaan/{id}', 'PerencanaanController@hapus')->name('pengawas.perencanaan.hapus');
+        Route::get('/export-pdf', 'PerencanaanController@exportPDF')->name('pengawas.perencanaan.exportPDF');
     });
     // end route panel menu pengawas perencanaan
 

@@ -80,10 +80,10 @@
     
     <br><br>
     
-    <div style="width: 100%; margin-top: 30px;">
-        <div style="float: right; width: 300px; text-align: center;">
+    <div style="width: 100%; margin-top: 50px;">
+        <div style="float: right; width: 300px; text-align: left;">
             <p style="margin-bottom: 5px;">Pengawas Sekolah,</p>
-            <div style="font-size: 24px; font-weight: bold; margin: 10px 0;">#</div>
+            <div style="font-size: 24px; font-weight: bold; margin: 20px 0;">#</div>
             <p style="margin-bottom: 0;"><strong><u>{{ $user->name }}</u></strong></p>
             <p style="margin-top: 5px;">NIP. {{ $user->nip }}</p>
         </div>

@@ -77,7 +77,7 @@
                                 <th>Sekolah </th>
                                 <th>Kepala Sekolah </th>
                                 <th>Program Kerja</th>
-                                <th>Kategori</th>
+
                                 <th>Status Tanggapan</th>
                                 <th>Rencana Tindak Lanjut (RTL)</th>
                                 <th>Catatan RTL</th>
@@ -145,7 +145,6 @@
             {data: 'nama_sekolah', name: 'nama_sekolah'},
             {data: 'kepala_sekolah', name: 'kepala_sekolah'},
             {data: 'sasaran', name: 'sasaran'},
-            {data: 'kategori', name: 'kategori'},
             {data: 'tanggapan_status', name: 'tanggapan_status', orderable: false, searchable: false},
             {
                 data: null,

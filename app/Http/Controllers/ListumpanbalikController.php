@@ -184,13 +184,7 @@ class ListumpanbalikController extends Controller
                     ->addColumn('is_rtl', function($row){
                         return $row->is_rtl;
                     })
-                    ->addColumn('kategori', function($row){ // Add this column
-                        if ($row->id_category == 0) {
-                            return 'Default Feedback (Statis)';
-                        } else {
-                            return $row->category->name ?? 'N/A';
-                        }
-                    })
+
                     ->addColumn('tgl_rtl', function($row){
                         return $row->is_rtl == 1 && $row->tgl_rtl ? Carbon::parse($row->tgl_rtl)->format('d M Y H:i:s') : '';
                     })
@@ -221,7 +215,7 @@ class ListumpanbalikController extends Controller
                             }
                             return $btn;
                        })
-                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl','kategori']) // Add 'kategori' here
+                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl'])
                        ->make(true);
            }
     }
@@ -281,13 +275,7 @@ class ListumpanbalikController extends Controller
                     ->addColumn('is_rtl', function($row){
                         return $row->is_rtl;
                     })
-                    ->addColumn('kategori', function($row){ // Add this column
-                        if ($row->id_category == 0) {
-                            return 'Default Feedback (Statis)';
-                        } else {
-                            return $row->category->name ?? 'N/A';
-                        }
-                    })
+
                     ->addColumn('tgl_rtl', function($row){
                         return $row->is_rtl == 1 && $row->tgl_rtl ? Carbon::parse($row->tgl_rtl)->format('d M Y H:i:s') : '';
                     })
@@ -318,7 +306,7 @@ class ListumpanbalikController extends Controller
                             return $btn;
                        })
 
-                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl','kategori']) // Add 'kategori' here
+                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl'])
                        ->make(true);
            }
     }
@@ -372,7 +360,7 @@ class ListumpanbalikController extends Controller
             });
         }
 
-        $data = $query->latest()->get();
+        $data = $query->oldest()->get();
 
         $pengawasProfile = null;
         if ($pengawasId !== 'all' && $pengawasId != 0 && $pengawasId != 'null') {

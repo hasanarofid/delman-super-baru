@@ -104,8 +104,13 @@
                             <small class="text-muted">Pengawas : {{ Auth::user()->name}}</small>
                         </div>
 
-                        <a class="btn btn-sm bg-primary text-white " data-bs-toggle="modal" data-bs-target="#editUser"><i
-                                class="fas fa-plus" aria-hidden="true"></i> Tambah </a>
+                        <div>
+                            <a href="{{ route('pengawas.perencanaan.exportPDF') }}" class="btn btn-sm bg-danger text-white">
+                                <i class="fas fa-file-pdf" aria-hidden="true"></i> Download PDF
+                            </a>
+                            <a class="btn btn-sm bg-primary text-white" data-bs-toggle="modal" data-bs-target="#editUser"><i
+                                    class="fas fa-plus" aria-hidden="true"></i> Tambah </a>
+                        </div>
 
                     </div>
                     <div class="app-card app-card-account shadow-sm d-flex flex-column align-items-start">
@@ -119,10 +124,11 @@
                                             <th>No</th>
                                             <th>Bulan - Tahun</th>
                                             <th>Nama Program Kerja</th>
-                                            <th>Kategori</th>
+ 
                                             <th>Jenis Program</th>
                                             <th>Aspek Raport Pendidikan</th>
                                             <th>Sekolah Sasaran</th>
+                                            <th>Deskripsi Alasan</th>
                                             <th>Status WA</th>
                                             <th>Tanggal Dibuat</th>
                                             <th>Action</th>

@@ -135,7 +135,7 @@ class LayanandibutuhkanController extends Controller
         $search = $request->input('search', '');
 
         $query = TanggapanUmpanbalikT::with('umpanBalikT.pengawasnama', 'umpanBalikT.user.sekolah')
-            ->latest();
+            ->oldest();
 
         $userAuth = Auth::user();
         if ($userAuth->role == 'Stakeholder' || $userAuth->role == 'Admin') {
@@ -175,7 +175,7 @@ class LayanandibutuhkanController extends Controller
         $pdf = PDF::loadView('layanandibutuhkan.layanan_pdf', [
             'data' => $data,
             'pengawasProfile' => $pengawasProfile,
-            'generateDate' => now()->format('d F Y')
+            'generateDate' => now()->translatedFormat('F Y')
         ])->setPaper('a4', 'portrait');
 
         return $pdf->download('Daftar_Kebutuhan_Layanan.pdf');
@@ -188,7 +188,7 @@ class LayanandibutuhkanController extends Controller
             ->whereHas('umpanBalikT', function ($q) use ($userAuth) {
                 $q->where('id_pengawas', $userAuth->id);
             })
-            ->latest();
+            ->oldest();
 
         $pengawasProfile = User::with('profile')->find($userAuth->id);
 
@@ -211,7 +211,7 @@ class LayanandibutuhkanController extends Controller
         $pdf = PDF::loadView('layanandibutuhkan.layanan_pdf', [
             'data' => $data,
             'pengawasProfile' => $pengawasProfile,
-            'generateDate' => now()->format('d F Y')
+            'generateDate' => now()->translatedFormat('F Y')
         ])->setPaper('a4', 'portrait');
 
         return $pdf->download('Daftar_Kebutuhan_Layanan.pdf');

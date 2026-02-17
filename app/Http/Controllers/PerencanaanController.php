@@ -127,6 +127,9 @@ class PerencanaanController extends Controller
                     }
                     return $nama_sekolah;
                 })
+                ->addColumn('deskripsi', function ($row) {
+                    return Str::limit(strip_tags($row->deskripsi_permasalahan), 50);
+                })
                 ->addColumn('action', function ($row) {
                     $btn = '<a onclick="editPerencanaan(' . $row->id . ')" class="btn btn-sm bg-info text-white me-1"><i class="fa fa-edit"></i> Edit</a>';
                     $btn .= '<a href="#" onclick="deletePerencanaan(' . $row->id . ')" class="btn btn-danger btn-sm deletePost"><i class="fa fa-remove"></i> Delete</a>';
@@ -577,4 +580,20 @@ Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengaw
     //     }
     // }
 
+    public function exportPDF()
+    {
+        $user = User::with('profile')->find(Auth::user()->id);
+        $post = RencanaKerjaT::with('kategoriprogram', 'jenisprogram', 'aspekprogram')
+            ->where('id_pengawas', Auth::user()->id)
+            ->oldest()
+            ->get();
+
+        $pdf = \PDF::loadView('dashboard_pengawas.perencanaan.export_pdf', [
+            'user' => $user,
+            'data' => $post,
+            'generateDate' => date('d M Y H:i:s'),
+        ]);
+
+        return $pdf->download('Rencana_Kerja_' . Str::slug($user->name) . '_' . date('YmdHis') . '.pdf');
+    }
 }

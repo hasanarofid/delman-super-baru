@@ -126,7 +126,6 @@
                 <th width="20%">Sekolah</th>
                 <th width="15%">Kepala Sekolah</th>
                 <th width="20%">Program Kerja</th>
-                <th width="10%">Kategori</th>
                 <th width="20%">Catatan RTL</th>
             </tr>
         </thead>
@@ -160,7 +159,6 @@
                 <td>{{ $nama_sekolah }}</td>
                 <td>{{ $kepala_sekolah }}</td>
                 <td>{{ $row->rencanakerja->nama_program_kerja ?? '-' }}</td>
-                <td>{{ $kategori_program }}</td>
                 <td>{{ $row->catatan_rtl ?? 'Belum Ada RTL' }}</td>
             </tr>
             @endforeach
@@ -168,9 +166,9 @@
     </table>
 
     <div style="width: 100%; margin-top: 50px;">
-        <div style="float: right; width: 300px; text-align: center;">
+        <div style="float: right; width: 300px; text-align: left;">
             <p style="margin-bottom: 5px;">Pengawas Sekolah,</p>
-            <div style="font-size: 24px; font-weight: bold; margin: 10px 0;">#</div>
+            <div style="font-size: 24px; font-weight: bold; margin: 20px 0;">#</div>
             <p style="margin-bottom: 0;"><strong><u>{{ $pengawasProfile ? $pengawasProfile->name : '..........................................' }}</u></strong></p>
             <p style="margin-top: 5px;">NIP. {{ $pengawasProfile ? $pengawasProfile->nip : '..........................................' }}</p>
         </div>
