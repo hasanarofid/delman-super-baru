@@ -100,21 +100,22 @@
                 <td width="15%"><strong>Nama</strong></td>
                 <td width="2%">:</td>
                 <td width="33%">{{ $pengawasProfile->name }}</td>
-                <td width="15%"><strong>Unit Kerja</strong></td>
+                <td width="15%"><strong>Jabatan</strong></td>
                 <td width="2%">:</td>
-                <td width="33%">
-                    {{ $pengawasProfile->jenjang_jabatan ?? '-' }} - 
-                    {{ $pengawasProfile->pangkat ?? '-' }} 
-                    {{ !empty($pengawasProfile->gol_ruang) ? '('.$pengawasProfile->gol_ruang.')' : '' }}
-                </td>
+                <td width="33%">{{ $pengawasProfile->jenjang_jabatan ?? '-' }}</td>
             </tr>
             <tr>
                 <td><strong>NIP</strong></td>
                 <td>:</td>
                 <td>{{ $pengawasProfile->nip }}</td>
+                <td><strong>Golongan</strong></td>
+                <td>:</td>
+                <td>{{ $pengawasProfile->gol_ruang ?? '-' }}</td>
+            </tr>
+            <tr>
                 <td><strong>No HP</strong></td>
                 <td>:</td>
-                <td>{{ $pengawasProfile->no_telp ?? ($pengawasProfile->profile->no_hp ?? ($pengawasProfile->profile->no_telp ?? '-')) }}</td>
+                <td colspan="4">{{ $pengawasProfile->no_telp ?? ($pengawasProfile->profile->no_hp ?? ($pengawasProfile->profile->no_telp ?? '-')) }}</td>
             </tr>
         </table>
     </div>

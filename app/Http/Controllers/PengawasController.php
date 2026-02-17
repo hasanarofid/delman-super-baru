@@ -8,10 +8,12 @@ use App\Profile;
 use App\TanggapanUmpanbalikT;
 use App\User;
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Password;
+use App\SekolahM;
+use Barryvdh\DomPDF\Facade as PDF;
 class PengawasController extends Controller
 {
     //index
@@ -756,6 +758,73 @@ return response()->json($chartData);
             ->get();
 
         return response()->json($data);
+    }
+
+    public function exportDashboardKinerja(Request $request)
+    {
+        $user = User::with('profile')->find(Auth::user()->id);
+        
+        // Data for tables (similar to index method)
+        $tahunini = date('Y');
+        $monthNamesIndo = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
+            7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        $bulanini = $monthNamesIndo[date('n')];
+
+        $totalRencankerja = RencanaKerjaT::where('bulan', $bulanini)
+            ->where('tahun_ajaran', $tahunini)
+            ->where('id_pengawas', $user->id)
+            ->count();
+
+        $listsekolahdilayani = RencanaKerjaT::where('bulan', $bulanini)
+            ->where('tahun_ajaran', $tahunini)
+            ->where('id_pengawas', $user->id)
+            ->get();
+
+        $uniqueSekolahIds = [];
+        $sekolahdilayani = 0;
+        foreach ($listsekolahdilayani as $value) {
+            $sekolahIds = explode(',', $value->sekolah_id);
+            foreach ($sekolahIds as $id) {
+                if (!in_array($id, $uniqueSekolahIds)) {
+                    $uniqueSekolahIds[] = $id;
+                    $sekolahdilayani++;
+                }
+            }
+        }
+
+        $listSekolahBinaan = [];
+        if (!empty($uniqueSekolahIds)) {
+            $listSekolahBinaan = SekolahM::whereIn('id', $uniqueSekolahIds)->get();
+        }
+
+        $data = [
+            'user' => $user,
+            'bulan' => $bulanini,
+            'tahun' => $tahunini,
+            'totalRencankerja' => $totalRencankerja,
+            'sekolahdilayani' => $sekolahdilayani,
+            'listsekolahdilayani' => $listsekolahdilayani,
+            'listSekolahBinaan' => $listSekolahBinaan,
+            'generateDate' => now()->format('d F Y'),
+            
+            // Charts (Base64 from request)
+            'chart_rencana' => $request->input('chart_rencana'),
+            'chart_umpanbalik' => $request->input('chart_umpanbalik'),
+            'chart_kompetensi' => $request->input('chart_kompetensi'),
+            'chart_realisasi' => $request->input('chart_realisasi'),
+            'chart_terkonfirmasi' => $request->input('chart_terkonfirmasi'),
+            'chart_raport' => $request->input('chart_raport'),
+            'chart_q1' => $request->input('chart_q1'),
+            'chart_q2' => $request->input('chart_q2'),
+            'chart_q4' => $request->input('chart_q4'),
+        ];
+
+        $pdf = PDF::loadView('dashboard_pengawas.export_dashboard_pdf', $data)
+                  ->setPaper('a4', 'portrait');
+
+        return $pdf->download('Dashboard_Kinerja_Pengawas.pdf');
     }
 }
 

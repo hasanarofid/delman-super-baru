@@ -18,6 +18,10 @@ class LayanandibutuhkanController extends Controller
     public function index(){
         $user = Auth::user();
         $queryPengawas = User::where('role','pengawas');
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
         
         if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
             $queryPengawas->where('kabupaten_id', $user->kabupaten_id);
@@ -31,7 +35,11 @@ class LayanandibutuhkanController extends Controller
     public function indexpengawas(){
         $user = Auth::user();
         $queryPengawas = User::where('role','pengawas');
-        
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
             $queryPengawas->where('kabupaten_id', $user->kabupaten_id);
         }

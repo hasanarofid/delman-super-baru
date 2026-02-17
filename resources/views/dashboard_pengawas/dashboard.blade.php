@@ -7,6 +7,45 @@
         <div class="container-xxl flex-grow-1 container-p-y">
 
             <div class="row mt-4">
+                <div class="col-12 mb-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="text-white mb-0">Dashboard Kinerja Pengawas Sekolah</h4>
+                                <p class="mb-0">Export semua grafik dan data kinerja dalam satu dokumen PDF</p>
+                            </div>
+                            <button id="export-full-pdf" class="btn btn-danger btn-lg shadow">
+                                <i class="ti ti-file-download me-2"></i> Download Dashboard Kinerja (PDF)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Profile Charts Integrated --}}
+                <div class="col-lg-6 mb-3">
+                    <div class="card">
+                        <div class="card-header pb-0 p-3">
+                            <h6 class="mb-0">Grafik Jumlah Rencana 6 Bulan Terakhir</h6>
+                        </div>
+                        <div class="card-body p-3">
+                            <canvas id="pengawasChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-3">
+                    <div class="card">
+                        <div class="card-header pb-0 p-3">
+                            <h6 class="mb-0">Grafik Umpan Balik per Rencana Kerja</h6>
+                        </div>
+                        <div class="card-body p-3">
+                            <canvas id="umpanbalikChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                {{-- End Profile Charts Integrated --}}
+            </div>
+
+            <div class="row mt-4">
                 {{-- begin spider web --}}
                 <div class="col-lg-6 mb-3">
                     <div class="card">
@@ -620,5 +659,115 @@
             // ID 15: Kebermanfaatan (Pie)
             fetchDynamicChart(15, 'chartQ4', 'pie', 'Kebermanfaatan');
 
+            // NEW: Integrated Profile Charts Data Fetching
+            let pengawasChartInstance = null;
+            function fetchChartDataRencana() {
+                fetch(`{{ route('pengawas.chartData') }}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const ctx = document.getElementById('pengawasChart').getContext('2d');
+                        pengawasChartInstance = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: data.labels,
+                                datasets: [{
+                                    label: 'Jumlah Rencana Kerja',
+                                    data: data.datasets[0].data,
+                                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                                    borderColor: 'rgba(153, 102, 255, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: { responsive: true }
+                        });
+                    });
+            }
+
+            let umpanbalikChartInstance = null;
+            function fetchChartDataUmpanbalik() {
+                const currentYear = new Date().getFullYear();
+                fetch(`{{ route('pengawas.chartData2') }}?bln=all&tahun=${currentYear}&pengawas=all`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const ctx = document.getElementById('umpanbalikChart').getContext('2d');
+                        umpanbalikChartInstance = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: data.map(item => item.rencana_kerja),
+                                datasets: [
+                                    {
+                                        label: 'Respon Umpan Balik',
+                                        data: data.map(item => item.total_respon),
+                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                        borderWidth: 1
+                                    },
+                                    {
+                                        label: 'Umpan Balik Terkirim',
+                                        data: data.map(item => item.total_umpan_balik),
+                                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                        borderColor: 'rgba(255, 99, 132, 1)',
+                                        borderWidth: 1
+                                    }
+                                ]
+                            },
+                            options: { responsive: true, indexAxis: 'y' }
+                        });
+                    });
+            }
+
+            fetchChartDataRencana();
+            fetchChartDataUmpanbalik();
+
+            // Unified PDF Export Logic
+            document.getElementById('export-full-pdf').addEventListener('click', function() {
+                const btn = this;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="ti ti-loader rotate me-2"></i> Generating PDF...';
+                btn.disabled = true;
+
+                const canvases = {
+                    'chart_rencana': 'pengawasChart',
+                    'chart_umpanbalik': 'umpanbalikChart',
+                    'chart_kompetensi': 'spiderWebPengawas',
+                    'chart_realisasi': 'piePengawas',
+                    'chart_terkonfirmasi': 'chartKonfrim',
+                    'chart_raport': 'chartPerRencanaKerja',
+                    'chart_q1': 'chartQ1',
+                    'chart_q2': 'chartQ2',
+                    'chart_q4': 'chartQ4'
+                };
+
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route('pengawas.exportDashboardKinerja') }}';
+                form.target = '_blank';
+
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+
+                for (const [key, canvasId] of Object.entries(canvases)) {
+                    const canvas = document.getElementById(canvasId);
+                    if (canvas) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = canvas.toDataURL('image/png', 0.7); // 0.7 quality for size
+                        form.appendChild(input);
+                    }
+                }
+
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
+
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 3000);
+            });
         });
     </script>

@@ -77,10 +77,17 @@ class ImportPengawas implements OnEachRow, SkipsEmptyRows, WithChunkReading, Wit
                             list($pangkat, $gol) = explode(',', $colA, 2);
                             $this->currentSupervisorData['pangkat'] = trim($pangkat);
                             $this->currentSupervisorData['gol_ruang'] = trim($gol);
+                        } elseif (strpos($colA, '/') !== false && preg_match('/[IV]+\/[a-d]/i', $colA)) {
+                            // Handle format like "Penata Tk.I/III d"
+                            $parts = explode('/', $colA);
+                            $gol = array_pop($parts);
+                            $pangkat = implode('/', $parts);
+                            $this->currentSupervisorData['pangkat'] = trim($pangkat);
+                            $this->currentSupervisorData['gol_ruang'] = trim($gol);
                         } else {
                             $this->currentSupervisorData['pangkat'] = $colA;
                         }
-                        Log::info("Pangkat detected: {$colA}");
+                        Log::info("Pangkat detected: " . $this->currentSupervisorData['pangkat'] . " | Golongan detected: " . $this->currentSupervisorData['gol_ruang']);
                     }
                 }
                 // It's a new supervisor name

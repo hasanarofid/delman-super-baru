@@ -135,6 +135,11 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         Route::get('/hapus-aspekprogram{id}', 'AspekprogramController@hapus')->name('aspekprogram.hapus');
     });
 
+    Route::prefix('pengawas')->middleware(['auth'])->group(function () {
+        Route::get('/', 'PengawasController@index')->name('pengawas.index');
+        Route::post('/export-dashboard-kinerja', 'PengawasController@exportDashboardKinerja')->name('pengawas.exportDashboardKinerja');
+    });
+
     Route::prefix('rencanatugas')->group(function () {
         Route::get('/', 'RencanaTugasController@index')->name('rencanatugas.index');
         Route::get('/get-rencanatugas', 'RencanaTugasController@getdata')->name('rencanatugas.getdata');
@@ -829,6 +834,7 @@ Route::middleware(['web', 'pengawas'])->group(function () {
     Route::get('/chart-dynamic-data-pengawas', 'PengawasController@getDynamicChartData')->name('pengawas.chartDynamicData');
 
     Route::get('/dashboard', 'PengawasController@dashboard')->name('pengawas.dashboard');
+    Route::post('/export-dashboard-kinerja', 'PengawasController@exportDashboardKinerja')->name('pengawas.exportDashboardKinerja');
     Route::get('/spider-web-data-pengawas', 'PengawasController@getSpiderWebDataPengawas')->name('pengawas.spiderWebData');
     Route::get('/chartTerkonfirmasi-pengawas', 'PengawasController@chartTerkonfirmasiPengawas')->name('pengawas.chartTerkonfirmasi');
     Route::get('/chartDataRaportPendidikan-pengawas', 'PengawasController@chartDataRaportPendidikan')->name('pengawas.chartDataRaportPendidikan');
