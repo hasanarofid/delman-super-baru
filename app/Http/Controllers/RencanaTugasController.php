@@ -155,30 +155,43 @@ class RencanaTugasController extends Controller
         try {
             $model = RencanaKerjaT::with('pengawasnama')->findOrFail($id);
             $id_umpanbalik_category = $model->id_umpanbalik_category;
-            $sekolahIds = explode(',', $model->sekolah_id);
+            if ($model->is_mandiri == 1) {
+                $pengawas = User::with('profile')->find($model->id_pengawas);
+                $no_telp = $pengawas->no_telp;
+                if (empty($no_telp) && $pengawas->profile) {
+                    $no_telp = $pengawas->profile->no_telp;
+                }
 
-            $sekolahs = SekolahM::with('kepalaSekolahSatu')->whereIn('id', $sekolahIds)->get();
+                if (empty($no_telp)) {
+                    return response()->json(['success' => false, 'message' => 'Pengawas belum mengisi nomor HP.'], 400);
+                }
 
-            if ($sekolahs->isEmpty()) {
-                return response()->json(['success' => false, 'message' => 'Tidak ada sekolah sasaran.'], 400);
-            }
+                $this->buildMandiriUmpanBalik($model, $pengawas->name, $pengawas->id, $no_telp, $id_umpanbalik_category);
+            } else {
+                $sekolahIds = explode(',', $model->sekolah_id);
+                $sekolahs = SekolahM::with('kepalaSekolahSatu')->whereIn('id', $sekolahIds)->get();
 
-            foreach ($sekolahs as $list) {
-                $nama_sekolah = $list->nama_sekolah;
-                $kepalaSekolah = $list->kepalaSekolahSatu;
-                if ($kepalaSekolah && !empty($kepalaSekolah->no_telp)) {
-                    $nama_kepala_sekolah = $kepalaSekolah->nama;
-                    $nama_kepala_sekolah_id = $kepalaSekolah->id;
-                    $no_telp = $kepalaSekolah->no_telp;
+                if ($sekolahs->isEmpty()) {
+                    return response()->json(['success' => false, 'message' => 'Tidak ada sekolah sasaran.'], 400);
+                }
 
-                    if ($id_umpanbalik_category == 0) {
-                        $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+                foreach ($sekolahs as $list) {
+                    $nama_sekolah = $list->nama_sekolah;
+                    $kepalaSekolah = $list->kepalaSekolahSatu;
+                    if ($kepalaSekolah && !empty($kepalaSekolah->no_telp)) {
+                        $nama_kepala_sekolah = $kepalaSekolah->nama;
+                        $nama_kepala_sekolah_id = $kepalaSekolah->id;
+                        $no_telp = $kepalaSekolah->no_telp;
+
+                        if ($id_umpanbalik_category == 0) {
+                            $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+                        } else {
+                            $this->buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_umpanbalik_category);
+                        }
+                        sleep(rand(2, 5));
                     } else {
-                        $this->buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_umpanbalik_category);
+                        return response()->json(['success' => false, 'message' => "Kepala sekolah {$nama_sekolah} tidak memiliki nomor telepon."], 400);
                     }
-                    sleep(rand(2, 5));
-                } else {
-                    return response()->json(['success' => false, 'message' => "Kepala sekolah {$nama_sekolah} tidak memiliki nomor telepon."], 400);
                 }
             }
             $model->status = 1;
@@ -196,26 +209,39 @@ class RencanaTugasController extends Controller
     {
         try {
             $model = RencanaKerjaT::findOrFail($id);
-            $sekolahIds = explode(',', $model->sekolah_id);
+            if ($model->is_mandiri == 1) {
+                $pengawas = User::with('profile')->find($model->id_pengawas);
+                $no_telp = $pengawas->no_telp;
+                if (empty($no_telp) && $pengawas->profile) {
+                    $no_telp = $pengawas->profile->no_telp;
+                }
 
-            $sekolahs = SekolahM::with('kepalaSekolahSatu')->whereIn('id', $sekolahIds)->get();
+                if (empty($no_telp)) {
+                    return response()->json(['success' => false, 'message' => 'Pengawas belum mengisi nomor HP.'], 400);
+                }
 
-            foreach ($sekolahs as $list) {
-                $nama_sekolah = $list->nama_sekolah;
-                $kepalaSekolah = $list->kepalaSekolahSatu;
-                if ($kepalaSekolah) {
-                    $nama_kepala_sekolah = $kepalaSekolah->nama;
-                    $nama_kepala_sekolah_id = $kepalaSekolah->id;
-                    $no_telp = $kepalaSekolah->no_telp;
+                $this->buildMandiriUmpanBalik($model, $pengawas->name, $pengawas->id, $no_telp, $id_category);
+            } else {
+                $sekolahIds = explode(',', $model->sekolah_id);
+                $sekolahs = SekolahM::with('kepalaSekolahSatu')->whereIn('id', $sekolahIds)->get();
 
-                    if ($id_category == 0) {
-                        // Panggil fungsi buildUmpanBalik yang lama untuk URL statis
-                        $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
-                        sleep(rand(30, 60));
-                    } else {
-                        // Memanggil fungsi buildDynamicUmpanBalik untuk URL dinamis
-                        $this->buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_category);
-                        sleep(rand(30, 60));
+                foreach ($sekolahs as $list) {
+                    $nama_sekolah = $list->nama_sekolah;
+                    $kepalaSekolah = $list->kepalaSekolahSatu;
+                    if ($kepalaSekolah) {
+                        $nama_kepala_sekolah = $kepalaSekolah->nama;
+                        $nama_kepala_sekolah_id = $kepalaSekolah->id;
+                        $no_telp = $kepalaSekolah->no_telp;
+
+                        if ($id_category == 0) {
+                            // Panggil fungsi buildUmpanBalik yang lama untuk URL statis
+                            $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+                            sleep(rand(30, 60));
+                        } else {
+                            // Memanggil fungsi buildDynamicUmpanBalik untuk URL dinamis
+                            $this->buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_category);
+                            sleep(rand(30, 60));
+                        }
                     }
                 }
             }
@@ -233,24 +259,74 @@ class RencanaTugasController extends Controller
     public function kirimWaSekolah($id, $id_user)
     {
         try {
-            $umpan = UmpanBalikT::where('id_pelaporan', $id)
-                ->where('id_user', $id_user)->first();
-
             $model = RencanaKerjaT::findOrFail($id);
-            $kepalaSekolah = GuruM::findOrFail($id_user);
-            $nama_sekolah = $kepalaSekolah->sekolah->nama_sekolah;
-            $nama_kepala_sekolah = $kepalaSekolah->nama;
-            $nama_kepala_sekolah_id = $kepalaSekolah->id;
-            $no_telp = $kepalaSekolah->no_telp;
+            
+            if ($model->is_mandiri == 1) {
+                $pengawas = User::with('profile')->find($model->id_pengawas);
+                $no_telp = $pengawas->no_telp;
+                if (empty($no_telp) && $pengawas->profile) {
+                    $no_telp = $pengawas->profile->no_telp;
+                }
 
-            // Memanggil fungsi buildUmpanBalik yang lama untuk URL statis
-            $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+                if (empty($no_telp)) {
+                    return response()->json(['success' => false, 'message' => 'Pengawas belum mengisi nomor HP.'], 400);
+                }
+
+                $this->buildMandiriUmpanBalik($model, $pengawas->name, $pengawas->id, $no_telp, $model->id_umpanbalik_category);
+            } else {
+                $kepalaSekolah = GuruM::findOrFail($id_user);
+                $nama_sekolah = $kepalaSekolah->sekolah->nama_sekolah;
+                $nama_kepala_sekolah = $kepalaSekolah->nama;
+                $nama_kepala_sekolah_id = $kepalaSekolah->id;
+                $no_telp = $kepalaSekolah->no_telp;
+
+                // Memanggil fungsi buildUmpanBalik yang lama untuk URL statis
+                $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+            }
 
             $model->status = 1;
             $model->save();
+            
+            return response()->json(['success' => true, 'message' => 'WA message sent successfully!']);
         } catch (\Exception $e) {
             Log::error("Failed to send WhatsApp message: " . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Gagal kirim WA: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function buildMandiriUmpanBalik($model, $nama_pengawas, $id_pengawas, $no_telp, $id_category)
+    {
+        $checkUmpanBalik = UmpanbalikT::where('id_user_pengawas', $id_pengawas)
+            ->where('id_pelaporan', $model->id)
+            ->where('id_pengawas', $model->id_pengawas)
+            ->where('id_category', $id_category)
+            ->first();
+
+        $generate_url = (string) \Illuminate\Support\Str::uuid();
+        if (!$checkUmpanBalik) {
+            UmpanbalikT::create([
+                'id_user' => 0,
+                'id_user_pengawas' => $id_pengawas,
+                'id_pelaporan' => $model->id,
+                'generate_url' => $generate_url,
+                'id_pengawas' => $model->id_pengawas,
+                'id_category' => $id_category,
+                'id_created_by' => Auth::user()->id,
+                'id_updated_by' => Auth::user()->id,
+                'tgl_rtl' => date('Y-m-d'),
+            ]);
+            $fullUrl = route('dynamic.umpanbalik.form', ['id_category' => $id_category, 'generate_url' => $generate_url]);
+        } else {
+            $fullUrl = route('dynamic.umpanbalik.form', ['id_category' => $id_category, 'generate_url' => $checkUmpanBalik->generate_url]);
+        }
+
+        $pesan = "Halo Pak/Bu {$nama_pengawas},\n"
+            . "Anda telah membuat Rencana Kerja Mandiri: {$model->nama_program_kerja}.\n"
+            . "Silakan isi umpan balik/refleksi mandiri pada link berikut: {$fullUrl}\n\n"
+            . "Terimakasih\n"
+            . "DelmanSuper Platform";
+
+        $this->sendWhatsAppMessage($no_telp, $pesan, null, $model);
     }
 
     public function buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp)

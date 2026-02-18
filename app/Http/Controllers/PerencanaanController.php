@@ -261,7 +261,7 @@ class PerencanaanController extends Controller
 
         if ($model->is_mandiri == 1) {
             // Logika untuk Mandiri (RHK 3)
-            $pengawas = User::with('profile')->find(Auth::user()->id);
+            $pengawas = User::with('profile')->find($model->id_pengawas);
             
             // Cek nomor telpon di tabel users dulu, jika kosong cek di profile
             $no_telp = $pengawas->no_telp;

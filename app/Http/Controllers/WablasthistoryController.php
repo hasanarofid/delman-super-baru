@@ -54,8 +54,9 @@ class WablasthistoryController extends Controller
                 })
                 ->addColumn('action', function($row) {
                     $user = Auth::user();
-                    $id_sekolah = $row->kepalasekolah->id ?? null;
-                    if ($user && $user->role == 'Super Admin' && $id_sekolah) {
+                    $id_sekolah = $row->kepalasekolah->id ?? 0;
+                    $is_mandiri = $row->rencanakerja->is_mandiri ?? 0;
+                    if ($user && $user->role == 'Super Admin' && ($id_sekolah || $is_mandiri == 1)) {
                         return '<a id="sendWaButton-' . $row->rencana_kerja_id . '" onclick="kirimWaBlast(' . $row->rencana_kerja_id . ','.$id_sekolah.')" class="btn btn-sm bg-success text-white">
                         <i class="fa fa-envelope"></i> Kirim Wa
                     </a>';

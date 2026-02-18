@@ -138,7 +138,7 @@
             <tr>
                 <td><strong>No HP</strong></td>
                 <td>:</td>
-                <td colspan="4">{{ $user->profile->no_telp ?? ($user->no_telp ?? '-') }}</td>
+                <td colspan="4">{{ $user->no_telp ?? ($user->profile->no_telp ?? '-') }}</td>
             </tr>
         </table>
     </div>
