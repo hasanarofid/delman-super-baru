@@ -161,6 +161,7 @@ class PengawasController extends Controller
             $user->foto_profile = $imageName;
         }
         $user->name = $request->post('nama');
+        $user->no_telp = $request->post('telp');
         $user->save();
         $profile = Profile::where('user_id',$user->id)->first();
         $profile->alamat_lengkap = $request->post('alamat');

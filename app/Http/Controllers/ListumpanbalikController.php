@@ -171,6 +171,9 @@ class ListumpanbalikController extends Controller
                         $rencana = RencanaKerjaT::find($row->id_pelaporan);
                         return !empty($rencana) ? $rencana->nama_program_kerja : '-';
                     })
+                    ->addColumn('kategori', function($row){
+                        return $row->category ? $row->category->name : 'Umum';
+                    })
                     ->addColumn('tanggapan_status', function($row){
                         $tanggapan = TanggapanUmpanbalikT::where('id_umpanbalik',$row->id)->first();
                         if($tanggapan || $row->submitted_at !== null){
@@ -215,7 +218,7 @@ class ListumpanbalikController extends Controller
                             }
                             return $btn;
                        })
-                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl'])
+                       ->rawColumns(['action','sasaran','kategori','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl'])
                        ->make(true);
            }
     }
@@ -262,6 +265,9 @@ class ListumpanbalikController extends Controller
                         $rencana = RencanaKerjaT::find($row->id_pelaporan);
                         return !empty($rencana) ? $rencana->nama_program_kerja : '-';
                     })
+                    ->addColumn('kategori', function($row){
+                        return $row->category ? $row->category->name : 'Umum';
+                    })
                     ->addColumn('tanggapan_status', function($row){
                         $tanggapan = TanggapanUmpanbalikT::where('id_umpanbalik',$row->id)->first();
                         if($tanggapan || $row->submitted_at !== null){
@@ -306,7 +312,7 @@ class ListumpanbalikController extends Controller
                             return $btn;
                        })
 
-                       ->rawColumns(['action','sasaran','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl'])
+                       ->rawColumns(['action','sasaran','kategori','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl'])
                        ->make(true);
            }
     }

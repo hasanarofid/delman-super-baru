@@ -113,6 +113,7 @@
             <img src="{{ $logoBase64 }}" class="logo">
         @endif
         <h2>Daftar Rencana Kerja Pengawas Sekolah</h2>
+        <p style="font-size: 12px; font-weight: bold; margin-top: 5px;">Periode: {{ $periode }}</p>
         <p style="font-size: 10px;">Dicetak pada: {{ $generateDate }}</p>
     </div>
 
@@ -137,7 +138,7 @@
             <tr>
                 <td><strong>No HP</strong></td>
                 <td>:</td>
-                <td colspan="4">{{ $user->no_telp ?? ($user->profile->no_telp ?? '-') }}</td>
+                <td colspan="4">{{ $user->profile->no_telp ?? ($user->no_telp ?? '-') }}</td>
             </tr>
         </table>
     </div>
@@ -185,10 +186,10 @@
         </tbody>
     </table>
 
-    <div class="signature-section" style="margin-top: 50px;">
+    <div class="signature-section" style="margin-top: 60px;">
         <div class="signature-box" style="float: right; width: 300px; text-align: left;">
-            <p style="margin-bottom: 5px;">Pengawas Sekolah,</p>
-            <div style="font-size: 24px; font-weight: bold; margin: 20px 0;">#</div>
+            <p style="margin-bottom: 10px;">Pengawas Sekolah,</p>
+            <div style="font-size: 24px; font-weight: bold; margin: 40px 0;">#</div>
             <p style="margin-bottom: 0;"><strong><u>{{ $user->name }}</u></strong></p>
             <p style="margin-top: 5px;">NIP. {{ $user->nip }}</p>
         </div>

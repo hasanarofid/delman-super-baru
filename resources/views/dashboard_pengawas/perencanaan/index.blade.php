@@ -98,27 +98,50 @@
             <div class="col-12 col-lg-12 ">
                 <!-- About User -->
                 <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between">
+                    <div class="card-header d-flex justify-content-between pb-0">
                         <div class="card-title mb-0">
                             <h5 class="m-0 me-2">Tabel Input Rencana Kerja</h5>
                             <small class="text-muted">Pengawas : {{ Auth::user()->name}}</small>
                         </div>
 
                         <div>
-                            <a href="{{ route('pengawas.perencanaan.exportPDF') }}" class="btn btn-sm bg-danger text-white">
+                            <a id="download-pdf-btn" href="{{ route('pengawas.perencanaan.exportPDF') }}" class="btn btn-sm bg-danger text-white">
                                 <i class="fas fa-file-pdf" aria-hidden="true"></i> Download PDF
                             </a>
                             <a class="btn btn-sm bg-primary text-white" data-bs-toggle="modal" data-bs-target="#editUser"><i
                                     class="fas fa-plus" aria-hidden="true"></i> Tambah </a>
                         </div>
-
                     </div>
-                    <div class="app-card app-card-account shadow-sm d-flex flex-column align-items-start">
+
+                    <div class="card-body">
+                        <div class="row mt-3 mb-3">
+                            <div class="col-md-6 mb-3">
+                                <label for="filter-bln" class="form-label">Filter Bulan:</label>
+                                <select id="filter-bln" class="form-select select2-custom" data-placeholder="Pilih Bulan">
+                                    <option value="all">All</option>
+                                    @foreach($months_filter as $month)
+                                        <option value="{{ $month }}">{{ $month }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="filter-tahun" class="form-label">Filter Tahun:</label>
+                                <select id="filter-tahun" class="form-select select2-custom" data-placeholder="Pilih Tahun">
+                                    <option value="all">All</option>
+                                    @foreach($years as $year)
+                                        <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="app-card app-card-account shadow-sm d-flex flex-column align-items-start pt-0">
 
 
                         <div class="app-card-body px-4 w-100">
                             <div class="table-responsive">
-                                <table class="table table-bordered table-striped" id="dataTable">
+                                <table class="table table-bordered table-striped" id="perencanaanTable">
                                     <thead>
                                         <tr>
                                             <th>No</th>

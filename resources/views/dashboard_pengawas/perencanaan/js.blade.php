@@ -22,12 +22,19 @@
                 var isMultiple = $this.prop('multiple');
                 var placeholder = $this.data('placeholder') || 'Select value';
 
-                $this.select2({
+                var options = {
                     placeholder: placeholder,
                     allowClear: true,
-                    dropdownParent: $this.closest('.modal'),
                     minimumResultsForSearch: isMultiple ? 1 : 10 // Hide search for short single lists
-                });
+                };
+
+                // Only set dropdownParent if the element is inside a modal to avoid "isConnected" error
+                var modal = $this.closest('.modal');
+                if (modal.length > 0) {
+                    options.dropdownParent = modal;
+                }
+
+                $this.select2(options);
             });
         }
 
@@ -178,11 +185,17 @@
             });
 
             //   alert(3);
-            var table = $('#dataTable').DataTable({
+            var table = $('#perencanaanTable').DataTable({
 
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('pengawas.perencanaan.getdata') }}",
+                ajax: {
+                    url: "{{ route('pengawas.perencanaan.getdata') }}",
+                    data: function(d) {
+                        d.bln = $('#filter-bln').val();
+                        d.tahun = $('#filter-tahun').val();
+                    }
+                },
                 columns: [
                     { data: 'DT_RowIndex', name: 'DT_RowIndex' },
                     { data: 'bulan_tahun', name: 'bulan_tahun' },
@@ -197,6 +210,23 @@
                     { data: 'action', name: 'action', orderable: false, searchable: false },
                 ]
             });
+
+            // Refresh table on filter change
+            $('#filter-bln, #filter-tahun').on('change', function() {
+                table.ajax.reload();
+                updatePdfUrl();
+            });
+
+            function updatePdfUrl() {
+                var bln = $('#filter-bln').val();
+                var tahun = $('#filter-tahun').val();
+                var baseUrl = "{{ route('pengawas.perencanaan.exportPDF') }}";
+                var newUrl = baseUrl + "?bln=" + bln + "&tahun=" + tahun;
+                $('#download-pdf-btn').attr('href', newUrl);
+            }
+
+            // Initial URL update
+            updatePdfUrl();
 
 
 

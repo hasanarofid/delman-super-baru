@@ -173,7 +173,7 @@
             <tr>
                 <td><strong>No HP</strong></td>
                 <td>:</td>
-                <td colspan="4">{{ $user->no_telp ?? ($user->profile->no_hp ?? ($user->profile->no_telp ?? '-')) }}</td>
+                <td colspan="4">{{ $user->profile->no_telp ?? ($user->no_telp ?? '-') }}</td>
             </tr>
         </table>
     </div>
@@ -324,10 +324,10 @@
         </tbody>
     </table>
 
-    <div class="signature-section">
+    <div class="signature-section" style="margin-top: 60px;">
         <div class="signature-box" style="float: right; width: 300px; text-align: center;">
-            <p style="margin-bottom: 5px;">Pengawas Sekolah,</p>
-            <div style="font-size: 24px; font-weight: bold; margin: 10px 0;">#</div>
+            <p style="margin-bottom: 10px;">Pengawas Sekolah,</p>
+            <div style="font-size: 24px; font-weight: bold; margin: 40px 0;">#</div>
             <p style="margin-bottom: 0;"><strong><u>{{ $user->name }}</u></strong></p>
             <p style="margin-top: 5px;">NIP. {{ $user->nip }}</p>
         </div>

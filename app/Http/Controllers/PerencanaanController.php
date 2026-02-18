@@ -66,6 +66,13 @@ class PerencanaanController extends Controller
         $aspekProgram = AspekProgram::where('status', true)->get();
         $umpanbalikCategories = UmpanbalikCategory::where('status', true)->get();
 
+        $currentYear = date('Y');
+        $years = range($currentYear - 5, $currentYear + 5);
+        $months_filter = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+
         return view(
             'dashboard_pengawas.perencanaan.index',
             compact(
@@ -77,7 +84,10 @@ class PerencanaanController extends Controller
                 'months',
                 'jenisProgram',
                 'aspekProgram',
-                'umpanbalikCategories'
+                'umpanbalikCategories',
+                'months_filter',
+                'years',
+                'currentYear'
 
             )
         );
@@ -87,7 +97,14 @@ class PerencanaanController extends Controller
     {
         if ($request->ajax()) {
             $post = RencanaKerjaT::with('kategoriprogram', 'jenisprogram', 'aspekprogram')
-                ->where('id_pengawas', Auth::user()->id)->latest()->get();
+                ->where('id_pengawas', Auth::user()->id)
+                ->when($request->bln && $request->bln !== 'all', function($q) use ($request) {
+                    return $q->where('bulan', $request->bln);
+                })
+                ->when($request->tahun && $request->tahun !== 'all', function($q) use ($request) {
+                    return $q->where('tahun_ajaran', $request->tahun);
+                })
+                ->latest()->get();
 
             return Datatables::of($post)
                 ->addIndexColumn()
@@ -580,18 +597,29 @@ Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengaw
     //     }
     // }
 
-    public function exportPDF()
+    public function exportPDF(Request $request)
     {
         $user = User::with('profile')->find(Auth::user()->id);
         $post = RencanaKerjaT::with('kategoriprogram', 'jenisprogram', 'aspekprogram')
             ->where('id_pengawas', Auth::user()->id)
+            ->when($request->bln && $request->bln !== 'all', function($q) use ($request) {
+                return $q->where('bulan', $request->bln);
+            })
+            ->when($request->tahun && $request->tahun !== 'all', function($q) use ($request) {
+                return $q->where('tahun_ajaran', $request->tahun);
+            })
             ->oldest()
             ->get();
+
+        $bln = $request->bln && $request->bln !== 'all' ? $request->bln : null;
+        $tahun = $request->tahun && $request->tahun !== 'all' ? $request->tahun : null;
+        $periode = ($bln ? $bln : 'Semua Bulan') . ' ' . ($tahun ? $tahun : 'Semua Tahun');
 
         $pdf = \PDF::loadView('dashboard_pengawas.perencanaan.export_pdf', [
             'user' => $user,
             'data' => $post,
             'generateDate' => date('d M Y H:i:s'),
+            'periode' => $periode,
         ]);
 
         return $pdf->download('Rencana_Kerja_' . Str::slug($user->name) . '_' . date('YmdHis') . '.pdf');

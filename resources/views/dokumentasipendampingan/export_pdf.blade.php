@@ -161,12 +161,12 @@
         </tbody>
     </table>
 
-    <div class="signature-section">
+    <div class="signature-section" style="margin-top: 60px;">
         <div class="signature-box">
-            <p>Pengawas Sekolah,</p>
-            <div style="font-size: 24px; font-weight: bold; margin: 10px 0;">#</div>
-            <p><strong><u>{{ $pengawasProfile ? $pengawasProfile->name : '..........................................' }}</u></strong></p>
-            <p>NIP. {{ $pengawasProfile ? $pengawasProfile->nip : '..........................................' }}</p>
+            <p style="margin-bottom: 10px;">Pengawas Sekolah,</p>
+            <div style="font-size: 24px; font-weight: bold; margin: 40px 0;">#</div>
+            <p style="margin-bottom: 0;"><strong><u>{{ $pengawasProfile ? $pengawasProfile->name : '..........................................' }}</u></strong></p>
+            <p style="margin-top: 5px;">NIP. {{ $pengawasProfile ? $pengawasProfile->nip : '..........................................' }}</p>
         </div>
     </div>
 

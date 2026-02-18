@@ -165,10 +165,10 @@
         </tbody>
     </table>
 
-    <div style="width: 100%; margin-top: 50px;">
+    <div style="width: 100%; margin-top: 60px;">
         <div style="float: right; width: 300px; text-align: left;">
-            <p style="margin-bottom: 5px;">Pengawas Sekolah,</p>
-            <div style="font-size: 24px; font-weight: bold; margin: 20px 0;">#</div>
+            <p style="margin-bottom: 10px;">Pengawas Sekolah,</p>
+            <div style="font-size: 24px; font-weight: bold; margin: 40px 0;">#</div>
             <p style="margin-bottom: 0;"><strong><u>{{ $pengawasProfile ? $pengawasProfile->name : '..........................................' }}</u></strong></p>
             <p style="margin-top: 5px;">NIP. {{ $pengawasProfile ? $pengawasProfile->nip : '..........................................' }}</p>
         </div>
