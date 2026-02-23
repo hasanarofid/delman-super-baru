@@ -37,6 +37,7 @@
                                     <tr>
                                         <th class="text-sm font-weight mb-1">No</th>
                                         <th class="text-sm font-weight mb-1">Nama</th>
+                                        <th class="text-sm font-weight mb-1">Status</th>
                                         <th class="text-sm font-weight mb-1">Action</th>
                                     </tr>
                                 </thead>
@@ -76,6 +77,10 @@
                 {
                     data: 'nama',
                     name: 'nama'
+                },
+                {
+                    data: 'status',
+                    name: 'status'
                 },
                 {
                     data: 'action',

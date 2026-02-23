@@ -98,9 +98,15 @@
                               <input type="email" readonly="true" value="{{ $models->email  }}" class="form-control" name="email" id="email" placeholder="Email" required>
                      </div>
 
-                       <div class="form-group">
-                              <label for="password">Password</label>
-                              <input type="password" value="" class="form-control" name="password"  id="password" placeholder="Password" >
+                       <div class="form-group mb-3">
+                              <label for="password">Password (Opsional untuk Update Profil)</label>
+                              <div class="input-group">
+                                 <input type="password" value="" class="form-control" name="password"  id="password" placeholder="Kosongkan jika tidak ingin ubah password" >
+                                 <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#resetPasswordModal">
+                                    <i class="fas fa-key"></i> Quick Reset
+                                 </button>
+                              </div>
+                              <small class="text-muted">Gunakan tombol <b>Quick Reset</b> jika ingin mereset password tanpa mengisi data profil lain.</small>
                            </div>
 
                                               
@@ -116,6 +122,32 @@
          </div>
       </div>
  </div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Quick Reset Password</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{{ route('masterpengawas.updatePassword') }}" method="POST">
+        @csrf
+        <input type="hidden" name="id" value="{{ $models->id }}">
+        <div class="modal-body">
+          <div class="form-group mb-3">
+            <label for="new_password">Password Baru untuk <b>{{ $models->name }}</b></label>
+            <input type="password" name="password" id="new_password" class="form-control" placeholder="Masukkan password baru" required minlength="6">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 @endsection
        @section('script')
          <script>

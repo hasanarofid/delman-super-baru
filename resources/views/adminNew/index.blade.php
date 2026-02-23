@@ -95,7 +95,34 @@
                 </div>
             </div>
 
-            <div class="row mt-4">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-4">
+                                    <h5 class="mb-0">Filter Global Dashboard</h5>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label for="global-filter-kabupaten" class="form-label">Pilih Kabupaten/Kota:</label>
+                                            <select id="global-filter-kabupaten" class="select2 form-select">
+                                                <option value="all">Semua Kabupaten/Kota</option>
+                                                @foreach($listKabupaten as $kab)
+                                                    <option value="{{ $kab->id }}">{{ $kab->nama_kabupaten }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
                 <div class="col-lg-6 mb-3">
                     <div class="card chart-card">
                         <div class="card-header pb-0 p-3">
@@ -109,8 +136,17 @@
                             <div class="row mb-3">
 
 
-                                <div class="col-md-6">
-                                    <label for="filter-pengawas">Filter Bulan:</label>
+                                <div class="col-md-4">
+                                    <label for="filter-kabupaten-1">Filter Kabupaten:</label>
+                                    <select id="filter-kabupaten-1" class="select2 form-select filter-kabupaten">
+                                        <option value="all">All</option>
+                                        @foreach ($listKabupaten as $kab)
+                                            <option value="{{ $kab->id }}">{{ $kab->nama_kabupaten }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="filter-bln">Filter Bulan:</label>
                                     <select id="filter-bln" name="bln" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
                                         @foreach ($months as $month)
@@ -122,7 +158,7 @@
 
                                 </div>
 
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label for="filter-tahun">Filter Tahun:</label>
                                     <select id="filter-tahun" name="tahun" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
@@ -133,8 +169,6 @@
                                             </option>
                                         @endforeach
                                     </select>
-
-
                                 </div>
 
                             </div>
@@ -154,7 +188,16 @@
                             <div class="row mb-2">
 
                                 <div class="col-md-3">
-                                    <label for="filter-pengawas">Bulan:</label>
+                                    <label for="filter-kabupaten-2">Kabupaten:</label>
+                                    <select id="filter-kabupaten-2" class="select2 form-select filter-kabupaten">
+                                        <option value="all">All</option>
+                                        @foreach ($listKabupaten as $kab)
+                                            <option value="{{ $kab->id }}">{{ $kab->nama_kabupaten }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="filter-bln-last">Bulan:</label>
                                     <select id="filter-bln-last" name="bln" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
                                         @foreach ($months as $month)
@@ -181,7 +224,7 @@
 
                                 </div>
 
-                                <div class="col-md-6">
+                                <div class="col-md-3">
 
                                     <label for="filter-pengawas">Filter by Pengawas:</label>
                                     <select id="filter-pengawas" name="pengawas" class="select2 form-select" required>
@@ -210,9 +253,18 @@
                         <div class="card-body p-3">
                             <button id="export-pdf3" class="btn btn-primary">Export PDF</button> <!-- Export button -->
                             <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="filter-pengawas">Filter Bulan:</label>
-                                    <select id="filter-bln2" name="bln" class="select2 form-select" required>
+                                <div class="col-md-4">
+                                    <label for="filter-kabupaten-raport">Kabupaten:</label>
+                                    <select id="filter-kabupaten-raport" class="select2 form-select filter-kabupaten">
+                                        <option value="all">All</option>
+                                        @foreach ($listKabupaten as $kab)
+                                            <option value="{{ $kab->id }}">{{ $kab->nama_kabupaten }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="filter-bln-raport">Filter Bulan:</label>
+                                    <select id="filter-bln-raport" name="bln" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
                                         @foreach ($months as $month)
                                             <option value="{{ $month['name'] }}">
@@ -223,9 +275,9 @@
 
                                 </div>
 
-                                <div class="col-md-6">
-                                    <label for="filter-tahun">Filter Tahun:</label>
-                                    <select id="filter-tahun2" name="tahun" class="select2 form-select" required>
+                                <div class="col-md-4">
+                                    <label for="filter-tahun-raport">Filter Tahun:</label>
+                                    <select id="filter-tahun-raport" name="tahun" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
                                         @foreach ($years as $year)
                                             <option value="{{ $year }}"
@@ -256,9 +308,17 @@
 
                             <div class="row mb-3">
 
-
-                                <div class="col-md-6">
-                                    <label for="filter-pengawas">Filter Bulan:</label>
+                                <div class="col-md-4">
+                                    <label for="filter-kabupaten-konf">Kabupaten:</label>
+                                    <select id="filter-kabupaten-konf" class="select2 form-select filter-kabupaten">
+                                        <option value="all">All</option>
+                                        @foreach ($listKabupaten as $kab)
+                                            <option value="{{ $kab->id }}">{{ $kab->nama_kabupaten }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="filter-bln3">Filter Bulan:</label>
                                     <select id="filter-bln3" name="bln" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
                                         @foreach ($months as $month)
@@ -270,8 +330,8 @@
 
                                 </div>
 
-                                <div class="col-md-6">
-                                    <label for="filter-tahun">Filter Tahun:</label>
+                                <div class="col-md-4">
+                                    <label for="filter-tahun3">Filter Tahun:</label>
                                     <select id="filter-tahun3" name="tahun" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
                                         @foreach ($years as $year)
@@ -302,10 +362,18 @@
                             <button id="export-pdf5" class="btn btn-primary btn-sm mb-3">Export PDF</button> <!-- Export button -->
                             <div class="row mb-3">
 
+                                <div class="col-md-4">
+                                    <label for="filter-kabupaten-spider">Kabupaten:</label>
+                                    <select id="filter-kabupaten-spider" class="select2 form-select filter-kabupaten">
+                                        <option value="all">All</option>
+                                        @foreach ($listKabupaten as $kab)
+                                            <option value="{{ $kab->id }}">{{ $kab->nama_kabupaten }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
 
-                                <div class="col-md-6">
-
-                                    <label for="filter-pengawas">Filter by Pengawas:</label>
+                                    <label for="filter-pengawas2">Filter by Pengawas:</label>
                                     <select id="filter-pengawas2" name="pengawas" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
                                         @foreach ($listPengawas as $item)
@@ -315,7 +383,7 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label for="filter-tahun">Filter Tahun:</label>
                                     <select
                                         id="filter-tahun-spider"
@@ -350,9 +418,18 @@
                             <button id="export-pdf6" class="btn btn-primary btn-sm mb-3">Export PDF</button> <!-- Export button -->
                             <div class="row mb-3">
 
-                                <div class="col-md-6">
+                                <div class="col-md-4">
+                                    <label for="filter-kabupaten-pie">Kabupaten:</label>
+                                    <select id="filter-kabupaten-pie" class="select2 form-select filter-kabupaten">
+                                        <option value="all">All</option>
+                                        @foreach ($listKabupaten as $kab)
+                                            <option value="{{ $kab->id }}">{{ $kab->nama_kabupaten }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
 
-                                    <label for="filter-pengawas">Filter by Pengawas:</label>
+                                    <label for="filter-pengawas3">Filter by Pengawas:</label>
                                     <select id="filter-pengawas3" name="pengawas" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
                                         @foreach ($listPengawas as $item)
@@ -362,7 +439,7 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label for="filter-tahun">Filter Tahun:</label>
                                     <select
                                         id="filter-tahun-pie"
@@ -425,15 +502,17 @@
             // diagram pie
             $('#filter-pengawas3').select2();
             $('#filter-tahun-pie').select2();
+            $('#global-filter-kabupaten').select2();
+            $('.filter-kabupaten').select2();
 
             let pieChartInstance = null;
 
             // Fungsi untuk mengambil dan menampilkan data chart pie
-            function fetchChartDataPie(pengawas = 'all', year = 'all') {
+            function fetchChartDataPie(pengawas = 'all', year = 'all', kabupaten = 'all') {
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
-                const currentYear = new Date().getFullYear();
-                const filterYear = (year === 'all') ? currentYear : year;
-                fetch(`{{ route('admin.chartpie') }}?pengawas=${pengawas}&tahun=${filterYear}`)
+                const currentYearPie = new Date().getFullYear();
+                const filterYear = (year === 'all') ? currentYearPie : year;
+                fetch(`{{ route('admin.chartpie') }}?pengawas=${pengawas}&tahun=${filterYear}&kabupaten=${kabupaten}`)
                     .then(response => response.json())
                     .then(data => {
                         if (!data || data.length === 0) {
@@ -519,29 +598,31 @@
 
             // Load chart awal tanpa filter (semua data)
             const currentYearPie = new Date().getFullYear();
-            fetchChartDataPie('all', currentYearPie);
+            fetchChartDataPie('all', currentYearPie, 'all');
 
             // Event listener untuk perubahan filter
-            $('#filter-pengawas3, #filter-tahun-pie').change(function() {
+            $('#filter-pengawas3, #filter-tahun-pie, #filter-kabupaten-pie').change(function() {
                 const pengawas = $('#filter-pengawas3').val();
                 let year = $('#filter-tahun-pie').val();
+                const kabupaten = $('#filter-kabupaten-pie').val();
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
-                fetchChartDataPie(pengawas, year);
+                fetchChartDataPie(pengawas, year, kabupaten);
             });
             // end diagram pie
             //chart terkonfirmasi
             $('#filter-bln3').select2();
             $('#filter-tahun3').select2();
+            $('#filter-kabupaten-konf').select2();
 
             let terkomfrimChartInstance = null;
 
-            function fetchChartTerkonfrim(month = 'all', year = 'all') {
+            function fetchChartTerkonfrim(month = 'all', year = 'all', kabupaten = 'all') {
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
-                const currentYear = new Date().getFullYear();
-                const filterYear = (year === 'all') ? currentYear : year;
-                fetch(`{{ route('admin.chartTerkonfirmasi') }}?bln=${month}&tahun=${filterYear}`)
+                const currentYearKonf = new Date().getFullYear();
+                const filterYear = (year === 'all') ? currentYearKonf : year;
+                fetch(`{{ route('admin.chartTerkonfirmasi') }}?bln=${month}&tahun=${filterYear}&kabupaten=${kabupaten}`)
                     .then(response => response.json())
                     .then(data => {
                         // Check if data is empty
@@ -628,31 +709,33 @@
 
             // Initial chart load dengan tahun sekarang sebagai default
             const currentYear3 = new Date().getFullYear();
-            fetchChartTerkonfrim('all', currentYear3);
+            fetchChartTerkonfrim('all', currentYear3, 'all');
 
             // Event listener for filter changes
-            $('#filter-bln3, #filter-tahun3').change(function() {
+            $('#filter-bln3, #filter-tahun3, #filter-kabupaten-konf').change(function() {
                 const month = $('#filter-bln3').val();
                 let year = $('#filter-tahun3').val();
+                const kabupaten = $('#filter-kabupaten-konf').val();
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
-                fetchChartTerkonfrim(month, year);
+                fetchChartTerkonfrim(month, year, kabupaten);
             });
 
 
             // chart terkonfirmasi
             //chart per raport pendidikan
-            $('#filter-bln2').select2();
-            $('#filter-tahun2').select2();
+            $('#filter-bln-raport').select2();
+            $('#filter-tahun-raport').select2();
+            $('#filter-kabupaten-raport').select2();
             let raportPendidikanChartInstance = null;
 
-            function fetchChartDataRaportPendidikan(month = 'all', year = 'all') {
+            function fetchChartDataRaportPendidikan(month = 'all', year = 'all', kabupaten = 'all') {
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
-                const currentYear = new Date().getFullYear();
-                const filterYear = (year === 'all') ? currentYear : year;
-                fetch(`{{ route('admin.chartDataRaportPendidikan') }}?bln=${month}&tahun=${filterYear}`)
+                const currentYearRaport = new Date().getFullYear();
+                const filterYear = (year === 'all') ? currentYearRaport : year;
+                fetch(`{{ route('admin.chartDataRaportPendidikan') }}?bln=${month}&tahun=${filterYear}&kabupaten=${kabupaten}`)
                     .then(response => response.json())
                     .then(data => {
                         // Check if data is empty
@@ -741,17 +824,18 @@
 
             // Initial chart load dengan tahun sekarang sebagai default
             const currentYear4 = new Date().getFullYear();
-            fetchChartDataRaportPendidikan('all', currentYear4);
+            fetchChartDataRaportPendidikan('all', currentYear4, 'all');
 
             // Event listener for filter changes
-            $('#filter-bln2, #filter-tahun2').change(function() {
-                const month = $('#filter-bln2').val();
-                let year = $('#filter-tahun2').val();
+            $('#filter-bln-raport, #filter-tahun-raport, #filter-kabupaten-raport').change(function() {
+                const month = $('#filter-bln-raport').val();
+                let year = $('#filter-tahun-raport').val();
+                const kabupaten = $('#filter-kabupaten-raport').val();
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
-                fetchChartDataRaportPendidikan(month, year);
+                fetchChartDataRaportPendidikan(month, year, kabupaten);
             });
 
             // end chart per raport pendidikan
@@ -761,11 +845,10 @@
 
             let pengawasChartInstance = null;
 
-            function fetchChartData(month = 'all', year = 'all') {
-                // Jika year adalah 'all', gunakan tahun sekarang sebagai default
-                const currentYear = new Date().getFullYear();
-                const filterYear = (year === 'all') ? currentYear : year;
-                fetch(`{{ route('admin.chartData') }}?bln=${month}&tahun=${filterYear}`)
+
+
+            function fetchChartData(month = 'all', year = 'all', kabupaten = 'all') {
+                fetch(`{{ route('admin.chartData') }}?bln=${month}&tahun=${year}&kabupaten=${kabupaten}`)
                     .then(response => response.json())
                     .then(data => {
                         // Check if data is empty
@@ -852,17 +935,18 @@
 
             // Initial chart load dengan tahun sekarang sebagai default
             const currentYear = new Date().getFullYear();
-            fetchChartData('all', currentYear);
+            fetchChartData('all', currentYear, 'all');
 
             // Event listener for filter changes
-            $('#filter-bln, #filter-tahun').change(function() {
+            $('#filter-bln, #filter-tahun, #filter-kabupaten-1').change(function() {
                 const month = $('#filter-bln').val();
                 let year = $('#filter-tahun').val();
+                const kabupaten = $('#filter-kabupaten-1').val();
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
-                fetchChartData(month, year);
+                fetchChartData(month, year, kabupaten);
             });
 
             $('#filter-bln-last').select2();
@@ -870,11 +954,11 @@
             $('#filter-pengawas').select2();
             let umpanbalikChartInstance = null;
 
-            function fetchChartData2(month = 'all', year = 'all', pengawas = 'all') {
+            function fetchChartData2(month = 'all', year = 'all', pengawas = 'all', kabupaten = 'all') {
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 const currentYear = new Date().getFullYear();
                 const filterYear = (year === 'all') ? currentYear : year;
-                fetch(`{{ route('admin.chartData2') }}?bln=${month}&tahun=${filterYear}&pengawas=${pengawas}`)
+                fetch(`{{ route('admin.chartData2') }}?bln=${month}&tahun=${filterYear}&pengawas=${pengawas}&kabupaten=${kabupaten}`)
                     .then(response => response.json())
                     .then(data => {
                         if (!data || data.length === 0) {
@@ -947,19 +1031,20 @@
 
             // Initial chart load dengan tahun sekarang sebagai default
             const currentYear2 = new Date().getFullYear();
-            fetchChartData2('all', currentYear2, 'all');
+            fetchChartData2('all', currentYear2, 'all', 'all');
 
             // Event listener for filter changes
-            $('#filter-bln-last, #filter-tahun-last , #filter-pengawas').change(function() {
+            $('#filter-bln-last, #filter-tahun-last, #filter-pengawas, #filter-kabupaten-2').change(function() {
 
                 const pengawas = $('#filter-pengawas').val();
                 const month = $('#filter-bln-last').val();
                 let year = $('#filter-tahun-last').val();
+                const kabupaten = $('#filter-kabupaten-2').val();
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
-                fetchChartData2(month, year, pengawas);
+                fetchChartData2(month, year, pengawas, kabupaten);
             });
 
             $('#filter-pengawas2').select2();
@@ -977,11 +1062,11 @@
             };
 
             // Function to fetch chart data and display it
-            function fetchSpiderWebData(pengawas = 'all', year = 'all') {
+            function fetchSpiderWebData(pengawas = 'all', year = 'all', kabupaten = 'all') {
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 const currentYear = new Date().getFullYear();
                 const filterYear = (year === 'all') ? currentYear : year;
-                fetch(`{{ route('admin.spiderWebData') }}?pengawas=${pengawas}&tahun=${filterYear}`)
+                fetch(`{{ route('admin.spiderWebData') }}?pengawas=${pengawas}&tahun=${filterYear}&kabupaten=${kabupaten}`)
                     .then(response => response.json())
                     .then(data => {
                         if (spiderChartInstance) {
@@ -1080,22 +1165,23 @@
             fetchSpiderWebData('all', currentYearSpider);
 
             // Fetch data when the pengawas filter changes
-            $('#filter-pengawas2, #filter-tahun-spider').change(function() {
+            $('#filter-pengawas2, #filter-tahun-spider, #filter-kabupaten-spider').change(function() {
                 const pengawas = $('#filter-pengawas2').val();
                 let year = $('#filter-tahun-spider').val();
+                const kabupaten = $('#filter-kabupaten-spider').val();
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
-                fetchSpiderWebData(pengawas, year);
+                fetchSpiderWebData(pengawas, year, kabupaten);
             });
 
 
     // Dynamic Charts for Q1, Q2, Q4
-    function fetchDynamicChart(questionId, canvasId, chartType, label, pengawas = 'all', year = 'all') {
+    function fetchDynamicChart(questionId, canvasId, chartType, label, pengawas = 'all', year = 'all', kabupaten = 'all') {
         const currentYear = new Date().getFullYear();
         const filterYear = (year === 'all') ? currentYear : year;
 
-        fetch(`{{ route('admin.chartDynamicData') }}?question_id=${questionId}&pengawas=${pengawas}&tahun=${filterYear}`)
+        fetch(`{{ route('admin.chartDynamicData') }}?question_id=${questionId}&pengawas=${pengawas}&tahun=${filterYear}&kabupaten=${kabupaten}`)
             .then(response => response.json())
             .then(data => {
                 const ctx = document.getElementById(canvasId).getContext('2d');
@@ -1152,15 +1238,22 @@
     fetchDynamicChart(15, 'chartQ4', 'pie', 'Kebermanfaatan');
 
     // Listener for shared filters
-    $('#filter-pengawas3, #filter-tahun-pie').change(function() {
+    $('#filter-pengawas3, #filter-tahun-pie, #filter-kabupaten-pie').change(function() {
          const pengawas = $('#filter-pengawas3').val();
          let year = $('#filter-tahun-pie').val();
+         const kabupaten = $('#filter-kabupaten-pie').val();
         if (year === 'all') {
             year = new Date().getFullYear();
         }
-        fetchDynamicChart(12, 'chartQ1', 'bar', 'Pengembangan Profesional', pengawas, year);
-        fetchDynamicChart(14, 'chartQ2', 'pie', 'Aspek Kompetensi', pengawas, year);
-        fetchDynamicChart(15, 'chartQ4', 'pie', 'Kebermanfaatan', pengawas, year);
+        fetchDynamicChart(12, 'chartQ1', 'bar', 'Pengembangan Profesional', pengawas, year, kabupaten);
+        fetchDynamicChart(14, 'chartQ2', 'pie', 'Aspek Kompetensi', pengawas, year, kabupaten);
+        fetchDynamicChart(15, 'chartQ4', 'pie', 'Kebermanfaatan', pengawas, year, kabupaten);
+    });
+
+    // Global Filter Listener
+    $('#global-filter-kabupaten').change(function() {
+        const kabId = $(this).val();
+        $('.filter-kabupaten').val(kabId).trigger('change');
     });
 
         });

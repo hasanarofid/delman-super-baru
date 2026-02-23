@@ -38,9 +38,16 @@
                         method="POST"
                         enctype="multipart/form-data">
                      @csrf
-                     <div class="form-group">
-                              <label for="name">Nama </label>
+                     <div class="form-group mb-3">
+                              <label for="nama">Nama </label>
                               <input type="text" required class="form-control" name="nama" id="nama" placeholder="Nama" required>
+                     </div>
+                     <div class="form-group mb-3">
+                              <label for="status">Status </label>
+                              <select name="status" id="status" class="form-select" required>
+                                  <option value="active">Active</option>
+                                  <option value="inactive">Inactive</option>
+                              </select>
                      </div>
                
                      <div class="form-group">

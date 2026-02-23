@@ -38,9 +38,16 @@
     enctype="multipart/form-data">
                    
                      @csrf
-                     <div class="form-group">
-                              <label for="name">Nama </label>
+                     <div class="form-group mb-3">
+                              <label for="nama">Nama </label>
                               <input type="text" required class="form-control" value="{{ $models->nama }}" name="nama" id="nama" placeholder="Nama" required>
+                     </div>
+                     <div class="form-group mb-3">
+                              <label for="status">Status </label>
+                              <select name="status" id="status" class="form-select" required>
+                                  <option value="active" {{ $models->status == 'active' ? 'selected' : '' }}>Active</option>
+                                  <option value="inactive" {{ $models->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                              </select>
                      </div>
                
                      <div class="form-group">

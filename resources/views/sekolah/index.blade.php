@@ -42,6 +42,8 @@
                               <th class="text-sm font-weight mb-1 ">No</th>
                               <th class="text-sm font-weight mb-1 ">Kabupaten</th>
                               <th class="text-sm font-weight mb-1 ">Nama Sekolah</th>
+                              <th class="text-sm font-weight mb-1 ">Kepala Sekolah</th>
+                              <th class="text-sm font-weight mb-1 ">Pengawas</th>
                               <th class="text-sm font-weight mb-1 ">NPSN</th>
                               <th class="text-sm font-weight mb-1">No Telpon</th>
                               <th class="text-sm font-weight mb-1">Alamat</th>
@@ -123,6 +125,8 @@
                 {data: 'DT_RowIndex', name: 'DT_RowIndex'},
                 {data: 'kabupaten', name: 'kabupaten'},
                 {data: 'nama_sekolah', name: 'nama_sekolah'},
+                {data: 'kepasek', name: 'kepasek'},
+                {data: 'nama_pengawas', name: 'nama_pengawas'},
                 {data: 'npsn', name: 'npsn'},
                 {data: 'no_telp', name: 'no_telp'},
                 {data: 'alamat_lengkap', name: 'alamat_lengkap'},

@@ -29,6 +29,10 @@ class MastertupoksiController extends Controller
             // dd($post);
             return Datatables::of($post)
             ->addIndexColumn()
+                    ->addColumn('status', function($row){
+                        $badge = $row->status == 'active' ? 'bg-success' : 'bg-danger';
+                        return '<span class="badge ' . $badge . '">' . ucfirst($row->status) . '</span>';
+                    })
                     ->addColumn('action', function($row){
    
                         $user = Auth::user();
@@ -40,7 +44,7 @@ class MastertupoksiController extends Controller
                             return ''; // Tidak menampilkan tombol aksi jika bukan Super Admin
                         }
                     })
-                    ->rawColumns(['action'])
+                    ->rawColumns(['action', 'status'])
                     ->make(true);
         }
         return view('mastertupoksi.index');
@@ -77,6 +81,7 @@ class MastertupoksiController extends Controller
             $model = new Kategory();
             $model->nama = $request->nama;
             $model->type = 'Pelaporan';
+            $model->status = $request->status ?? 'active';
             $model->save();
 
         
@@ -96,6 +101,7 @@ class MastertupoksiController extends Controller
     public function update(Request $request){
          $user = Kategory::where('id',$request->id)->first();
          $user->nama = $request->nama;
+         $user->status = $request->status;
              $user->save();
 
         return redirect()->route('mastertupoksi.index',$request->id)->with('success', 'Kategori Program update successfully');

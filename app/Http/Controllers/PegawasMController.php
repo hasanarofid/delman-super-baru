@@ -374,6 +374,20 @@ class PegawasMController extends Controller
         return redirect()->route('masterpengawas.index',$request->id)->with('success', 'pengawas update successfully');
     }
 
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:users,id',
+            'password' => 'required|min:6',
+        ]);
+
+        $user = User::find($request->id);
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return redirect()->back()->with('success', 'Password updated successfully');
+    }
+
     public function updateKabupaten(Request $request)
     {
         $request->validate([

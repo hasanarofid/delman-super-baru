@@ -226,6 +226,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         Route::get('/add-pengawas', 'PegawasMController@add')->name('masterpengawas.add');
         Route::get('/edit-pengawas/{id}', 'PegawasMController@edit')->name('masterpengawas.edit');
         Route::post('/update-pengawas', 'PegawasMController@update')->name('masterpengawas.update');
+        Route::post('/update-password', 'PegawasMController@updatePassword')->name('masterpengawas.updatePassword');
         Route::get('/import-pengawas', 'PegawasMController@import')->name('masterpengawas.import');
         Route::post('/importfile-pengawas', 'PegawasMController@importfile')->name('masterpengawas.importfile');
         Route::post('/store-pengawas', 'PegawasMController@store')->name('masterpengawas.store');

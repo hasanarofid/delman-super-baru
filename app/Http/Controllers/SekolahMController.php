@@ -31,7 +31,7 @@ class SekolahMController extends Controller
     public function getdata(Request $request){
         if ($request->ajax()) {
             $user = Auth::user();
-            $query = SekolahM::with('kabupaten')->where('is_aktif', true);
+            $query = SekolahM::with(['kabupaten', 'kepalaSekolahSatu', 'pengawas.pengawas'])->where('is_aktif', true);
 
             if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
                 $query->where('kabupaten_id', $user->kabupaten_id);
@@ -43,6 +43,12 @@ class SekolahMController extends Controller
                     ->addIndexColumn()
                     ->addColumn('kabupaten', function($row){
                         return !empty($row->kabupaten->nama_kabupaten) ? $row->kabupaten->nama_kabupaten: '-';
+                    })
+                    ->addColumn('kepasek', function($row){
+                        return $row->kepalaSekolahSatu->nama_guru ?? '-';
+                    })
+                    ->addColumn('nama_pengawas', function($row){
+                        return $row->pengawas->pengawas->name ?? '-';
                     })
                     ->addColumn('action', function($row){
                         $user = Auth::user();
@@ -57,7 +63,7 @@ class SekolahMController extends Controller
                         }
                        
                  })
-                    ->rawColumns(['action','kabupaten'])
+                    ->rawColumns(['action','kabupaten', 'kepasek', 'nama_pengawas'])
                     ->make(true);
         }
         return view('sekolah.index');

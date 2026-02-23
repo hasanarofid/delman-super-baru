@@ -31,5 +31,10 @@ class SekolahM extends Model
         {
                 return $this->hasOne(Kabupaten::class, 'id', 'kabupaten_id');
         }
+
+        public function pengawas()
+        {
+                return $this->hasOne(Models\SekolahbinaanT::class, 'id_sekolah', 'id');
+        }
         
 }
