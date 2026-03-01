@@ -26,7 +26,7 @@ class PelaporanController extends Controller
     {
         $kegiatan = TugaskerjaT::with('tugas')
             ->where('id_pengawas', Auth::user()->id)->get();
-        $kategory = Kategory::where('type', 'pelaporan')->get();
+        $kategory = Kategory::where('type', 'pelaporan')->where('status', 'active')->get();
         $subkategory = [];
         $binaan = SekolahbinaanT::with('sekolah')
             ->where('id_pengawas', Auth::user()->id)->get();

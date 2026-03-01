@@ -53,7 +53,7 @@ class DokumentasipendampinganController extends Controller
         }
 
         $listPengawas = User::where('role','pengawas')->get();
-        $kategori = Kategory::all();
+        $kategori = Kategory::where('status', 'active')->get();
 
         return view('dashboard_pengawas.umpanbalik.dokumentasi',compact('listPengawas',
         'months',
@@ -108,7 +108,7 @@ class DokumentasipendampinganController extends Controller
             ];
         }
 
-        $kategori = Kategory::all();
+        $kategori = Kategory::where('status', 'active')->get();
 
         return view('dokumentasipendampingan.index',compact('listPengawas',
         'months',
