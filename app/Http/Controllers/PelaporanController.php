@@ -128,7 +128,9 @@ class PelaporanController extends Controller
     {
         $pelaporan = Pelaporan::find($id);
         // $token = env('WABLAS_TOKEN');
-        $token = 'OZ9q0PSQUUV4PRZGxyKUfZjt9EFyt22dTIRnklQSepTmFlrFMN9BqaIs7RXtnD9I';
+        $token = 'ChvMJmr8Y5PwD130iY6kZqNQoAvCNQBxvH4RKiCOckJCAvEtVZtBO2Gyubj9THyU';
+        $secretKey = '3eOzFZaU';
+        $authorization = "{$token}.{$secretKey}";
         if ($pelaporan->sasaran == 'Guru') {
             $user = GuruM::find($pelaporan->object);
             
@@ -198,7 +200,7 @@ Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengaw
         
             // Set opsi curl
             curl_setopt($curl, CURLOPT_HTTPHEADER, [
-                "Authorization: $token",
+                "Authorization: $authorization",
             ]);
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -252,7 +254,7 @@ Admin Delman Super';
         
             // Set opsi curl
             curl_setopt($curl, CURLOPT_HTTPHEADER, [
-                "Authorization: $token",
+                "Authorization: $authorization",
             ]);
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -307,7 +309,7 @@ Admin Delman Super';
             
                 // Set opsi curl
                 curl_setopt($curl, CURLOPT_HTTPHEADER, [
-                    "Authorization: $token",
+                    "Authorization: $authorization",
                 ]);
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);

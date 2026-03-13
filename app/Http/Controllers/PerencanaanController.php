@@ -497,7 +497,7 @@ Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengaw
     protected function sendWhatsAppMessage($phone, $message, $nama_kepala_sekolah_id, $model)
     {
         $token = 'ChvMJmr8Y5PwD130iY6kZqNQoAvCNQBxvH4RKiCOckJCAvEtVZtBO2Gyubj9THyU';
-        $secretKey = 'SqKDZXzk';
+        $secretKey = '3eOzFZaU';
         $url = "https://jogja.wablas.com/api/send-message";
 
         // Format nomor telepon
