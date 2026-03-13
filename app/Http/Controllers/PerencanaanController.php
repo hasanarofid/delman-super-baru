@@ -186,9 +186,12 @@ class PerencanaanController extends Controller
                 $model->save();
 
                 // Proses pengiriman WA (Jika ini gagal, transaction akan rollback)
-                $this->kirimWa($model->id);
-
-                return redirect()->route('pengawas.perencanaan')->with('success', 'Perencanaan berhasil disimpan dan pesan WA terkirim!');
+                try {
+                    $this->kirimWa($model->id);
+                    return redirect()->route('pengawas.perencanaan')->with('success', 'Perencanaan berhasil disimpan dan pesan WA terkirim!');
+                } catch (\Exception $e) {
+                    return redirect()->route('pengawas.perencanaan')->with('error', 'Perencanaan berhasil disimpan, namun pesan WA GAGAL dikirim. Error: ' . $e->getMessage());
+                }
             });
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal membuat rencana kerja: ' . $e->getMessage());
@@ -223,9 +226,12 @@ class PerencanaanController extends Controller
         $data->save();
 
         // Sinkronisasi umpan balik dan kirim ulang WA jika perlu
-        $this->kirimWa($data->id);
-
-        return redirect()->route('pengawas.perencanaan')->with('success', 'Perencanaan berhasil diedit!');
+        try {
+            $this->kirimWa($data->id);
+            return redirect()->route('pengawas.perencanaan')->with('success', 'Perencanaan berhasil diedit!');
+        } catch (\Exception $e) {
+            return redirect()->route('pengawas.perencanaan')->with('error', 'Perencanaan berhasil diedit, namun pesan WA GAGAL dikirim. Error: ' . $e->getMessage());
+        }
     }
 
 

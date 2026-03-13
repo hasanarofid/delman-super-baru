@@ -16,16 +16,16 @@ class PengawasMiddleware
      */
     public function handle($request, Closure $next)
     {
-        // Pengecualian untuk route '/pengawas'
-        if ($request->is('pengawas') || $request->is('pengawas/*')) {
+        // Pengecualian untuk route login
+        if ($request->is('pengawas/login') || $request->is('pengawas/logout')) {
             return $next($request);
         }
 
-        // Cek apakah pengguna terautentikasi dan memiliki peran 'Pengawas'
-        if(Auth::check() && Auth::user()->role == "Pengawas") {
+        // Cek apakah pengguna terautentikasi dan memiliki peran 'pengawas'
+        if(Auth::check() && strtolower(Auth::user()->role) == "pengawas") {
             return $next($request);
         } else {
-            return redirect('/pengawas');
+            return redirect('/pengawas/login');
         }
     }
 }
