@@ -187,7 +187,14 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
                             <a href="{{ route('pengawas.dokumentasipendampingan.index') }}" class="menu-link">
                                 {{-- <i class="menu-icon tf-icons ti ti-user"></i> --}}
                                 <i class="menu-icon tf-icons fa-solid fas fa-thumbs-up"></i>
-                                <div data-i18n="Dokumentasi Pendampingan">Dokumentasi Pendampingan</div>
+                                <div data-i18n="Dokumentasi Pengawasan">Dokumentasi Pengawasan</div>
+                            </a>
+                        </li>
+
+                        <li class="menu-item {{ (request()->is('pengawas/saranperbaikan*')) ? 'active' : '' }}">
+                            <a href="{{ route('pengawas.saranperbaikan.index') }}" class="menu-link">
+                                <i class="menu-icon tf-icons fa-solid fas fa-thumbs-up"></i>
+                                <div data-i18n="Saran Perbaikan">Saran Perbaikan</div>
                             </a>
                         </li>
         

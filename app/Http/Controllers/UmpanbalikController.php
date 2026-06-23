@@ -43,7 +43,7 @@ class UmpanbalikController extends Controller
         $pengawas = User::find($model->id_pengawas);
         $pelaporan = RencanaKerjaT::find($model->id_pelaporan);
         
-        $umpanBalikM = UmpanbalikM::where('aspek', 'pendampingan')->orderBy('urutan')->get();
+        $umpanBalikM = UmpanbalikM::where('aspek', 'pengawasan')->orderBy('urutan')->get();
         $umpanBalikM2 = UmpanbalikM::where('aspek', 'kompetensi')->orderBy('urutan')->get();
         $umpanBalikM3 = UmpanbalikM::where('aspek', 'lainnya')->orderBy('urutan')->get();
         $asepek = AspekProgram::get();
@@ -159,7 +159,7 @@ class UmpanbalikController extends Controller
         $pengawas = User::find($model->id_pengawas);
         $pelaporan = RencanaKerjaT::find($model->id_pelaporan);
         
-        $umpanBalikM = UmpanbalikM::where('aspek','pendampingan')->orderBy('urutan')->get();
+        $umpanBalikM = UmpanbalikM::where('aspek','pengawasan')->orderBy('urutan')->get();
         $umpanBalikM2 = UmpanbalikM::where('aspek','kompetensi')->orderBy('urutan')->get();
         $umpanBalikM3 = UmpanbalikM::where('aspek','lainnya')->orderBy('urutan')->get();
         $asepek = AspekProgram::get();

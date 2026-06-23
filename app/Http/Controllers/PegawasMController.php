@@ -20,9 +20,11 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Hash;
 use Auth;
 use Illuminate\Support\Facades\Http;
+use App\Traits\StakeholderAccess;
 
 class PegawasMController extends Controller
 {
+    use StakeholderAccess;
     //tesWa
     // public function tesWa(){
     //     $token = env('WABLAS_TOKEN');
@@ -117,9 +119,7 @@ class PegawasMController extends Controller
         $user = Auth::user();
         $query = SekolahM::query();
 
-        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-            $query->where('kabupaten_id', $user->kabupaten_id);
-        }
+        $query = $this->applyStakeholderFilter($query, 'kabupaten_id', 'nama_sekolah', null);
 
         $sekolah = $query->get();
         $binaan = SekolahbinaanT::with('sekolah')->where('id_pengawas',$id)->get();
@@ -136,9 +136,7 @@ class PegawasMController extends Controller
             $user = Auth::user();
             $query = User::with('kabupaten', 'profile')->where('role', 'Pengawas');
 
-            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-                $query->where('kabupaten_id', $user->kabupaten_id);
-            }
+            $query = $this->applyStakeholderFilter($query, 'kabupaten_id', 'nama_sekolah', 'self', 'sekolah');
     
             $post = $query->latest()->get();
     

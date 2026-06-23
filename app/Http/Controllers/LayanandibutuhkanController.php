@@ -12,9 +12,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 use Barryvdh\DomPDF\Facade as PDF;
+use App\Traits\StakeholderAccess;
 
 class LayanandibutuhkanController extends Controller
 {
+    use StakeholderAccess;
     public function index(){
         $user = Auth::user();
         $queryPengawas = User::where('role','pengawas');
@@ -23,9 +25,7 @@ class LayanandibutuhkanController extends Controller
             return redirect()->route('login');
         }
         
-        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-            $queryPengawas->where('kabupaten_id', $user->kabupaten_id);
-        }
+        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', null, 'self');
         
         $listPengawas = $queryPengawas->get();
 
@@ -40,9 +40,7 @@ class LayanandibutuhkanController extends Controller
             return redirect()->route('login');
         }
 
-        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-            $queryPengawas->where('kabupaten_id', $user->kabupaten_id);
-        }
+        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', null, 'self');
         
         $listPengawas = $queryPengawas->get();
 
@@ -56,11 +54,7 @@ class LayanandibutuhkanController extends Controller
 
             $post = TanggapanUmpanbalikT::with('umpanBalikT')->latest();
 
-            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-                $post->whereHas('umpanBalikT.pengawasnama', function($q) use ($user) {
-                    $q->where('kabupaten_id', $user->kabupaten_id);
-                });
-            }
+            $post = $this->applyStakeholderFilter($post, 'umpanBalikT.pengawasnama.kabupaten_id', null, 'umpanBalikT.pengawasnama');
           
             $post->whereHas('umpanBalikT', function ($q) use ($pengawas) {
                 if ($pengawas !== 'all') {
@@ -138,11 +132,7 @@ class LayanandibutuhkanController extends Controller
             ->oldest();
 
         $userAuth = Auth::user();
-        if ($userAuth->role == 'Stakeholder' || $userAuth->role == 'Admin') {
-            $query->whereHas('umpanBalikT.pengawasnama', function($q) use ($userAuth) {
-                $q->where('kabupaten_id', $userAuth->kabupaten_id);
-            });
-        }
+        $query = $this->applyStakeholderFilter($query, 'umpanBalikT.pengawasnama.kabupaten_id', null, 'umpanBalikT.pengawasnama');
 
         $query->whereHas('umpanBalikT', function ($q) use ($pengawas) {
             if ($pengawas !== 'all') {

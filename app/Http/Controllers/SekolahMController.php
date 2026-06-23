@@ -14,10 +14,11 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Auth;
-
+use App\Traits\StakeholderAccess;
 
 class SekolahMController extends Controller
 {
+    use StakeholderAccess;
     /**
      * Display a listing of the resource.
      *
@@ -33,9 +34,7 @@ class SekolahMController extends Controller
             $user = Auth::user();
             $query = SekolahM::with(['kabupaten', 'kepalaSekolahSatu', 'pengawas.pengawas'])->where('is_aktif', true);
 
-            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-                $query->where('kabupaten_id', $user->kabupaten_id);
-            }
+            $query = $this->applyStakeholderFilter($query, 'kabupaten_id', 'nama_sekolah', null);
     
             $post = $query->latest()->get();
     

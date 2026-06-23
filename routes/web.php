@@ -862,6 +862,11 @@ Route::middleware(['web', 'pengawas'])->group(function () {
         Route::get('/export-pdf', 'LayanandibutuhkanController@exportPDFPengawas')->name('pengawas.layanandibutuhkan.exportPDF');
     });
 
+    Route::prefix('pengawas/saranperbaikan')->group(function () {
+        Route::get('/', 'SaranperbaikanController@indexpengawas')->name('pengawas.saranperbaikan.index');
+        Route::get('/get-saranperbaikan', 'SaranperbaikanController@getdatapengawas')->name('pengawas.saranperbaikan.getdata');
+    });
+
 
     // route panel menu pengawas rencanakerja
     Route::prefix('rencanakerja')->group(function () {

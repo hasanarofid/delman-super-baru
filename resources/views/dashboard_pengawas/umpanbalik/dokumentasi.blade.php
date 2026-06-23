@@ -1,6 +1,6 @@
 @extends('layouts.pengawas.home')
-@section('title', 'List Dokumentasi Pendampingan')
-@section('titelcard', 'List Dokumentasi Pendampingan')
+@section('title', 'List Dokumentasi Pengawasan')
+@section('titelcard', 'List Dokumentasi Pengawasan')
 @section('content')
 <div class="content-wrapper">
     <!-- Content -->
@@ -16,7 +16,7 @@
         <div class="card h-100">
           <div class="card-header d-flex justify-content-between">
             <div class="card-title mb-0">
-              <h5 class="m-0 me-2">Tabel Dokumentasi Pendampingan</h5>
+              <h5 class="m-0 me-2">Tabel Dokumentasi Pengawasan</h5>
             </div>
           </div>
           <div class="app-card app-card-account shadow-sm d-flex flex-column align-items-start">
@@ -88,8 +88,8 @@
                   <thead>
                     <tr>
                       <th>No</th>
-                      <th>Tanggal pendampingan</th>
-                      <th>Foto Bukti Pendampingan</th>
+                      <th>Tanggal pengawasan</th>
+                      <th>Foto Bukti Pengawasan</th>
                       <th>Sekolah</th>
                       <th>Program Kerja</th>
                       <th>Catatan RTL</th>

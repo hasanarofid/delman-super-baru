@@ -64,7 +64,7 @@
                 <div class="col-lg-6 mb-3">
                     <div class="card">
                         <div class="card-header pb-0 p-3">
-                            <h6 class="mb-0"> Realisasi Pelaksanaan Pendampingan </h6>
+                            <h6 class="mb-0"> Realisasi Pelaksanaan Pengawasan </h6>
                         </div>
                         <div class="card-body p-3">
                             <button id="export-pdf2" class="btn btn-primary">Export PDF</button> <!-- Export button -->
@@ -81,7 +81,7 @@
                 <div class="col-lg-6 mb-3">
                     <div class="card" style="height: 100%;">
                         <div class="card-header pb-0 p-3">
-                            <h6 class="mb-0">Grafik Jumlah Pendampingan Terkonfirmasi 6 bulan terakhir </h6>
+                            <h6 class="mb-0">Grafik Jumlah Pengawasan Terkonfirmasi 6 bulan terakhir </h6>
                         </div>
                         <div class="card-body p-3">
                             <button id="export-pdf3" class="btn btn-primary">Export PDF</button> <!-- Export button -->
@@ -333,7 +333,7 @@
                             data: {
                                 labels: labels,
                                 datasets: [{
-                                    label: 'Jumlah Pendampingan',
+                                    label: 'Jumlah Pengawasan',
                                     data: rencanaCounts,
                                     backgroundColor: [
                                         'rgba(75, 192, 192, 0.2)'
@@ -355,7 +355,7 @@
                                         beginAtZero: true,
                                         title: {
                                             display: true,
-                                            text: 'Jumlah Pendampingan'
+                                            text: 'Jumlah Pengawasan'
                                         }
                                     },
                                     x: {

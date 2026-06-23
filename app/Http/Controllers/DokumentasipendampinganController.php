@@ -16,8 +16,11 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade as PDF;
 use Carbon\Carbon;
+use App\Traits\StakeholderAccess;
+
 class DokumentasipendampinganController extends Controller
 {
+    use StakeholderAccess;
     public function indexpengawas(){
 
         $currentMonth = date('n'); // Numeric representation of the current month (1-12)
@@ -69,10 +72,7 @@ class DokumentasipendampinganController extends Controller
     public function index(){
         $user = Auth::user();
         $queryPengawas = User::where('role','pengawas');
-        
-        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-            $queryPengawas->where('kabupaten_id', $user->kabupaten_id);
-        }
+        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', null, 'self');
         
         $listPengawas = $queryPengawas->get();
 
@@ -140,12 +140,8 @@ class DokumentasipendampinganController extends Controller
                 ->whereNotNull('submitted_at')
                 ->latest('submitted_at');
 
-            // Admin/Stakeholder Filter: Only show data from their Kabupaten
-            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-                $post->whereHas('pengawasnama', function($q) use ($user) {
-                    $q->where('kabupaten_id', $user->kabupaten_id);
-                });
-            }
+            // Admin/Stakeholder Filter: Only show data from their Kabupaten and Jenjang
+            $post = $this->applyStakeholderFilter($post, 'pengawasnama.kabupaten_id', null, 'pengawasnama');
 
              // Apply filter for 'bln' (bulan) and 'tahun'
              if ($bln !== 'all' || $tahun !== 'all') {
@@ -275,11 +271,7 @@ class DokumentasipendampinganController extends Controller
             ->whereNotNull('submitted_at')
             ->latest('submitted_at');
 
-        if ($userAuth->role == 'Stakeholder' || $userAuth->role == 'Admin') {
-            $query->whereHas('pengawasnama', function($q) use ($userAuth) {
-                $q->where('kabupaten_id', $userAuth->kabupaten_id);
-            });
-        }
+            $query = $this->applyStakeholderFilter($query, 'pengawasnama.kabupaten_id', null, 'pengawasnama');
 
         // Apply filter for 'bln' (bulan) and 'tahun'
         if ($bln !== 'all' || $tahun !== 'all') {

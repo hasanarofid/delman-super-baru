@@ -17,10 +17,12 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Hash;
 use Auth;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use App\Traits\StakeholderAccess;
+
 class WablasthistoryController extends Controller
 {
+    use StakeholderAccess;
     public function index(){
         return view('wablasthistory.index');
     }
@@ -28,14 +30,9 @@ class WablasthistoryController extends Controller
     public function getdata(Request $request) {
         if ($request->ajax()) {
             $user = Auth::user();
-            // Base query with eager loading
             $query = WhatsappMessagesLog::with('rencanakerja', 'kepalasekolah')->latest();
     
-            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-                $query->whereHas('rencanakerja.pengawasnama', function($q) use ($user) {
-                    $q->where('kabupaten_id', $user->kabupaten_id);
-                });
-            }
+            $query = $this->applyStakeholderFilter($query, 'rencanakerja.pengawasnama.kabupaten_id', null, 'rencanakerja.pengawasnama');
     
             // Return data for DataTables
             return Datatables::of($query->get())

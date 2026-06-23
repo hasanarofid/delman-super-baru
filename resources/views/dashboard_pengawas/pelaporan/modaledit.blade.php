@@ -79,7 +79,7 @@
             </div>
 
             <div class="col-12 col-md-4">
-              <label class="form-label" for="basic-default-name">Tanggal Pendampingan </label>
+              <label class="form-label" for="basic-default-name">Tanggal Pengawasan </label>
               <input type="date" name="tgl_pendampingan" id="tgl_pendampingan" class="form-control" required>
             </div>
 

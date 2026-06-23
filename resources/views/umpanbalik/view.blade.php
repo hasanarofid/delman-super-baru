@@ -98,7 +98,7 @@
 
             <!-- Content -->
             <div class="container-xxl flex-grow-1 container-p-y">
-              <h3 class="text-center">Umpan Balik Pelaksanaan Pendampingan / Supervisi Pengawas Sekolah Provinsi Banten</h3>
+              <h3 class="text-center">Umpan Balik Pelaksanaan Pengawasan / Supervisi Pengawas Sekolah Provinsi Banten</h3>
 
               <div class="container">
                 <form id="multiStepForm" action="{{ route('kirimumpanbalik') }}" method="POST" enctype="multipart/form-data">
@@ -126,15 +126,15 @@
                         </div>
                     </div>
 
-                    <!-- Form Step 2 (Aspek Pelaksanaan Pendampingan) -->
+                    <!-- Form Step 2 (Aspek Pelaksanaan Pengawasan) -->
                     <div id="form2" class="formStep" style="display: none;">
                         <div class="card">
                             <div class="card-header bg-primary">
-                                <h5 class="card-title text-white">Aspek Pelaksanaan Pendampingan</h5>
+                                <h5 class="card-title text-white">Aspek Pelaksanaan Pengawasan</h5>
                             </div>
                             <div class="card-body">
                                 <br>
-                                <p class="card-text">Bagian ini untuk mengetahui pendapat saudara tentang pelaksanaan pendampingan</p>
+                                <p class="card-text">Bagian ini untuk mengetahui pendapat saudara tentang pelaksanaan pengawasan</p>
                             </div>
                         </div>
                         <br>

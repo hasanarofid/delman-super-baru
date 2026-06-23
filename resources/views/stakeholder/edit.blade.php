@@ -38,11 +38,14 @@
                      </div>
 
                             <div class="col-md-6">
-                                <label for="kabupaten_id" class="form-label">Wilayah Kabupaten</label>
-                        <select name="kabupaten_id" id="kabupaten_id" class="form-control" required>
-                           <option value="">.: Pilih Wilayah :. </option>
+                                <label for="akses_kabupaten" class="form-label">Wilayah Kabupaten</label>
+                        @php
+                            $akses_kab = json_decode($models->akses_kabupaten, true) ?? [];
+                        @endphp
+                        <select name="akses_kabupaten[]" id="akses_kabupaten" class="form-control select2" multiple required>
+                           <option value="All" {{ in_array('All', $akses_kab) ? 'selected' : '' }}>All Access</option>
                            @foreach ($wilayah as $item)
-                                    <option value="{{ $item->id }}" {{ $models->kabupaten_id == $item->id ? 'selected' : '' }}>{{ $item->nama_kabupaten }}</option>
+                                    <option value="{{ $item->id }}" {{ in_array($item->id, $akses_kab) ? 'selected' : '' }}>{{ $item->nama_kabupaten }}</option>
                            @endforeach
                             </select>
                      </div>
@@ -53,12 +56,15 @@
                      </div>
 
                             <div class="col-md-6">
-                                <label for="jenjang_jabatan" class="form-label">Jenjang Jabatan</label>
-                        <select name="jenjang_jabatan" id="jenjang_jabatan" class="form-control" required>
-                           <option value="">.: Pilih Jenjang Jabatan :. </option>
-                                    <option value="Pengawas Sekolah Utama" {{ $models->jenjang_jabatan == 'Pengawas Sekolah Utama' ? 'selected' : '' }}> Pengawas Sekolah Utama </option>
-                                    <option value="Pengawas Sekolah Ahli Madya" {{ $models->jenjang_jabatan == 'Pengawas Sekolah Ahli Madya' ? 'selected' : '' }}> Pengawas Sekolah Ahli Madya </option>
-                                    <option value="Pengawas Sekolah Ahli Muda" {{ $models->jenjang_jabatan == 'Pengawas Sekolah Ahli Muda' ? 'selected' : '' }}> Pengawas Sekolah Ahli Muda </option>
+                                <label for="akses_jenjang" class="form-label">Akses Jenjang</label>
+                        @php
+                            $akses_jen = json_decode($models->akses_jenjang, true) ?? [];
+                        @endphp
+                        <select name="akses_jenjang[]" id="akses_jenjang" class="form-control select2" multiple required>
+                           <option value="All" {{ in_array('All', $akses_jen) ? 'selected' : '' }}>All Access</option>
+                                    <option value="SMA" {{ in_array('SMA', $akses_jen) ? 'selected' : '' }}> SMA </option>
+                                    <option value="SMK" {{ in_array('SMK', $akses_jen) ? 'selected' : '' }}> SMK </option>
+                                    <option value="SKh" {{ in_array('SKh', $akses_jen) ? 'selected' : '' }}> SKh </option>
                         </select>
                      </div>
 
@@ -127,8 +133,12 @@
 @section('script')
 <script>
     $(document).ready(function() {
-        $('#kabupaten_id').select2();
-        $('#jenjang_jabatan').select2();
+        $('#akses_kabupaten').select2({
+            placeholder: "Pilih Wilayah Kabupaten"
+        });
+        $('#akses_jenjang').select2({
+            placeholder: "Pilih Akses Jenjang"
+        });
 
         $('.toggle-password').click(function() {
             $(this).toggleClass('active');

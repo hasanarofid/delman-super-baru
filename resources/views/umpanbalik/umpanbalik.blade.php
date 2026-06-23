@@ -105,7 +105,7 @@
 
             <!-- Content -->
             <div class="container-xxl flex-grow-1 container-p-y">
-              <h3 class="text-center">Umpan Balik Pelaksanaan Pendampingan / Supervisi Pengawas Sekolah Provinsi Banten</h3>
+              <h3 class="text-center">Umpan Balik Pelaksanaan Pengawasan / Supervisi Pengawas Sekolah Provinsi Banten</h3>
 
                 <div class="container ">
                     @if(Session::has('success'))

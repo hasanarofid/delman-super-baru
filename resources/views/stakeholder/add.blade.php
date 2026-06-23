@@ -33,9 +33,9 @@
                      </div>
 
                             <div class="col-md-6">
-                                <label for="kabupaten_id" class="form-label">Wilayah Kabupaten</label>
-                        <select name="kabupaten_id" id="kabupaten_id" class="form-control" required>
-                           <option value="">.: Pilih Wilayah :. </option>
+                                <label for="akses_kabupaten" class="form-label">Wilayah Kabupaten</label>
+                        <select name="akses_kabupaten[]" id="akses_kabupaten" class="form-control select2" multiple required>
+                           <option value="All">All Access</option>
                            @foreach ($wilayah as $item)
                                     <option value="{{ $item->id }}">{{ $item->nama_kabupaten }}</option>
                            @endforeach
@@ -48,12 +48,12 @@
                      </div>
 
                             <div class="col-md-6">
-                                <label for="jenjang_jabatan" class="form-label">Jenjang Jabatan</label>
-                        <select name="jenjang_jabatan" id="jenjang_jabatan" class="form-control" required>
-                           <option value="">.: Pilih Jenjang Jabatan :. </option>
-                           <option value="Pengawas Sekolah Utama"> Pengawas Sekolah Utama </option>
-                           <option value="Pengawas Sekolah Ahli Madya"> Pengawas Sekolah Ahli Madya </option>
-                           <option value="Pengawas Sekolah Ahli Muda"> Pengawas Sekolah Ahli Muda </option>
+                                <label for="akses_jenjang" class="form-label">Akses Jenjang</label>
+                        <select name="akses_jenjang[]" id="akses_jenjang" class="form-control select2" multiple required>
+                           <option value="All">All Access</option>
+                           <option value="SMA"> SMA </option>
+                           <option value="SMK"> SMK </option>
+                           <option value="SKh"> SKh </option>
                         </select>
                      </div>
 
@@ -130,8 +130,12 @@
 @section('script')
 <script>
     $(document).ready(function() {
-        $('#kabupaten_id').select2();
-        $('#jenjang_jabatan').select2();
+        $('#akses_kabupaten').select2({
+            placeholder: "Pilih Wilayah Kabupaten"
+        });
+        $('#akses_jenjang').select2({
+            placeholder: "Pilih Akses Jenjang"
+        });
 
         $('.toggle-password').click(function() {
             $(this).toggleClass('active');

@@ -5,7 +5,7 @@
     <div class="content-wrapper">
         <div class="container-xxl flex-grow-1 container-p-y">
             <div class="row">
-                <div class="col-xl-3 col-md-4 col-6 mb-4">
+                <div class="col-xl-3 col-md-3 col-6 mb-4">
                     <div class="card h-100 dashboard-card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -27,7 +27,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-3 col-md-4 col-6 mb-4">
+                <div class="col-xl-3 col-md-3 col-6 mb-4">
                     <div class="card h-100 dashboard-card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -49,7 +49,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-3 col-md-4 col-6 mb-4">
+                <div class="col-xl-3 col-md-3 col-6 mb-4">
                     <div class="card h-100 dashboard-card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -71,7 +71,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-3 col-md-4 col-6 mb-4">
+                <div class="col-xl-3 col-md-3 col-6 mb-4">
                     <div class="card h-100 dashboard-card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -95,23 +95,56 @@
                 </div>
             </div>
 
+            @if(Auth::user()->role == 'Stakeholder')
+            @php
+                $aksesKab = json_decode(Auth::user()->akses_kabupaten, true) ?? [];
+                $aksesJen = json_decode(Auth::user()->akses_jenjang, true) ?? [];
+                
+                $kabNames = in_array('All', $aksesKab) || empty($aksesKab) ? ['Semua Kabupaten/Kota'] : $listKabupaten->pluck('nama_kabupaten')->toArray();
+                $jenNames = in_array('All', $aksesJen) || empty($aksesJen) ? ['Semua Jenjang'] : $aksesJen;
+            @endphp
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="alert alert-primary d-flex align-items-center" role="alert">
+                        <span class="alert-icon text-primary me-2">
+                            <i class="ti ti-info-circle ti-md"></i>
+                        </span>
+                        <div>
+                            <strong>Informasi Hak Akses Anda:</strong><br>
+                            Anda hanya dapat melihat data pada wilayah <b>{{ implode(', ', $kabNames) }}</b> 
+                            untuk jenjang <b>{{ implode(', ', $jenNames) }}</b>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
                             <div class="row align-items-center">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <h5 class="mb-0">Filter Global Dashboard</h5>
                                 </div>
                                 <div class="col-md-8">
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <label for="global-filter-kabupaten" class="form-label">Pilih Kabupaten/Kota:</label>
                                             <select id="global-filter-kabupaten" class="select2 form-select">
                                                 <option value="all">Semua Kabupaten/Kota</option>
                                                 @foreach($listKabupaten as $kab)
                                                     <option value="{{ $kab->id }}">{{ $kab->nama_kabupaten }}</option>
                                                 @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="global-filter-jenjang" class="form-label">Pilih Jenjang:</label>
+                                            <select id="global-filter-jenjang" class="select2 form-select">
+                                                <option value="all">Semua Jenjang</option>
+                                                <option value="SMA">SMA</option>
+                                                <option value="SMK">SMK</option>
+                                                <option value="SKh">SKh</option>
                                             </select>
                                         </div>
                                     </div>
@@ -136,7 +169,7 @@
                             <div class="row mb-3">
 
 
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="filter-kabupaten-1">Filter Kabupaten:</label>
                                     <select id="filter-kabupaten-1" class="select2 form-select filter-kabupaten">
                                         <option value="all">All</option>
@@ -145,7 +178,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="filter-bln">Filter Bulan:</label>
                                     <select id="filter-bln" name="bln" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
@@ -158,7 +191,7 @@
 
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="filter-tahun">Filter Tahun:</label>
                                     <select id="filter-tahun" name="tahun" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
@@ -168,6 +201,15 @@
                                                 {{ $year }}
                                             </option>
                                         @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="filter-jenjang">Filter Jenjang:</label>
+                                    <select id="filter-jenjang" name="jenjang" class="select2 form-select filter-jenjang">
+                                        <option value="all">All</option>
+                                        <option value="SMA">SMA</option>
+                                        <option value="SMK">SMK</option>
+                                        <option value="SKh">SKh</option>
                                     </select>
                                 </div>
 
@@ -223,6 +265,15 @@
 
 
                                 </div>
+                                <div class="col-md-3">
+                                    <label for="filter-jenjang-last">Filter Jenjang:</label>
+                                    <select id="filter-jenjang-last" name="jenjang" class="select2 form-select filter-jenjang">
+                                        <option value="all">All</option>
+                                        <option value="SMA">SMA</option>
+                                        <option value="SMK">SMK</option>
+                                        <option value="SKh">SKh</option>
+                                    </select>
+                                </div>
 
                                 <div class="col-md-3">
 
@@ -253,7 +304,7 @@
                         <div class="card-body p-3">
                             <button id="export-pdf3" class="btn btn-primary">Export PDF</button> <!-- Export button -->
                             <div class="row mb-3">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="filter-kabupaten-raport">Kabupaten:</label>
                                     <select id="filter-kabupaten-raport" class="select2 form-select filter-kabupaten">
                                         <option value="all">All</option>
@@ -262,7 +313,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="filter-bln-raport">Filter Bulan:</label>
                                     <select id="filter-bln-raport" name="bln" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
@@ -275,7 +326,7 @@
 
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="filter-tahun-raport">Filter Tahun:</label>
                                     <select id="filter-tahun-raport" name="tahun" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
@@ -289,6 +340,15 @@
 
 
                                 </div>
+                                <div class="col-md-3">
+                                    <label for="filter-jenjang-raport">Filter Jenjang:</label>
+                                    <select id="filter-jenjang-raport" name="jenjang" class="select2 form-select filter-jenjang">
+                                        <option value="all">All</option>
+                                        <option value="SMA">SMA</option>
+                                        <option value="SMK">SMK</option>
+                                        <option value="SKh">SKh</option>
+                                    </select>
+                                </div>
 
                             </div>
                             <canvas id="chartPerRencanaKerja"></canvas> <!-- Canvas for the chart -->
@@ -301,14 +361,14 @@
                 <div class="col-lg-6 mb-3">
                     <div class="card">
                         <div class="card-header pb-0 p-3">
-                            <h6 class="mb-0">Grafik Jumlah Pendampingan Terkonfirmasi </h6>
+                            <h6 class="mb-0">Grafik Jumlah Pengawasan Terkonfirmasi </h6>
                         </div>
                         <div class="card-body p-3">
                             <button id="export-pdf4" class="btn btn-primary">Export PDF</button> <!-- Export button -->
 
                             <div class="row mb-3">
 
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="filter-kabupaten-konf">Kabupaten:</label>
                                     <select id="filter-kabupaten-konf" class="select2 form-select filter-kabupaten">
                                         <option value="all">All</option>
@@ -317,7 +377,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="filter-bln3">Filter Bulan:</label>
                                     <select id="filter-bln3" name="bln" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
@@ -330,7 +390,7 @@
 
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="filter-tahun3">Filter Tahun:</label>
                                     <select id="filter-tahun3" name="tahun" class="select2 form-select" required>
                                         <option value="all">All</option> <!-- Option to show all records -->
@@ -343,6 +403,15 @@
                                     </select>
 
 
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="filter-jenjang3">Filter Jenjang:</label>
+                                    <select id="filter-jenjang3" name="jenjang" class="select2 form-select filter-jenjang">
+                                        <option value="all">All</option>
+                                        <option value="SMA">SMA</option>
+                                        <option value="SMK">SMK</option>
+                                        <option value="SKh">SKh</option>
+                                    </select>
                                 </div>
 
                             </div>
@@ -362,7 +431,7 @@
                             <button id="export-pdf5" class="btn btn-primary btn-sm mb-3">Export PDF</button> <!-- Export button -->
                             <div class="row mb-3">
 
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="filter-kabupaten-spider">Kabupaten:</label>
                                     <select id="filter-kabupaten-spider" class="select2 form-select filter-kabupaten">
                                         <option value="all">All</option>
@@ -371,7 +440,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
 
                                     <label for="filter-pengawas2">Filter by Pengawas:</label>
                                     <select id="filter-pengawas2" name="pengawas" class="select2 form-select" required>
@@ -383,7 +452,7 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="filter-tahun">Filter Tahun:</label>
                                     <select
                                         id="filter-tahun-spider"
@@ -399,6 +468,15 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="col-md-3">
+                                    <label for="filter-jenjang">Filter Jenjang:</label>
+                                    <select id="filter-jenjang" name="jenjang" class="select2 form-select filter-jenjang">
+                                        <option value="all">All</option>
+                                        <option value="SMA">SMA</option>
+                                        <option value="SMK">SMK</option>
+                                        <option value="SKh">SKh</option>
+                                    </select>
+                                </div>
 
 
                             </div>
@@ -412,13 +490,13 @@
                 <div class="col-lg-6 mb-3">
                     <div class="card">
                         <div class="card-header pb-0 p-3">
-                            <h6 class="mb-0"> Realisasi Pelaksanaan Pendampingan </h6>
+                            <h6 class="mb-0"> Realisasi Pelaksanaan Pengawasan </h6>
                         </div>
                         <div class="card-body p-3">
                             <button id="export-pdf6" class="btn btn-primary btn-sm mb-3">Export PDF</button> <!-- Export button -->
                             <div class="row mb-3">
 
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="filter-kabupaten-pie">Kabupaten:</label>
                                     <select id="filter-kabupaten-pie" class="select2 form-select filter-kabupaten">
                                         <option value="all">All</option>
@@ -427,7 +505,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
 
                                     <label for="filter-pengawas3">Filter by Pengawas:</label>
                                     <select id="filter-pengawas3" name="pengawas" class="select2 form-select" required>
@@ -439,7 +517,7 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label for="filter-tahun">Filter Tahun:</label>
                                     <select
                                         id="filter-tahun-pie"
@@ -453,6 +531,15 @@
                                                 {{ $year }}
                                             </option>
                                         @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="filter-jenjang">Filter Jenjang:</label>
+                                    <select id="filter-jenjang" name="jenjang" class="select2 form-select filter-jenjang">
+                                        <option value="all">All</option>
+                                        <option value="SMA">SMA</option>
+                                        <option value="SMK">SMK</option>
+                                        <option value="SKh">SKh</option>
                                     </select>
                                 </div>
 
@@ -605,6 +692,7 @@
                 const pengawas = $('#filter-pengawas3').val();
                 let year = $('#filter-tahun-pie').val();
                 const kabupaten = $('#filter-kabupaten-pie').val();
+                const jenjang = $('#filter-jenjang-pie').val();
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
@@ -660,7 +748,7 @@
                             data: {
                                 labels: pengawasNames,
                                 datasets: [{
-                                    label: 'Jumlah Pendampingan',
+                                    label: 'Jumlah Pengawasan',
                                     data: rencanaCounts,
                                     backgroundColor: [
                                         'rgba(75, 192, 192, 0.2)'
@@ -682,7 +770,7 @@
                                         beginAtZero: true,
                                         title: {
                                             display: true,
-                                            text: 'Jumlah Pendampingan'
+                                            text: 'Jumlah Pengawasan'
                                         }
                                     },
                                     x: {
@@ -831,6 +919,7 @@
                 const month = $('#filter-bln-raport').val();
                 let year = $('#filter-tahun-raport').val();
                 const kabupaten = $('#filter-kabupaten-raport').val();
+                const jenjang = $('#filter-jenjang-raport').val();
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 if (year === 'all') {
                     year = new Date().getFullYear();
@@ -847,7 +936,7 @@
 
 
 
-            function fetchChartData(month = 'all', year = 'all', kabupaten = 'all') {
+            function fetchChartData(month = 'all', year = 'all', kabupaten = 'all', jenjang = 'all') {
                 fetch(`{{ route('admin.chartData') }}?bln=${month}&tahun=${year}&kabupaten=${kabupaten}`)
                     .then(response => response.json())
                     .then(data => {
@@ -935,18 +1024,19 @@
 
             // Initial chart load dengan tahun sekarang sebagai default
             const currentYear = new Date().getFullYear();
-            fetchChartData('all', currentYear, 'all');
+            fetchChartData('all', currentYear, 'all', 'all');
 
             // Event listener for filter changes
-            $('#filter-bln, #filter-tahun, #filter-kabupaten-1').change(function() {
+            $('#filter-bln, #filter-tahun, #filter-kabupaten-1, #filter-jenjang').change(function() {
                 const month = $('#filter-bln').val();
                 let year = $('#filter-tahun').val();
                 const kabupaten = $('#filter-kabupaten-1').val();
+                const jenjang = $('#filter-jenjang').val();
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
-                fetchChartData(month, year, kabupaten);
+                fetchChartData(month, year, kabupaten, jenjang);
             });
 
             $('#filter-bln-last').select2();
@@ -954,7 +1044,7 @@
             $('#filter-pengawas').select2();
             let umpanbalikChartInstance = null;
 
-            function fetchChartData2(month = 'all', year = 'all', pengawas = 'all', kabupaten = 'all') {
+            function fetchChartData2(month = 'all', year = 'all', pengawas = 'all', kabupaten = 'all', jenjang = 'all') {
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 const currentYear = new Date().getFullYear();
                 const filterYear = (year === 'all') ? currentYear : year;
@@ -1031,20 +1121,21 @@
 
             // Initial chart load dengan tahun sekarang sebagai default
             const currentYear2 = new Date().getFullYear();
-            fetchChartData2('all', currentYear2, 'all', 'all');
+            fetchChartData2('all', currentYear2, 'all', 'all', 'all');
 
             // Event listener for filter changes
-            $('#filter-bln-last, #filter-tahun-last, #filter-pengawas, #filter-kabupaten-2').change(function() {
+            $('#filter-bln-last, #filter-tahun-last, #filter-pengawas, #filter-kabupaten-2, #filter-jenjang-last').change(function() {
 
                 const pengawas = $('#filter-pengawas').val();
                 const month = $('#filter-bln-last').val();
                 let year = $('#filter-tahun-last').val();
                 const kabupaten = $('#filter-kabupaten-2').val();
+                const jenjang = $('#filter-jenjang-last').val();
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
-                fetchChartData2(month, year, pengawas, kabupaten);
+                fetchChartData2(month, year, pengawas, kabupaten, jenjang);
             });
 
             $('#filter-pengawas2').select2();
@@ -1062,7 +1153,7 @@
             };
 
             // Function to fetch chart data and display it
-            function fetchSpiderWebData(pengawas = 'all', year = 'all', kabupaten = 'all') {
+            function fetchSpiderWebData(pengawas = 'all', year = 'all', kabupaten = 'all', jenjang = 'all') {
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 const currentYear = new Date().getFullYear();
                 const filterYear = (year === 'all') ? currentYear : year;
@@ -1165,14 +1256,15 @@
             fetchSpiderWebData('all', currentYearSpider);
 
             // Fetch data when the pengawas filter changes
-            $('#filter-pengawas2, #filter-tahun-spider, #filter-kabupaten-spider').change(function() {
+            $('#filter-pengawas2, #filter-tahun-spider, #filter-kabupaten-spider, #filter-jenjang-spider').change(function() {
                 const pengawas = $('#filter-pengawas2').val();
                 let year = $('#filter-tahun-spider').val();
                 const kabupaten = $('#filter-kabupaten-spider').val();
+                const jenjang = $('#filter-jenjang-spider').val();
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
-                fetchSpiderWebData(pengawas, year, kabupaten);
+                fetchSpiderWebData(pengawas, year, kabupaten, jenjang);
             });
 
 
@@ -1242,18 +1334,24 @@
          const pengawas = $('#filter-pengawas3').val();
          let year = $('#filter-tahun-pie').val();
          const kabupaten = $('#filter-kabupaten-pie').val();
+                const jenjang = $('#filter-jenjang-pie').val();
         if (year === 'all') {
             year = new Date().getFullYear();
         }
-        fetchDynamicChart(12, 'chartQ1', 'bar', 'Pengembangan Profesional', pengawas, year, kabupaten);
-        fetchDynamicChart(14, 'chartQ2', 'pie', 'Aspek Kompetensi', pengawas, year, kabupaten);
-        fetchDynamicChart(15, 'chartQ4', 'pie', 'Kebermanfaatan', pengawas, year, kabupaten);
+        fetchDynamicChart(12, 'chartQ1', 'bar', 'Pengembangan Profesional', pengawas, year, kabupaten, jenjang);
+        fetchDynamicChart(14, 'chartQ2', 'pie', 'Aspek Kompetensi', pengawas, year, kabupaten, jenjang);
+        fetchDynamicChart(15, 'chartQ4', 'pie', 'Kebermanfaatan', pengawas, year, kabupaten, jenjang);
     });
 
     // Global Filter Listener
     $('#global-filter-kabupaten').change(function() {
         const kabId = $(this).val();
         $('.filter-kabupaten').val(kabId).trigger('change');
+    });
+
+    $('#global-filter-jenjang').change(function() {
+        const jenId = $(this).val();
+        $('.filter-jenjang').val(jenId).trigger('change');
     });
 
         });

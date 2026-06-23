@@ -15,16 +15,16 @@ use \Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str; // Add Str for slug generation
 use Barryvdh\DomPDF\Facade as PDF;
+use App\Traits\StakeholderAccess;
 
 class ListumpanbalikController extends Controller
 {
+    use StakeholderAccess;
     public function index(){
         $user = Auth::user();
         $queryPengawas = User::where('role','pengawas');
         
-        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-            $queryPengawas->where('kabupaten_id', $user->kabupaten_id);
-        }
+        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', null, 'self');
         
         $listPengawas = $queryPengawas->get();
 
@@ -72,9 +72,7 @@ class ListumpanbalikController extends Controller
         $user = Auth::user();
         $queryPengawas = User::where('role','pengawas');
         
-        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-            $queryPengawas->where('kabupaten_id', $user->kabupaten_id);
-        }
+        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', null, 'self');
         
         $listPengawas = $queryPengawas->get();
         $currentMonth = date('n'); // Numeric representation of the current month (1-12)
@@ -123,11 +121,7 @@ class ListumpanbalikController extends Controller
             $user = Auth::user();
             $query = UmpanbalikT::with(['rencanakerja', 'category', 'user_pengawas'])->latest();
 
-            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-                $query->whereHas('pengawasnama', function($q) use ($user) {
-                    $q->where('kabupaten_id', $user->kabupaten_id);
-                });
-            }
+            $query = $this->applyStakeholderFilter($query, 'pengawasnama.kabupaten_id', null, 'pengawasnama');
 
              // Filter berdasarkan pengawas
             if ($request->has('pengawas') && $request->pengawas !== 'all') {
@@ -344,11 +338,7 @@ class ListumpanbalikController extends Controller
             $query->where('umpanbalik_t.id_pengawas', $userAuth->id);
             $pengawasId = $userAuth->id;
         } else {
-            if ($userAuth->role == 'Stakeholder' || $userAuth->role == 'Admin') {
-                $query->whereHas('pengawasnama', function ($q) use ($userAuth) {
-                    $q->where('kabupaten_id', $userAuth->kabupaten_id);
-                });
-            }
+            $query = $this->applyStakeholderFilter($query, 'pengawasnama.kabupaten_id', null, 'pengawasnama');
             if ($pengawasId !== 'all') {
                 $query->where('umpanbalik_t.id_pengawas', $pengawasId);
             }

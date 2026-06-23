@@ -134,7 +134,14 @@ class StakeholderController extends Controller
             $user->gol_ruang = $request->gol_ruang;
             $user->foto_profile = 'userdefault.jpg';
             $user->role = 'Stakeholder';
-            $user->kabupaten_id =  $request->kabupaten_id;
+            $kabupaten_id_val = null;
+            if (is_array($request->akses_kabupaten) && !empty($request->akses_kabupaten)) {
+                $first_val = $request->akses_kabupaten[0];
+                $kabupaten_id_val = ($first_val === 'All') ? 0 : $first_val;
+            }
+            $user->kabupaten_id = $kabupaten_id_val;
+            $user->akses_kabupaten = json_encode($request->akses_kabupaten);
+            $user->akses_jenjang = json_encode($request->akses_jenjang);
             $user->password = Hash::make($request->password);
             $user->no_telp = $request->no_telp;
             $user->kota = $request->kota;
@@ -157,7 +164,14 @@ class StakeholderController extends Controller
             $user = User::find($id);
             $user->name = $request->name;
             $user->email = $request->email;
-            $user->kabupaten_id =  $request->kabupaten_id;
+            $kabupaten_id_val = null;
+            if (is_array($request->akses_kabupaten) && !empty($request->akses_kabupaten)) {
+                $first_val = $request->akses_kabupaten[0];
+                $kabupaten_id_val = ($first_val === 'All') ? 0 : $first_val;
+            }
+            $user->kabupaten_id = $kabupaten_id_val;
+            $user->akses_kabupaten = json_encode($request->akses_kabupaten);
+            $user->akses_jenjang = json_encode($request->akses_jenjang);
          
             $user->no_telp = $request->no_telp;
             $user->kota = $request->kota;

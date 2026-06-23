@@ -14,11 +14,13 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
-use App\Kabupaten;
 use Auth;
 use Exception;
+use App\Traits\StakeholderAccess;
+
 class GuruMController extends Controller
 {
+    use StakeholderAccess;
     /**
      * Display a listing of the resource.
      *
@@ -31,12 +33,10 @@ class GuruMController extends Controller
 
     public function getdata(Request $request){
         if ($request->ajax()) {
-            $user = Auth::user();
             $query = GuruM::with('sekolah', 'kabupaten')->where('is_aktif', true);
 
-            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-                $query->where('kabupaten_id', $user->kabupaten_id);
-            }
+            // Using 'sekolah' relation to filter by nama_sekolah
+            $query = $this->applyStakeholderFilter($query, 'kabupaten_id', 'nama_sekolah', null, 'sekolah');
     
             $post = $query->latest()->get();
     
@@ -101,9 +101,7 @@ class GuruMController extends Controller
         $user = Auth::user();
         $query = SekolahM::where('is_aktif', true);
 
-        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-            $query->where('kabupaten_id', $user->kabupaten_id);
-        }
+        $query = $this->applyStakeholderFilter($query, 'kabupaten_id', 'nama_sekolah', null);
 
         $listsekolah = $query->get();
       
@@ -142,9 +140,7 @@ class GuruMController extends Controller
         $user = Auth::user();
         $query = SekolahM::where('is_aktif', true);
 
-        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-            $query->where('kabupaten_id', $user->kabupaten_id);
-        }
+        $query = $this->applyStakeholderFilter($query, 'kabupaten_id', 'nama_sekolah', null);
 
         $listsekolah = $query->get();
 

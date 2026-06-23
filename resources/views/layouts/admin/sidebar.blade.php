@@ -29,6 +29,7 @@
         @if ($user && ($user->role == 'Super Admin' || $user->role == 'Stakeholder'))
 
           <!-- master data -->
+          @if ($user->role == 'Super Admin')
           <li class="menu-item {{ ( request()->is('superadmin/mastertupoksi*') || request()->is('superadmin/jenisprogram*')  || request()->is('superadmin/aspekprogram*')   ) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
               <i class="menu-icon tf-icons ti ti-layout-sidebar"></i>
@@ -59,6 +60,7 @@
             </ul>
           </li>
            <!-- end master data -->
+           @endif
 
             <!-- master delmansuper -->
           <li class="menu-item {{ ( request()->is('superadmin/masterkabupaten*') || request()->is('superadmin/masterpengawas*') || request()->is('superadmin/sekolah*')  || request()->is('superadmin/guru*') || request()->is('superadmin/stakeholder*')  ) ? 'active open' : '' }}">
@@ -109,7 +111,8 @@
             </ul>
           </li>
 
-          <!-- master delmansuper -->
+          <!-- master umpan balik -->
+          @if ($user->role == 'Super Admin')
           <li class="menu-item {{ ( request()->is('superadmin/umpanbalik-categories*') || request()->is('superadmin/umpanbalik-questions*')   ) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
               <i class="menu-icon tf-icons fa-solid fas fa-thumbs-up"></i>
@@ -130,6 +133,7 @@
               </li>
             </ul>
           </li>
+          @endif
 
 
         <li class="menu-item {{ (request()->is('superadmin/rencanatugas*')) ? 'active' : '' }}">
@@ -166,7 +170,7 @@
                     <a href="{{ route('dokumentasipendampingan.index') }}" class="menu-link">
                         {{-- <i class="menu-icon tf-icons ti ti-user"></i> --}}
                         <i class="menu-icon tf-icons fa-solid fas fa-thumbs-up"></i>
-                        <div data-i18n="Dokumentasi Pendampingan">Dokumentasi Pendampingan</div>
+                        <div data-i18n="Dokumentasi Pengawasan">Dokumentasi Pengawasan</div>
                     </a>
                 </li>
 

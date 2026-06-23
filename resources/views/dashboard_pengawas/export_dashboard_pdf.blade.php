@@ -221,7 +221,7 @@
             @endif
         </div>
         <div style="width: 48%; float: right;" class="chart-container">
-            <div class="chart-title">Realisasi Pelaksanaan Pendampingan</div>
+            <div class="chart-title">Realisasi Pelaksanaan Pengawasan</div>
             @if($chart_realisasi)
                 <img src="{{ $chart_realisasi }}" class="chart-image" style="max-height: 250px;">
             @endif
@@ -230,7 +230,7 @@
     </div>
 
     <div class="chart-container">
-        <div class="chart-title">Grafik Pendampingan Terkonfirmasi 6 Bulan Terakhir</div>
+        <div class="chart-title">Grafik Pengawasan Terkonfirmasi 6 Bulan Terakhir</div>
         @if($chart_terkonfirmasi)
             <img src="{{ $chart_terkonfirmasi }}" class="chart-image">
         @endif

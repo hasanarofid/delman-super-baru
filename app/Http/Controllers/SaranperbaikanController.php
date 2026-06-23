@@ -9,21 +9,36 @@ use App\SekolahM;
 use App\TanggapanUmpanbalikT;
 use App\User;
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use DataTables;
+use App\Traits\StakeholderAccess;
+
 class SaranperbaikanController extends Controller
 {
+    use StakeholderAccess;
     public function index(){
         $user = Auth::user();
         $queryPengawas = User::where('role','pengawas');
-        
-        if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-            $queryPengawas->where('kabupaten_id', $user->kabupaten_id);
-        }
+        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', null, 'self');
         
         $listPengawas = $queryPengawas->get();
 
         return view('saranperbaikan.index',compact('listPengawas'));
+    }
+
+    public function indexpengawas(){
+        $user = Auth::user();
+        $queryPengawas = User::where('role','pengawas');
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', null, 'self');
+        
+        $listPengawas = $queryPengawas->get();
+
+        return view('dashboard_pengawas.umpanbalik.saranperbaikan',compact('listPengawas'));
     }
 
     public function getdata(Request $request){
@@ -33,11 +48,7 @@ class SaranperbaikanController extends Controller
 
             $post = TanggapanUmpanbalikT::with('umpanBalikT')->latest();
 
-            if ($user->role == 'Stakeholder' || $user->role == 'Admin') {
-                $post->whereHas('umpanBalikT.pengawasnama', function($q) use ($user) {
-                    $q->where('kabupaten_id', $user->kabupaten_id);
-                });
-            }
+            $post = $this->applyStakeholderFilter($post, 'umpanBalikT.pengawasnama.kabupaten_id', null, 'umpanBalikT.pengawasnama');
           
             $post->whereHas('umpanBalikT', function ($q) use ($pengawas) {
                 if ($pengawas !== 'all') {
@@ -61,6 +72,41 @@ class SaranperbaikanController extends Controller
                 
    
         
+
+                       ->rawColumns(['nama_sekolah','saran_perbaikan'])
+                       ->make(true);
+           }
+    }
+
+    public function getdatapengawas(Request $request){
+        if ($request->ajax()) {
+
+            $pengawas = $request->input('pengawas', 'all');
+
+            $post = TanggapanUmpanbalikT::with('umpanBalikT')
+            ->whereHas('umpanBalikT', function ($query) {
+                $query->where('id_pengawas', Auth::user()->id);
+            })
+            ->latest();
+          
+            $post->whereHas('umpanBalikT', function ($q) use ($pengawas) {
+                if ($pengawas !== 'all') {
+                    $q->where('id_pengawas', $pengawas);
+                }
+            });
+       
+               return Datatables::of($post->get())
+                       ->addIndexColumn()
+               
+                    ->addColumn('nama_sekolah', function($row) {
+                        $cariguru = GuruM::findorFail($row->umpanBalikT->id_user);
+                        $sekolahs = SekolahM::findorFail($cariguru->sekolah_id);
+                        return $sekolahs->nama_sekolah;
+                    })
+   
+                    ->addColumn('saran_perbaikan', function($row){
+                        return !empty($row->jawaban_10) ? $row->jawaban_10 : '-';
+                    })
 
                        ->rawColumns(['nama_sekolah','saran_perbaikan'])
                        ->make(true);

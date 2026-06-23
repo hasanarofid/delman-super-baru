@@ -114,7 +114,7 @@
 
             <!-- Content -->
             <div class="container-xxl flex-grow-1 container-p-y">
-              <h3 class="text-center">Umpan Balik Pelaksanaan Pendampingan / Supervisi Pengawas Sekolah </h3>
+              <h3 class="text-center">Umpan Balik Pelaksanaan Pengawasan / Supervisi Pengawas Sekolah </h3>
 
                 <div class="container ">
                     @if ($errors->any())
@@ -156,7 +156,7 @@
                           <div id="step{{ $stepIndex }}" class="formStep" style="display: none;">
                             <div class="card">
                                 <div class="card-header bg-primary ">
-                                    <h5 class="card-title text-white">{{ $aspectName ?: 'Aspek Pelaksanaan Pendampingan' }}</h5>
+                                    <h5 class="card-title text-white">{{ $aspectName ?: 'Aspek Pelaksanaan Pengawasan' }}</h5>
                                 </div>
                                 <div class="card-body">
                                   <br>

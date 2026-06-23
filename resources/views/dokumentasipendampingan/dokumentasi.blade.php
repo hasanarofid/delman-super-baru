@@ -19,12 +19,12 @@
     </style>
 </head>
 <body>
-    <h1>Laporan Dokumentasi Pendampingan</h1>
+    <h1>Laporan Dokumentasi Pengawasan</h1>
     <table>
         <thead>
             <tr>
                 <th>No</th>
-                <th>Tanggal Pendampingan</th>
+                <th>Tanggal Pengawasan</th>
                 <th>Foto Bukti 1</th>
                 <th>Sekolah</th>
                 <th>Program Kerja</th>

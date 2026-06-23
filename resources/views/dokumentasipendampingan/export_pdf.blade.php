@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Laporan Dokumentasi Pendampingan</title>
+    <title>Laporan Dokumentasi Pengawasan</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -89,7 +89,7 @@
         @if($logoBase64)
             <img src="{{ $logoBase64 }}" class="logo">
         @endif
-        <h2>Laporan Dokumentasi Pendampingan</h2>
+        <h2>Laporan Dokumentasi Pengawasan</h2>
         <p>Periode: {{ $bln != 'all' ? $bln : 'Semua Bulan' }} {{ $tahun != 'all' ? $tahun : 'Semua Tahun' }}</p>
         <p>Kategori Program: {{ $kategoriName }}</p>
     </div>

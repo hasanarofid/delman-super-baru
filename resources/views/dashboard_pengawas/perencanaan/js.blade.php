@@ -81,7 +81,7 @@
                 jenisSelect.html(originalOptions);
 
                 if (kategoriId == '9' || kategoriId == '10') { // RHK 1 & 2
-                    // Filter: Only Pendampingan (1), Monev (2), Bimtek (3)
+                    // Filter: Only Pengawasan (1), Monev (2), Bimtek (3)
                     jenisSelect.find('option').each(function() {
                         let val = $(this).val();
                         if (val != '' && val != '1' && val != '2' && val != '3') {

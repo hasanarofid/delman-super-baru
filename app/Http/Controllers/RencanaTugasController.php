@@ -361,12 +361,12 @@ class RencanaTugasController extends Controller
             . "Kepala {$nama_sekolah},\n"
             . "Pada bulan {$model->bulan} {$model->tahun_ajaran}\n"
             . "pengawas {$model->pengawasnama->name}\n"
-            . "akan melakukan kegiatan pendampingan {$model->nama_program_kerja}\n"
+            . "akan melakukan kegiatan pengawasan {$model->nama_program_kerja}\n"
             . "ke sekolah.\n"
             . "Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
             . "Berikut ini beberapa catatan yang penting:\n"
-            . "1. Pastikan link diisi pada hari pengawas melakukan pendampingan.\n"
-            . "2. Sertakan 1 bukti pendampingan berupa foto kegiatan bersama pengawas.\n\n"
+            . "1. Pastikan link diisi pada hari pengawas melakukan pengawasan.\n"
+            . "2. Sertakan 1 bukti pengawasan berupa foto kegiatan bersama pengawas.\n\n"
             . "Terimakasih\n"
             . "Pesan ini digenerate otomatis oleh DelmanSuper ";
 
@@ -399,12 +399,12 @@ class RencanaTugasController extends Controller
             . "Kepala {$nama_sekolah},\n"
             . "Pada bulan {$model->bulan} {$model->tahun_ajaran}\n"
             . "pengawas {$model->pengawasnama->name}\n"
-            . "akan melakukan kegiatan pendampingan {$model->nama_program_kerja}\n"
+            . "akan melakukan kegiatan pengawasan {$model->nama_program_kerja}\n"
             . "ke sekolah.\n"
             . "Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
             . "Berikut ini beberapa catatan yang penting:\n"
-            . "1. Pastikan link diisi pada hari pengawas melakukan pendampingan.\n"
-            . "2. Sertakan 1 bukti pendampingan berupa foto kegiatan bersama pengawas.\n\n"
+            . "1. Pastikan link diisi pada hari pengawas melakukan pengawasan.\n"
+            . "2. Sertakan 1 bukti pengawasan berupa foto kegiatan bersama pengawas.\n\n"
             . "Terimakasih\n"
             . "Pesan ini digenerate otomatis oleh DelmanSuper ";
 
