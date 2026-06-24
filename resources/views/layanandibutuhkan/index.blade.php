@@ -52,6 +52,7 @@
                           <thead>
                               <tr>
                                 <th>No</th>
+                                <th>Pengawas</th>
                                 <th>Sekolah</th> 
                                 <th>Layanan yang dibutuhkan</th>
                             </tr>
@@ -101,6 +102,7 @@ $('#dataTable').DataTable({
         },
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex'},
+            {data: 'pengawas', name: 'pengawas'},
             {data: 'nama_sekolah', name: 'nama_sekolah'},
             {data: 'layanan', name: 'layanan'},
         ],

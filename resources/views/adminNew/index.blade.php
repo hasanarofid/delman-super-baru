@@ -595,11 +595,11 @@
             let pieChartInstance = null;
 
             // Fungsi untuk mengambil dan menampilkan data chart pie
-            function fetchChartDataPie(pengawas = 'all', year = 'all', kabupaten = 'all') {
+            function fetchChartDataPie(pengawas = 'all', year = 'all', kabupaten = 'all', jenjang = 'all') {
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 const currentYearPie = new Date().getFullYear();
                 const filterYear = (year === 'all') ? currentYearPie : year;
-                fetch(`{{ route('admin.chartpie') }}?pengawas=${pengawas}&tahun=${filterYear}&kabupaten=${kabupaten}`)
+                fetch(`{{ route('admin.chartpie') }}?pengawas=${pengawas}&tahun=${filterYear}&kabupaten=${kabupaten}&jenjang=${jenjang}`)
                     .then(response => response.json())
                     .then(data => {
                         if (!data || data.length === 0) {
@@ -685,18 +685,18 @@
 
             // Load chart awal tanpa filter (semua data)
             const currentYearPie = new Date().getFullYear();
-            fetchChartDataPie('all', currentYearPie, 'all');
+            fetchChartDataPie('all', currentYearPie, 'all', 'all');
 
             // Event listener untuk perubahan filter
-            $('#filter-pengawas3, #filter-tahun-pie, #filter-kabupaten-pie').change(function() {
+            $('#filter-pengawas3, #filter-tahun-pie, #filter-kabupaten-pie, #filter-jenjang').change(function() {
                 const pengawas = $('#filter-pengawas3').val();
                 let year = $('#filter-tahun-pie').val();
                 const kabupaten = $('#filter-kabupaten-pie').val();
-                const jenjang = $('#filter-jenjang-pie').val();
+                const jenjang = $('#filter-jenjang').val();
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
-                fetchChartDataPie(pengawas, year, kabupaten);
+                fetchChartDataPie(pengawas, year, kabupaten, jenjang);
             });
             // end diagram pie
             //chart terkonfirmasi
@@ -706,11 +706,11 @@
 
             let terkomfrimChartInstance = null;
 
-            function fetchChartTerkonfrim(month = 'all', year = 'all', kabupaten = 'all') {
+            function fetchChartTerkonfrim(month = 'all', year = 'all', kabupaten = 'all', jenjang = 'all') {
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 const currentYearKonf = new Date().getFullYear();
                 const filterYear = (year === 'all') ? currentYearKonf : year;
-                fetch(`{{ route('admin.chartTerkonfirmasi') }}?bln=${month}&tahun=${filterYear}&kabupaten=${kabupaten}`)
+                fetch(`{{ route('admin.chartTerkonfirmasi') }}?bln=${month}&tahun=${filterYear}&kabupaten=${kabupaten}&jenjang=${jenjang}`)
                     .then(response => response.json())
                     .then(data => {
                         // Check if data is empty
@@ -797,18 +797,19 @@
 
             // Initial chart load dengan tahun sekarang sebagai default
             const currentYear3 = new Date().getFullYear();
-            fetchChartTerkonfrim('all', currentYear3, 'all');
+            fetchChartTerkonfrim('all', currentYear3, 'all', 'all');
 
             // Event listener for filter changes
-            $('#filter-bln3, #filter-tahun3, #filter-kabupaten-konf').change(function() {
+            $('#filter-bln3, #filter-tahun3, #filter-kabupaten-konf, #filter-jenjang3').change(function() {
                 const month = $('#filter-bln3').val();
                 let year = $('#filter-tahun3').val();
                 const kabupaten = $('#filter-kabupaten-konf').val();
+                const jenjang = $('#filter-jenjang3').val();
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
-                fetchChartTerkonfrim(month, year, kabupaten);
+                fetchChartTerkonfrim(month, year, kabupaten, jenjang);
             });
 
 
@@ -819,11 +820,11 @@
             $('#filter-kabupaten-raport').select2();
             let raportPendidikanChartInstance = null;
 
-            function fetchChartDataRaportPendidikan(month = 'all', year = 'all', kabupaten = 'all') {
+            function fetchChartDataRaportPendidikan(month = 'all', year = 'all', kabupaten = 'all', jenjang = 'all') {
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 const currentYearRaport = new Date().getFullYear();
                 const filterYear = (year === 'all') ? currentYearRaport : year;
-                fetch(`{{ route('admin.chartDataRaportPendidikan') }}?bln=${month}&tahun=${filterYear}&kabupaten=${kabupaten}`)
+                fetch(`{{ route('admin.chartDataRaportPendidikan') }}?bln=${month}&tahun=${filterYear}&kabupaten=${kabupaten}&jenjang=${jenjang}`)
                     .then(response => response.json())
                     .then(data => {
                         // Check if data is empty
@@ -912,10 +913,10 @@
 
             // Initial chart load dengan tahun sekarang sebagai default
             const currentYear4 = new Date().getFullYear();
-            fetchChartDataRaportPendidikan('all', currentYear4, 'all');
+            fetchChartDataRaportPendidikan('all', currentYear4, 'all', 'all');
 
             // Event listener for filter changes
-            $('#filter-bln-raport, #filter-tahun-raport, #filter-kabupaten-raport').change(function() {
+            $('#filter-bln-raport, #filter-tahun-raport, #filter-kabupaten-raport, #filter-jenjang-raport').change(function() {
                 const month = $('#filter-bln-raport').val();
                 let year = $('#filter-tahun-raport').val();
                 const kabupaten = $('#filter-kabupaten-raport').val();
@@ -924,7 +925,7 @@
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
-                fetchChartDataRaportPendidikan(month, year, kabupaten);
+                fetchChartDataRaportPendidikan(month, year, kabupaten, jenjang);
             });
 
             // end chart per raport pendidikan
@@ -937,7 +938,7 @@
 
 
             function fetchChartData(month = 'all', year = 'all', kabupaten = 'all', jenjang = 'all') {
-                fetch(`{{ route('admin.chartData') }}?bln=${month}&tahun=${year}&kabupaten=${kabupaten}`)
+                fetch(`{{ route('admin.chartData') }}?bln=${month}&tahun=${year}&kabupaten=${kabupaten}&jenjang=${jenjang}`)
                     .then(response => response.json())
                     .then(data => {
                         // Check if data is empty
@@ -1048,7 +1049,7 @@
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 const currentYear = new Date().getFullYear();
                 const filterYear = (year === 'all') ? currentYear : year;
-                fetch(`{{ route('admin.chartData2') }}?bln=${month}&tahun=${filterYear}&pengawas=${pengawas}&kabupaten=${kabupaten}`)
+                fetch(`{{ route('admin.chartData2') }}?bln=${month}&tahun=${filterYear}&pengawas=${pengawas}&kabupaten=${kabupaten}&jenjang=${jenjang}`)
                     .then(response => response.json())
                     .then(data => {
                         if (!data || data.length === 0) {
@@ -1157,7 +1158,7 @@
                 // Jika year adalah 'all', gunakan tahun sekarang sebagai default
                 const currentYear = new Date().getFullYear();
                 const filterYear = (year === 'all') ? currentYear : year;
-                fetch(`{{ route('admin.spiderWebData') }}?pengawas=${pengawas}&tahun=${filterYear}&kabupaten=${kabupaten}`)
+                fetch(`{{ route('admin.spiderWebData') }}?pengawas=${pengawas}&tahun=${filterYear}&kabupaten=${kabupaten}&jenjang=${jenjang}`)
                     .then(response => response.json())
                     .then(data => {
                         if (spiderChartInstance) {
@@ -1269,11 +1270,11 @@
 
 
     // Dynamic Charts for Q1, Q2, Q4
-    function fetchDynamicChart(questionId, canvasId, chartType, label, pengawas = 'all', year = 'all', kabupaten = 'all') {
+    function fetchDynamicChart(questionId, canvasId, chartType, label, pengawas = 'all', year = 'all', kabupaten = 'all', jenjang = 'all') {
         const currentYear = new Date().getFullYear();
         const filterYear = (year === 'all') ? currentYear : year;
 
-        fetch(`{{ route('admin.chartDynamicData') }}?question_id=${questionId}&pengawas=${pengawas}&tahun=${filterYear}&kabupaten=${kabupaten}`)
+        fetch(`{{ route('admin.chartDynamicData') }}?question_id=${questionId}&pengawas=${pengawas}&tahun=${filterYear}&kabupaten=${kabupaten}&jenjang=${jenjang}`)
             .then(response => response.json())
             .then(data => {
                 const ctx = document.getElementById(canvasId).getContext('2d');

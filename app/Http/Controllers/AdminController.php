@@ -143,8 +143,12 @@ class AdminController extends Controller
         $query = $this->applyStakeholderFilter($query, 'pengawasnama.kabupaten_id', 'pengawasnama.nama_sekolah', 'pengawasnama', 'pengawasnama.sekolah');
 
         if ($jenjang_filter !== 'all') {
-            $query->whereHas('pengawasnama.sekolahbinaan.sekolah', function($q) use ($jenjang_filter) {
-                $q->where('nama_sekolah', 'LIKE', '%' . $jenjang_filter . '%');
+            $query->whereExists(function($q) use ($jenjang_filter) {
+                $q->select(\Illuminate\Support\Facades\DB::raw(1))
+                  ->from('sekolahbinaan_t')
+                  ->join('sekolah_m', 'sekolah_m.id', '=', 'sekolahbinaan_t.id_sekolah')
+                  ->whereRaw('sekolahbinaan_t.id_pengawas = rencakakerja_t.id_pengawas')
+                  ->where('sekolah_m.nama_sekolah', 'LIKE', '%' . $jenjang_filter . '%');
             });
         }
 
@@ -203,8 +207,12 @@ class AdminController extends Controller
         $query = $this->applyStakeholderFilter($query, 'pengawasnama.kabupaten_id', 'pengawasnama.nama_sekolah', 'pengawasnama', 'pengawasnama.sekolah');
 
         if ($jenjang_filter !== 'all') {
-            $query->whereHas('pengawasnama.sekolahbinaan.sekolah', function($q) use ($jenjang_filter) {
-                $q->where('nama_sekolah', 'LIKE', '%' . $jenjang_filter . '%');
+            $query->whereExists(function($q) use ($jenjang_filter) {
+                $q->select(\Illuminate\Support\Facades\DB::raw(1))
+                  ->from('sekolahbinaan_t')
+                  ->join('sekolah_m', 'sekolah_m.id', '=', 'sekolahbinaan_t.id_sekolah')
+                  ->whereRaw('sekolahbinaan_t.id_pengawas = umpanbalik_t.id_pengawas')
+                  ->where('sekolah_m.nama_sekolah', 'LIKE', '%' . $jenjang_filter . '%');
             });
         }
 
@@ -295,8 +303,12 @@ class AdminController extends Controller
         $query = $this->applyStakeholderFilter($query, 'pengawasnama.kabupaten_id', 'pengawasnama.nama_sekolah', 'pengawasnama', 'pengawasnama.sekolah');
 
         if ($jenjang_filter !== 'all') {
-            $query->whereHas('pengawasnama.sekolahbinaan.sekolah', function($q) use ($jenjang_filter) {
-                $q->where('nama_sekolah', 'LIKE', '%' . $jenjang_filter . '%');
+            $query->whereExists(function($q) use ($jenjang_filter) {
+                $q->select(\Illuminate\Support\Facades\DB::raw(1))
+                  ->from('sekolahbinaan_t')
+                  ->join('sekolah_m', 'sekolah_m.id', '=', 'sekolahbinaan_t.id_sekolah')
+                  ->whereRaw('sekolahbinaan_t.id_pengawas = rencakakerja_t.id_pengawas')
+                  ->where('sekolah_m.nama_sekolah', 'LIKE', '%' . $jenjang_filter . '%');
             });
         }
 
@@ -473,6 +485,7 @@ class AdminController extends Controller
         $month = $request->input('bln', 'all');
         $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
         $kabupaten_filter = $request->input('kabupaten', 'all');
+        $jenjang_filter = $request->input('jenjang', 'all');
 
         $user = Auth::user();
         $kabupaten_id = ($user->role == 'Stakeholder' || $user->role == 'Admin') ? $user->kabupaten_id : null;
@@ -487,6 +500,16 @@ class AdminController extends Controller
         if ($kabupaten_filter !== 'all') {
             $query->whereHas('pengawasnama', function($q) use ($kabupaten_filter) {
                 $q->where('kabupaten_id', $kabupaten_filter);
+            });
+        }
+
+        if ($jenjang_filter !== 'all') {
+            $query->whereExists(function($q) use ($jenjang_filter) {
+                $q->select(\Illuminate\Support\Facades\DB::raw(1))
+                  ->from('sekolahbinaan_t')
+                  ->join('sekolah_m', 'sekolah_m.id', '=', 'sekolahbinaan_t.id_sekolah')
+                  ->whereRaw('sekolahbinaan_t.id_pengawas = umpanbalik_t.id_pengawas')
+                  ->where('sekolah_m.nama_sekolah', 'LIKE', '%' . $jenjang_filter . '%');
             });
         }
 
@@ -516,79 +539,45 @@ class AdminController extends Controller
     // chart pie
     public function chartpie(Request $request)
     {
-        $pengawas = $request->input('pengawas', 'all');
-        $year = $request->input('tahun', date('Y')); // Default ke tahun sekarang
+        $pengawas_filter = $request->input('pengawas', 'all');
+        $tahun_filter = $request->input('tahun', date('Y'));
         $kabupaten_filter = $request->input('kabupaten', 'all');
         $jenjang_filter = $request->input('jenjang', 'all');
 
-        $user = Auth::user();
-        $kabupaten_id = ($user->role == 'Stakeholder' || $user->role == 'Admin') ? $user->kabupaten_id : null;
-
-        // Buat query untuk menghitung jumlah masing-masing jenis jawaban di jawaban_4
-        $query = TanggapanUmpanbalikT::selectRaw("
-                COUNT(CASE WHEN jawaban_4 = 'Ya, melakukan pengawasan di Sekolah' THEN 1 END) as sekolah,
-                COUNT(CASE WHEN jawaban_4 = 'Ya, melakukan pengawasan secara virtual' THEN 1 END) as by_virtual,
-                COUNT(CASE WHEN jawaban_4 = 'Ya, pengawasan digabungkan dengan sekolah lain' THEN 1 END) as gabungan,
-                COUNT(CASE WHEN jawaban_4 = 'Tidak melakukan pengawasan' THEN 1 END) as tidak
+        $query = \App\Models\UmpanbalikT::selectRaw("
+                COUNT(CASE WHEN tanggapan_umpanbalik_t.jawaban_4 = 'Ya, melakukan pengawasan di Sekolah' THEN 1 END) as sekolah,
+                COUNT(CASE WHEN tanggapan_umpanbalik_t.jawaban_4 = 'Ya, melakukan pengawasan secara virtual' THEN 1 END) as by_virtual,
+                COUNT(CASE WHEN tanggapan_umpanbalik_t.jawaban_4 = 'Ya, pengawasan digabungkan dengan sekolah lain' THEN 1 END) as gabungan,
+                COUNT(CASE WHEN tanggapan_umpanbalik_t.jawaban_4 = 'Tidak melakukan pengawasan' THEN 1 END) as tidak
             ")
-            ->join('umpanbalik_t as ut', 'ut.id', '=', 'tanggapan_umpanbalik_t.id_umpanbalik')
-            ->join('rencakakerja_t as rt', 'rt.id', '=', 'ut.id_pelaporan');
+            ->join('tanggapan_umpanbalik_t', 'tanggapan_umpanbalik_t.id_umpanbalik', '=', 'umpanbalik_t.id')
+            ->join('rencakakerja_t as rt', 'rt.id', '=', 'umpanbalik_t.id_pelaporan');
 
-        // Apply custom stakeholder filters
-        $user = Auth::user();
-        if ($user && $user->role == 'Admin') {
-            if ($user->kabupaten_id) {
-                $query->join('users as u', 'u.id', '=', 'rt.id_pengawas')
-                      ->where('u.kabupaten_id', $user->kabupaten_id);
-            }
-        } elseif ($user && $user->role == 'Stakeholder') {
-            $akses_kabupaten = json_decode($user->akses_kabupaten, true) ?? [];
-            $akses_jenjang = json_decode($user->akses_jenjang, true) ?? [];
-            if (!in_array('All', $akses_kabupaten) && !empty($akses_kabupaten)) {
-                $query->join('users as u', 'u.id', '=', 'rt.id_pengawas')
-                      ->whereIn('u.kabupaten_id', $akses_kabupaten);
-            }
-            if (!in_array('All', $akses_jenjang) && !empty($akses_jenjang)) {
-                $query->whereExists(function($q) use ($akses_jenjang) {
-                    $q->select(\Illuminate\Support\Facades\DB::raw(1))
-                      ->from('sekolahbinaan_t')
-                      ->join('sekolah_m', 'sekolah_m.id', '=', 'sekolahbinaan_t.id_sekolah')
-                      ->whereRaw('sekolahbinaan_t.id_pengawas = rt.id_pengawas')
-                      ->where(function($q2) use ($akses_jenjang) {
-                          foreach ($akses_jenjang as $jenjang) {
-                              $q2->orWhere('sekolah_m.nama_sekolah', 'LIKE', '%' . $jenjang . '%');
-                          }
-                      });
-                });
-            }
-        }
+        // Gunakan applyStakeholderFilter untuk memastikan konsistensi dengan grafik lainnya
+        $query = $this->applyStakeholderFilter($query, 'pengawasnama.kabupaten_id', 'pengawasnama.nama_sekolah', 'pengawasnama', 'pengawasnama.sekolah');
 
         if ($kabupaten_filter !== 'all') {
-            // Check if already joined users
-            if (!str_contains($query->toSql(), 'join `users` as `u`')) {
-                $query->join('users as u', 'u.id', '=', 'rt.id_pengawas');
-            }
-            $query->where('u.kabupaten_id', $kabupaten_filter);
+            $query->whereHas('pengawasnama', function($q) use ($kabupaten_filter) {
+                $q->where('kabupaten_id', $kabupaten_filter);
+            });
         }
-
+        
         if ($jenjang_filter !== 'all') {
             $query->whereExists(function($q) use ($jenjang_filter) {
                 $q->select(\Illuminate\Support\Facades\DB::raw(1))
                   ->from('sekolahbinaan_t')
                   ->join('sekolah_m', 'sekolah_m.id', '=', 'sekolahbinaan_t.id_sekolah')
-                  ->whereRaw('sekolahbinaan_t.id_pengawas = rt.id_pengawas')
+                  ->whereRaw('sekolahbinaan_t.id_pengawas = umpanbalik_t.id_pengawas')
                   ->where('sekolah_m.nama_sekolah', 'LIKE', '%' . $jenjang_filter . '%');
             });
         }
 
-        // Tambahkan filter untuk pengawas jika ada
-        if ($pengawas !== 'all') {
-            $query->where('rt.id_pengawas', $pengawas);
+        if ($pengawas_filter !== 'all') {
+            $query->where('umpanbalik_t.id_pengawas', $pengawas_filter);
         }
 
-        // Apply the year filter
-        if ($year !== 'all') {
-            $query->where('rt.tahun_ajaran', $year);
+        if ($tahun_filter !== 'all') {
+            $query->where('rt.tahun_ajaran', $tahun_filter);
         } else {
             $query->where('rt.tahun_ajaran', date('Y'));
         }
@@ -750,6 +739,7 @@ class AdminController extends Controller
         $month = $request->input('bln', 'all');
         $year = $request->input('tahun', date('Y'));
         $kabupaten_filter = $request->input('kabupaten', 'all');
+        $jenjang_filter = $request->input('jenjang', 'all');
 
         $user = Auth::user();
         $kabupaten_id = ($user->role == 'Stakeholder' || $user->role == 'Admin') ? $user->kabupaten_id : null;
@@ -792,6 +782,16 @@ class AdminController extends Controller
                 $query->join('users', 'umpanbalik_t.id_pengawas', '=', 'users.id');
             }
             $query->where('users.kabupaten_id', $kabupaten_filter);
+        }
+
+        if ($jenjang_filter !== 'all') {
+            $query->whereExists(function($q) use ($jenjang_filter) {
+                $q->select(\Illuminate\Support\Facades\DB::raw(1))
+                  ->from('sekolahbinaan_t')
+                  ->join('sekolah_m', 'sekolah_m.id', '=', 'sekolahbinaan_t.id_sekolah')
+                  ->whereRaw('sekolahbinaan_t.id_pengawas = umpanbalik_t.id_pengawas')
+                  ->where('sekolah_m.nama_sekolah', 'LIKE', '%' . $jenjang_filter . '%');
+            });
         }
 
         if ($pengawasId !== 'all') {

@@ -69,11 +69,11 @@ class SaranperbaikanController extends Controller
                         return !empty($row->jawaban_10) ? $row->jawaban_10 : '-';
                     })
 
-                
-   
-        
+                    ->addColumn('pengawas', function($row){
+                        return !empty($row->umpanBalikT->pengawasnama) ? $row->umpanBalikT->pengawasnama->name : '-';
+                    })
 
-                       ->rawColumns(['nama_sekolah','saran_perbaikan'])
+                       ->rawColumns(['nama_sekolah','saran_perbaikan', 'pengawas'])
                        ->make(true);
            }
     }
@@ -108,7 +108,11 @@ class SaranperbaikanController extends Controller
                         return !empty($row->jawaban_10) ? $row->jawaban_10 : '-';
                     })
 
-                       ->rawColumns(['nama_sekolah','saran_perbaikan'])
+                    ->addColumn('pengawas', function($row){
+                        return !empty($row->umpanBalikT->pengawasnama) ? $row->umpanBalikT->pengawasnama->name : '-';
+                    })
+
+                       ->rawColumns(['nama_sekolah','saran_perbaikan', 'pengawas'])
                        ->make(true);
            }
     }

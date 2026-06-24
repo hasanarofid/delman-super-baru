@@ -75,11 +75,11 @@ class LayanandibutuhkanController extends Controller
                         return !empty($row->jawaban_11) ? $row->jawaban_11 : '-';
                     })
 
-                
-   
-        
+                    ->addColumn('pengawas', function($row){
+                        return !empty($row->umpanBalikT->pengawasnama) ? $row->umpanBalikT->pengawasnama->name : '-';
+                    })
 
-                       ->rawColumns(['nama_sekolah','layanan'])
+                       ->rawColumns(['nama_sekolah','layanan', 'pengawas'])
                        ->make(true);
            }
     }
@@ -115,11 +115,11 @@ class LayanandibutuhkanController extends Controller
                         return !empty($row->jawaban_11) ? $row->jawaban_11 : '-';
                     })
 
-                
-   
-        
+                    ->addColumn('pengawas', function($row){
+                        return !empty($row->umpanBalikT->pengawasnama) ? $row->umpanBalikT->pengawasnama->name : '-';
+                    })
 
-                       ->rawColumns(['nama_sekolah','layanan'])
+                       ->rawColumns(['nama_sekolah','layanan', 'pengawas'])
                        ->make(true);
            }
     }

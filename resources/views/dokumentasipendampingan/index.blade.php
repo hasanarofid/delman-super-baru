@@ -101,6 +101,7 @@
                   <thead>
                     <tr>
                       <th>No</th>
+                      <th>Pengawas</th>
                       <th>Tanggal pengawasan</th>
                       <th>Foto Bukti Pengawasan</th>
                       <th>Sekolah</th>
@@ -194,6 +195,7 @@ $('#filter-kategori').change(function () {
         },
         columns: [
           {data: 'DT_RowIndex', name: 'DT_RowIndex'},
+          {data: 'pengawas', name: 'pengawas'},
           {data: 'tanggal', name: 'tanggal'},
           {data: 'foto', name: 'foto'},
           {data: 'nama_sekolah', name: 'nama_sekolah'},

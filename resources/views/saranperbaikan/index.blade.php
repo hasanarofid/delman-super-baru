@@ -54,6 +54,7 @@
                           <thead>
                               <tr>
                                 <th>No</th>
+                                <th>Pengawas</th>
                                 <th>Sekolah</th> 
                                 <th>Saran Perbaikan</th>
                             </tr>
@@ -103,6 +104,7 @@ $('#dataTable').DataTable({
             },
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex'},
+            {data: 'pengawas', name: 'pengawas'},
             {data: 'nama_sekolah', name: 'nama_sekolah'},
             {data: 'saran_perbaikan', name: 'saran_perbaikan'},
         ],
@@ -116,7 +118,7 @@ $('#dataTable').DataTable({
                 orientation: 'landscape',
                 pageSize: 'A4',
                 exportOptions: {
-                  columns: [0, 1,2], // Ekspor semua kolom yang terlihat
+                  columns: [0, 1,2,3], // Ekspor semua kolom yang terlihat
                     modifier: {
                         page: 'all' // Ekspor semua halaman
                     }
