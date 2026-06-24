@@ -24,7 +24,7 @@ class ListumpanbalikController extends Controller
         $user = Auth::user();
         $queryPengawas = User::where('role','pengawas');
         
-        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', null, 'self');
+        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', 'nama_sekolah', 'self', 'sekolah');
         
         $listPengawas = $queryPengawas->get();
 
@@ -72,7 +72,7 @@ class ListumpanbalikController extends Controller
         $user = Auth::user();
         $queryPengawas = User::where('role','pengawas');
         
-        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', null, 'self');
+        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', 'nama_sekolah', 'self', 'sekolah');
         
         $listPengawas = $queryPengawas->get();
         $currentMonth = date('n'); // Numeric representation of the current month (1-12)

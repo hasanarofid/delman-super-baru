@@ -104,6 +104,8 @@ class AdminController extends Controller
             if (!in_array('All', $akses_kabupaten) && !empty($akses_kabupaten)) {
                 $kabupaten_list_q->whereIn('id', $akses_kabupaten);
             }
+            
+            $akses_jenjang = json_decode($user->akses_jenjang, true) ?? [];
         }
         $listKabupaten = $kabupaten_list_q->orderBy('nama_kabupaten')->get();
 
@@ -119,7 +121,8 @@ class AdminController extends Controller
                     'currentYear',
                     'years',
                     'listPengawas',
-                    'listKabupaten'
+                    'listKabupaten',
+                    'akses_jenjang'
                     ) );
             }
         }
@@ -545,20 +548,57 @@ class AdminController extends Controller
         $jenjang_filter = $request->input('jenjang', 'all');
 
         $query = \App\Models\UmpanbalikT::selectRaw("
-                COUNT(CASE WHEN tanggapan_umpanbalik_t.jawaban_4 = 'Ya, melakukan pengawasan di Sekolah' THEN 1 END) as sekolah,
-                COUNT(CASE WHEN tanggapan_umpanbalik_t.jawaban_4 = 'Ya, melakukan pengawasan secara virtual' THEN 1 END) as by_virtual,
-                COUNT(CASE WHEN tanggapan_umpanbalik_t.jawaban_4 = 'Ya, pengawasan digabungkan dengan sekolah lain' THEN 1 END) as gabungan,
-                COUNT(CASE WHEN tanggapan_umpanbalik_t.jawaban_4 = 'Tidak melakukan pengawasan' THEN 1 END) as tidak
+                COUNT(CASE WHEN tanggapan_umpanbalik_t.jawaban_4 = 'Ya, melakukan pendampingan di Sekolah' THEN 1 END) as sekolah,
+                COUNT(CASE WHEN tanggapan_umpanbalik_t.jawaban_4 = 'Ya, melakukan pendampingan secara virtual' THEN 1 END) as by_virtual,
+                COUNT(CASE WHEN tanggapan_umpanbalik_t.jawaban_4 = 'Ya, pendampingan digabungkan dengan sekolah lain' THEN 1 END) as gabungan,
+                COUNT(CASE WHEN tanggapan_umpanbalik_t.jawaban_4 = 'Tidak melakukan pendampingan' THEN 1 END) as tidak
             ")
             ->join('tanggapan_umpanbalik_t', 'tanggapan_umpanbalik_t.id_umpanbalik', '=', 'umpanbalik_t.id')
             ->join('rencakakerja_t as rt', 'rt.id', '=', 'umpanbalik_t.id_pelaporan');
 
-        // Gunakan applyStakeholderFilter untuk memastikan konsistensi dengan grafik lainnya
-        $query = $this->applyStakeholderFilter($query, 'pengawasnama.kabupaten_id', 'pengawasnama.nama_sekolah', 'pengawasnama', 'pengawasnama.sekolah');
+        // Apply custom stakeholder filters
+        $user = Auth::user();
+        if ($user && $user->role == 'Admin') {
+            if ($user->kabupaten_id) {
+                $query->whereExists(function($q) use ($user) {
+                    $q->select(\Illuminate\Support\Facades\DB::raw(1))
+                      ->from('users')
+                      ->whereRaw('users.id = rt.id_pengawas')
+                      ->where('users.kabupaten_id', $user->kabupaten_id);
+                });
+            }
+        } elseif ($user && $user->role == 'Stakeholder') {
+            $akses_kabupaten = json_decode($user->akses_kabupaten, true) ?? [];
+            $akses_jenjang = json_decode($user->akses_jenjang, true) ?? [];
+            if (!in_array('All', $akses_kabupaten) && !empty($akses_kabupaten)) {
+                $query->whereExists(function($q) use ($akses_kabupaten) {
+                    $q->select(\Illuminate\Support\Facades\DB::raw(1))
+                      ->from('users')
+                      ->whereRaw('users.id = rt.id_pengawas')
+                      ->whereIn('users.kabupaten_id', $akses_kabupaten);
+                });
+            }
+            if (!in_array('All', $akses_jenjang) && !empty($akses_jenjang)) {
+                $query->whereExists(function($q) use ($akses_jenjang) {
+                    $q->select(\Illuminate\Support\Facades\DB::raw(1))
+                      ->from('sekolahbinaan_t')
+                      ->join('sekolah_m', 'sekolah_m.id', '=', 'sekolahbinaan_t.id_sekolah')
+                      ->whereRaw('sekolahbinaan_t.id_pengawas = rt.id_pengawas')
+                      ->where(function($q2) use ($akses_jenjang) {
+                          foreach ($akses_jenjang as $jenjang) {
+                              $q2->orWhere('sekolah_m.nama_sekolah', 'LIKE', '%' . $jenjang . '%');
+                          }
+                      });
+                });
+            }
+        }
 
         if ($kabupaten_filter !== 'all') {
-            $query->whereHas('pengawasnama', function($q) use ($kabupaten_filter) {
-                $q->where('kabupaten_id', $kabupaten_filter);
+            $query->whereExists(function($q) use ($kabupaten_filter) {
+                $q->select(\Illuminate\Support\Facades\DB::raw(1))
+                  ->from('users')
+                  ->whereRaw('users.id = rt.id_pengawas')
+                  ->where('users.kabupaten_id', $kabupaten_filter);
             });
         }
         
@@ -567,13 +607,13 @@ class AdminController extends Controller
                 $q->select(\Illuminate\Support\Facades\DB::raw(1))
                   ->from('sekolahbinaan_t')
                   ->join('sekolah_m', 'sekolah_m.id', '=', 'sekolahbinaan_t.id_sekolah')
-                  ->whereRaw('sekolahbinaan_t.id_pengawas = umpanbalik_t.id_pengawas')
+                  ->whereRaw('sekolahbinaan_t.id_pengawas = rt.id_pengawas')
                   ->where('sekolah_m.nama_sekolah', 'LIKE', '%' . $jenjang_filter . '%');
             });
         }
 
         if ($pengawas_filter !== 'all') {
-            $query->where('umpanbalik_t.id_pengawas', $pengawas_filter);
+            $query->where('rt.id_pengawas', $pengawas_filter);
         }
 
         if ($tahun_filter !== 'all') {
@@ -583,24 +623,25 @@ class AdminController extends Controller
         }
 
         // Ambil hasil dan bentuk ulang data untuk output JSON
+        \Illuminate\Support\Facades\Log::info("Chartpie SQL: " . $query->toSql(), $query->getBindings());
         $data = $query->first(); // Mengambil hasil sebagai satu baris karena kita hanya menghitung jumlah
 
         $result = [
             [
                 'jawaban' => 'Hadir',
-                'total' => $data->sekolah,
+                'total' => $data->sekolah ?? 0,
             ],
             [
                 'jawaban' => 'Hadir Virtual',
-                'total' => $data->by_virtual,
+                'total' => $data->by_virtual ?? 0,
             ],
             [
                 'jawaban' => 'Hadir Dikumpulkan',
-                'total' => $data->gabungan,
+                'total' => $data->gabungan ?? 0,
             ],
             [
                 'jawaban' => 'Tidak Hadir',
-                'total' => $data->tidak,
+                'total' => $data->tidak ?? 0,
             ],
         ];
 

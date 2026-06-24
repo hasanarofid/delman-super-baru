@@ -45,4 +45,8 @@ class RencanaKerjaT extends Model
         return $this->belongsTo(AspekProgram::class, 'aspekprogram_id', 'id');
     }
 
+    public function sekolah()
+    {
+        return $this->belongsTo(SekolahM::class, 'sekolah_id', 'id');
+    }
 }

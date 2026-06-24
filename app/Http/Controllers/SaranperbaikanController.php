@@ -19,7 +19,7 @@ class SaranperbaikanController extends Controller
     public function index(){
         $user = Auth::user();
         $queryPengawas = User::where('role','pengawas');
-        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', null, 'self');
+        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', 'nama_sekolah', 'self', 'sekolah');
         
         $listPengawas = $queryPengawas->get();
 
@@ -34,7 +34,7 @@ class SaranperbaikanController extends Controller
             return redirect()->route('login');
         }
 
-        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', null, 'self');
+        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', 'nama_sekolah', 'self', 'sekolah');
         
         $listPengawas = $queryPengawas->get();
 

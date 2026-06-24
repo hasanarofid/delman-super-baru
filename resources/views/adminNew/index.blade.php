@@ -2,6 +2,12 @@
 @section('title', 'Dashboard')
 @section('titelcard', 'Dashboard')
 @section('content')
+@php
+$jenjangOptions = ['SMA', 'SMK', 'SKh'];
+if (isset($akses_jenjang) && !empty($akses_jenjang) && !in_array('All', $akses_jenjang)) {
+    $jenjangOptions = $akses_jenjang;
+}
+@endphp
     <div class="content-wrapper">
         <div class="container-xxl flex-grow-1 container-p-y">
             <div class="row">
@@ -141,11 +147,13 @@
                                         <div class="col-md-6">
                                             <label for="global-filter-jenjang" class="form-label">Pilih Jenjang:</label>
                                             <select id="global-filter-jenjang" class="select2 form-select">
-                                                <option value="all">Semua Jenjang</option>
-                                                <option value="SMA">SMA</option>
-                                                <option value="SMK">SMK</option>
-                                                <option value="SKh">SKh</option>
-                                            </select>
+                                        @if(empty($akses_jenjang) || in_array('All', $akses_jenjang) || count($akses_jenjang) > 1)
+                                            <option value="all">Semua Jenjang</option>
+                                        @endif
+                                        @foreach($jenjangOptions as $j)
+                                            <option value="{{ $j }}">{{ $j }}</option>
+                                        @endforeach
+                                    </select>
                                         </div>
                                     </div>
                                 </div>
@@ -206,10 +214,12 @@
                                 <div class="col-md-3">
                                     <label for="filter-jenjang">Filter Jenjang:</label>
                                     <select id="filter-jenjang" name="jenjang" class="select2 form-select filter-jenjang">
-                                        <option value="all">All</option>
-                                        <option value="SMA">SMA</option>
-                                        <option value="SMK">SMK</option>
-                                        <option value="SKh">SKh</option>
+                                        @if(empty($akses_jenjang) || in_array('All', $akses_jenjang) || count($akses_jenjang) > 1)
+                                            <option value="all">All</option>
+                                        @endif
+                                        @foreach($jenjangOptions as $j)
+                                            <option value="{{ $j }}">{{ $j }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
 
@@ -268,10 +278,12 @@
                                 <div class="col-md-3">
                                     <label for="filter-jenjang-last">Filter Jenjang:</label>
                                     <select id="filter-jenjang-last" name="jenjang" class="select2 form-select filter-jenjang">
-                                        <option value="all">All</option>
-                                        <option value="SMA">SMA</option>
-                                        <option value="SMK">SMK</option>
-                                        <option value="SKh">SKh</option>
+                                        @if(empty($akses_jenjang) || in_array('All', $akses_jenjang) || count($akses_jenjang) > 1)
+                                            <option value="all">All</option>
+                                        @endif
+                                        @foreach($jenjangOptions as $j)
+                                            <option value="{{ $j }}">{{ $j }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
 
@@ -343,10 +355,12 @@
                                 <div class="col-md-3">
                                     <label for="filter-jenjang-raport">Filter Jenjang:</label>
                                     <select id="filter-jenjang-raport" name="jenjang" class="select2 form-select filter-jenjang">
-                                        <option value="all">All</option>
-                                        <option value="SMA">SMA</option>
-                                        <option value="SMK">SMK</option>
-                                        <option value="SKh">SKh</option>
+                                        @if(empty($akses_jenjang) || in_array('All', $akses_jenjang) || count($akses_jenjang) > 1)
+                                            <option value="all">All</option>
+                                        @endif
+                                        @foreach($jenjangOptions as $j)
+                                            <option value="{{ $j }}">{{ $j }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
 
@@ -407,10 +421,12 @@
                                 <div class="col-md-3">
                                     <label for="filter-jenjang3">Filter Jenjang:</label>
                                     <select id="filter-jenjang3" name="jenjang" class="select2 form-select filter-jenjang">
-                                        <option value="all">All</option>
-                                        <option value="SMA">SMA</option>
-                                        <option value="SMK">SMK</option>
-                                        <option value="SKh">SKh</option>
+                                        @if(empty($akses_jenjang) || in_array('All', $akses_jenjang) || count($akses_jenjang) > 1)
+                                            <option value="all">All</option>
+                                        @endif
+                                        @foreach($jenjangOptions as $j)
+                                            <option value="{{ $j }}">{{ $j }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
 
@@ -469,12 +485,14 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="filter-jenjang">Filter Jenjang:</label>
-                                    <select id="filter-jenjang" name="jenjang" class="select2 form-select filter-jenjang">
-                                        <option value="all">All</option>
-                                        <option value="SMA">SMA</option>
-                                        <option value="SMK">SMK</option>
-                                        <option value="SKh">SKh</option>
+                                    <label for="filter-jenjang-spider">Filter Jenjang:</label>
+                                    <select id="filter-jenjang-spider" name="jenjang" class="select2 form-select filter-jenjang">
+                                        @if(empty($akses_jenjang) || in_array('All', $akses_jenjang) || count($akses_jenjang) > 1)
+                                            <option value="all">All</option>
+                                        @endif
+                                        @foreach($jenjangOptions as $j)
+                                            <option value="{{ $j }}">{{ $j }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
 
@@ -534,12 +552,14 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="filter-jenjang">Filter Jenjang:</label>
-                                    <select id="filter-jenjang" name="jenjang" class="select2 form-select filter-jenjang">
-                                        <option value="all">All</option>
-                                        <option value="SMA">SMA</option>
-                                        <option value="SMK">SMK</option>
-                                        <option value="SKh">SKh</option>
+                                    <label for="filter-jenjang-pie">Filter Jenjang:</label>
+                                    <select id="filter-jenjang-pie" name="jenjang" class="select2 form-select filter-jenjang">
+                                        @if(empty($akses_jenjang) || in_array('All', $akses_jenjang) || count($akses_jenjang) > 1)
+                                            <option value="all">All</option>
+                                        @endif
+                                        @foreach($jenjangOptions as $j)
+                                            <option value="{{ $j }}">{{ $j }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
 
@@ -688,11 +708,11 @@
             fetchChartDataPie('all', currentYearPie, 'all', 'all');
 
             // Event listener untuk perubahan filter
-            $('#filter-pengawas3, #filter-tahun-pie, #filter-kabupaten-pie, #filter-jenjang').change(function() {
+            $('#filter-pengawas3, #filter-tahun-pie, #filter-kabupaten-pie, #filter-jenjang-pie').change(function() {
                 const pengawas = $('#filter-pengawas3').val();
                 let year = $('#filter-tahun-pie').val();
                 const kabupaten = $('#filter-kabupaten-pie').val();
-                const jenjang = $('#filter-jenjang').val();
+                const jenjang = $('#filter-jenjang-pie').val();
                 if (year === 'all') {
                     year = new Date().getFullYear();
                 }
@@ -1331,11 +1351,11 @@
     fetchDynamicChart(15, 'chartQ4', 'pie', 'Kebermanfaatan');
 
     // Listener for shared filters
-    $('#filter-pengawas3, #filter-tahun-pie, #filter-kabupaten-pie').change(function() {
+    $('#filter-pengawas3, #filter-tahun-pie, #filter-kabupaten-pie, #filter-jenjang-pie').change(function() {
          const pengawas = $('#filter-pengawas3').val();
          let year = $('#filter-tahun-pie').val();
          const kabupaten = $('#filter-kabupaten-pie').val();
-                const jenjang = $('#filter-jenjang-pie').val();
+         const jenjang = $('#filter-jenjang-pie').val();
         if (year === 'all') {
             year = new Date().getFullYear();
         }

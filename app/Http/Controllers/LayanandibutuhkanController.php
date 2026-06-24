@@ -25,7 +25,7 @@ class LayanandibutuhkanController extends Controller
             return redirect()->route('login');
         }
         
-        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', null, 'self');
+        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', 'nama_sekolah', 'self', 'sekolah');
         
         $listPengawas = $queryPengawas->get();
 
@@ -40,7 +40,7 @@ class LayanandibutuhkanController extends Controller
             return redirect()->route('login');
         }
 
-        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', null, 'self');
+        $queryPengawas = $this->applyStakeholderFilter($queryPengawas, 'kabupaten_id', 'nama_sekolah', 'self', 'sekolah');
         
         $listPengawas = $queryPengawas->get();
 
