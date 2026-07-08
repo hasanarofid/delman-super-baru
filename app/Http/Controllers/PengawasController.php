@@ -635,10 +635,10 @@ return response()->json($chartData);
     
         // Buat query untuk menghitung jumlah masing-masing jenis jawaban di jawaban_4
         $query = TanggapanUmpanbalikT::selectRaw("
-                COUNT(CASE WHEN jawaban_4 = 'Ya, melakukan pengawasan di Sekolah' THEN 1 END) as sekolah,
-                COUNT(CASE WHEN jawaban_4 = 'Ya, melakukan pengawasan secara virtual' THEN 1 END) as by_virtual,
-                COUNT(CASE WHEN jawaban_4 = 'Ya, pengawasan digabungkan dengan sekolah lain' THEN 1 END) as gabungan,
-                COUNT(CASE WHEN jawaban_4 = 'Tidak melakukan pengawasan' THEN 1 END) as tidak
+                COUNT(CASE WHEN jawaban_4 = 'Ya, melakukan pendampingan di Sekolah' THEN 1 END) as sekolah,
+                COUNT(CASE WHEN jawaban_4 = 'Ya, melakukan pendampingan secara virtual' THEN 1 END) as by_virtual,
+                COUNT(CASE WHEN jawaban_4 = 'Ya, pendampingan digabungkan dengan sekolah lain' THEN 1 END) as gabungan,
+                COUNT(CASE WHEN jawaban_4 = 'Tidak melakukan pendampingan' THEN 1 END) as tidak
             ")
             ->join('umpanbalik_t as ut', 'ut.id', '=', 'tanggapan_umpanbalik_t.id_umpanbalik')
             ->join('rencakakerja_t as rt', 'rt.id', '=', 'ut.id_pelaporan')
