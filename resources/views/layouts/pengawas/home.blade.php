@@ -108,11 +108,23 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
                   <div data-i18n="Dashboards">Dashboards</div>
                 </a>
               </li>
+              <li class="menu-item {{ request()->is('dashboard-monev*') ? 'active' : '' }}">
+                <a href="{{ route('admin.dashboard_monev') }}" class="menu-link">
+                  <i class="menu-icon tf-icons ti ti-file-report"></i>
+                  <div data-i18n="Dashboard Monev">Dashboard Monev</div>
+                </a>
+              </li>
               <!-- Dashboards -->
               <li class="menu-item {{ (request()->is('sekolahbinaan')) ? 'active' : '' }}">
                 <a href="{{ route('pengawas.sekolahbinaan') }}" class="menu-link">
                   <i class="menu-icon tf-icons ti ti-layout-sidebar"></i>
                   <div data-i18n="Data Sekolah Binaan">Data Sekolah Binaan</div>
+                </a>
+              </li>
+              <li class="menu-item {{ (request()->is('pengawas/monev-bulanan*')) ? 'active' : '' }}">
+                <a href="{{ route('pengawas.monev-bulanan.index') }}" class="menu-link">
+                  <i class="menu-icon tf-icons ti ti-file-report"></i>
+                  <div data-i18n="Monev Bulanan">Monev Bulanan</div>
                 </a>
               </li>
               {{-- <!-- Layouts -->
@@ -328,7 +340,7 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
             @yield('content')
            <!-- Footer -->
     <footer class="content-footer footer bg-footer-theme">
-      <div class="container-xxl">
+      <div class="container-fluid">
         <div
           class="footer-container d-flex align-items-center justify-content-between py-2 flex-md-row flex-column">
           <div>

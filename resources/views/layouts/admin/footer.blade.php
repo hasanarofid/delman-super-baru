@@ -1,4 +1,4 @@
-<div class="container-xxl">
+<div class="container-fluid">
     <div class="footer-container d-flex align-items-center justify-content-between py-2 flex-md-row flex-column">
         <div>
             ©

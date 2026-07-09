@@ -56,6 +56,7 @@ Route::get('/', function () {
 // route panel dashboard admin
 Route::get('/', 'AdminController@index')->name('admin.index')->middleware(['auth']);
 Route::get('/dashboard', 'AdminController@index')->name('admin.index')->middleware(['auth']);
+Route::get('/dashboard-monev', 'DashboardMonevBulananController@index')->name('admin.dashboard_monev')->middleware(['auth']);
 Route::get('/chart-data', 'AdminController@chartData')->name('admin.chartData')->middleware(['auth']);
 Route::get('/chart-data2', 'AdminController@chartData2')->name('admin.chartData2')->middleware(['auth']);
 Route::get('/chartDataRaportPendidikan', 'AdminController@chartDataRaportPendidikan')->name('admin.chartDataRaportPendidikan')->middleware(['auth']);
@@ -847,6 +848,12 @@ Route::middleware(['web', 'pengawas'])->group(function () {
         Route::get('/get-listumpanbalik', 'ListumpanbalikController@getdatapengawas')->name('pengawas.listumpanbalik.getdata');
         Route::post('/update-rtl', 'ListumpanbalikController@updateRTL')->name('pengawas.updateRTL');
         Route::get('/export-pdf', 'ListumpanbalikController@exportPDF')->name('pengawas.listumpanbalik.exportPDF');
+    });
+
+    Route::prefix('pengawas/monev-bulanan')->group(function () {
+        Route::get('/', 'PengawasMonevBulananController@index')->name('pengawas.monev-bulanan.index');
+        Route::get('/create', 'PengawasMonevBulananController@create')->name('pengawas.monev-bulanan.create');
+        Route::post('/', 'PengawasMonevBulananController@store')->name('pengawas.monev-bulanan.store');
     });
 
     Route::prefix('pengawas/dokumentasipendampingan')->group(function () {
