@@ -47,12 +47,12 @@ class DashboardMonevBulananController extends Controller
         ];
 
         $mouData = [
-            'Kurikulum' => $monevData->sum('mou_kurikulum'),
-            'Guru' => $monevData->sum('mou_guru'),
-            'Murid' => $monevData->sum('mou_murid'),
-            'Sertifikasi' => $monevData->sum('mou_sertifikasi'),
-            'Rekrutmen' => $monevData->sum('mou_rekrutmen'),
-            'CSR' => $monevData->sum('mou_csr'),
+            'Penyelarasan kurikulum' => $monevData->sum('mou_kurikulum'),
+            'Peningkatan kompetensi guru' => $monevData->sum('mou_guru'),
+            'Peningkatan kompetensi siswa (pkl)' => $monevData->sum('mou_murid'),
+            'Sertifikasi (LSP atau Ujikom)' => $monevData->sum('mou_sertifikasi'),
+            'Rekruitmen' => $monevData->sum('mou_rekrutmen'),
+            'MoU Bantuan atau CSR' => $monevData->sum('mou_csr'),
         ];
 
         $bulanOptions = [

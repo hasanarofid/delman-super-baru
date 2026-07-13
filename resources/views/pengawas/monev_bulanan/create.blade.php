@@ -179,27 +179,27 @@
                             <h5 class="mt-4 border-bottom pb-2">Jenis MoU Industri</h5>
                             <div class="row">
                                 <div class="col-md-2 mb-3">
-                                    <label class="form-label">Kurikulum</label>
+                                    <label class="form-label">Penyelarasan kurikulum</label>
                                     <input type="number" name="mou_kurikulum" class="form-control" value="{{ old('mou_kurikulum', 0) }}">
                                 </div>
                                 <div class="col-md-2 mb-3">
-                                    <label class="form-label">Komp. Guru</label>
+                                    <label class="form-label">Peningkatan kompetensi guru</label>
                                     <input type="number" name="mou_guru" class="form-control" value="{{ old('mou_guru', 0) }}">
                                 </div>
                                 <div class="col-md-2 mb-3">
-                                    <label class="form-label">Komp. Murid</label>
+                                    <label class="form-label">Peningkatan kompetensi siswa (pkl)</label>
                                     <input type="number" name="mou_murid" class="form-control" value="{{ old('mou_murid', 0) }}">
                                 </div>
                                 <div class="col-md-2 mb-3">
-                                    <label class="form-label">Sertifikasi</label>
+                                    <label class="form-label">Sertifikasi (LSP atau Ujikom)</label>
                                     <input type="number" name="mou_sertifikasi" class="form-control" value="{{ old('mou_sertifikasi', 0) }}">
                                 </div>
                                 <div class="col-md-2 mb-3">
-                                    <label class="form-label">Rekrutmen</label>
+                                    <label class="form-label">Rekruitmen</label>
                                     <input type="number" name="mou_rekrutmen" class="form-control" value="{{ old('mou_rekrutmen', 0) }}">
                                 </div>
                                 <div class="col-md-2 mb-3">
-                                    <label class="form-label">Bantuan CSR</label>
+                                    <label class="form-label">MoU Bantuan atau CSR</label>
                                     <input type="number" name="mou_csr" class="form-control" value="{{ old('mou_csr', 0) }}">
                                 </div>
                             </div>
