@@ -25,11 +25,15 @@ class DashboardMonevBospController extends Controller
         }
 
         if ($user && $user->role == 'Stakeholder' && $user->kabupaten_id) {
-            $kelompok_kabupaten = \App\Models\Kabupaten::find($user->kabupaten_id)->kelompok_kabupaten;
-            $kabupaten_ids = \App\Models\Kabupaten::where('kelompok_kabupaten', $kelompok_kabupaten)->pluck('id');
+            $kelompok_kabupaten = \App\Kabupaten::find($user->kabupaten_id)->kelompok_kabupaten;
+            $kabupaten_ids = \App\Kabupaten::where('kelompok_kabupaten', $kelompok_kabupaten)->pluck('id');
             $query->whereHas('sekolah', function($q) use ($kabupaten_ids) {
-                $q->whereIn('kab_id', $kabupaten_ids);
+                $q->whereIn('kabupaten_id', $kabupaten_ids);
             });
+        }
+
+        if ($user && strtolower($user->role) == 'pengawas') {
+            $query->where('pengawas_id', $user->id);
         }
 
         $monevList = $query->orderBy('tahun', 'desc')->orderBy('id', 'desc')->get();

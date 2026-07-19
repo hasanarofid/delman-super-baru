@@ -13,6 +13,7 @@ class DashboardMonevBulananController extends Controller
         $year = $request->input('tahun', date('Y'));
         $month = $request->input('bulan', 'all');
 
+        $user = Auth::user();
         $query = MonevBulanan::with(['pengawas', 'sekolah']);
 
         if ($year !== 'all') {
@@ -21,6 +22,18 @@ class DashboardMonevBulananController extends Controller
 
         if ($month !== 'all') {
             $query->where('bulan', $month);
+        }
+
+        if ($user && $user->role == 'Stakeholder' && $user->kabupaten_id) {
+            $kelompok_kabupaten = \App\Kabupaten::find($user->kabupaten_id)->kelompok_kabupaten;
+            $kabupaten_ids = \App\Kabupaten::where('kelompok_kabupaten', $kelompok_kabupaten)->pluck('id');
+            $query->whereHas('sekolah', function($q) use ($kabupaten_ids) {
+                $q->whereIn('kabupaten_id', $kabupaten_ids);
+            });
+        }
+
+        if ($user && strtolower($user->role) == 'pengawas') {
+            $query->where('pengawas_id', $user->id);
         }
 
         $monevData = $query->get();

@@ -51,8 +51,14 @@
 
                             <!-- Status Izin Operasional -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Status Izin Operasional</label>
-                                <input type="text" id="status_ijop" class="form-control" readonly>
+                                <label class="form-label" for="status_ijop">Status Izin Operasional (IJOP)</label>
+                                <select name="status_ijop" id="status_ijop" class="form-select select2" required>
+                                    <option value="">Pilih Status IJOP...</option>
+                                    <option value="Berlaku" {{ old('status_ijop') == 'Berlaku' ? 'selected' : '' }}>Berlaku</option>
+                                    <option value="Kadaluarsa" {{ old('status_ijop') == 'Kadaluarsa' ? 'selected' : '' }}>Kadaluarsa</option>
+                                    <option value="Sedang Perpanjangan" {{ old('status_ijop') == 'Sedang Perpanjangan' ? 'selected' : '' }}>Sedang Perpanjangan</option>
+                                    <option value="Tidak Memiliki IJOP" {{ old('status_ijop') == 'Tidak Memiliki IJOP' ? 'selected' : '' }}>Tidak Memiliki IJOP</option>
+                                </select>
                             </div>
 
                             <!-- Bulan & Tahun -->
@@ -149,12 +155,14 @@
 
         // Autofill Data Sekolah
         $('#sekolah_id').change(function() {
-            var selected = $(this).find('option:selected');
-            var kota = selected.data('kota');
-            var status = selected.data('status');
+            let selectedOption = $(this).find('option:selected');
+            let kota = selectedOption.data('kota');
             
-            $('#kota').val(kota);
-            $('#status_ijop').val(status);
+            if (kota) {
+                $('#kota').val(kota);
+            } else {
+                $('#kota').val('');
+            }
         });
 
         // Hitung Total Siswa Riil
