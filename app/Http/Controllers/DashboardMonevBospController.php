@@ -14,7 +14,10 @@ class DashboardMonevBospController extends Controller
         $month = $request->input('bulan', 'all');
 
         $user = Auth::user();
-        $query = MonevBosp::with(['pengawas', 'sekolah.kabupaten']);
+        $query = MonevBosp::with(['pengawas', 'sekolah.kabupaten'])
+                 ->whereHas('sekolah', function($q) {
+                     $q->where('nama_sekolah', 'like', '%SMK%');
+                 });
 
         if ($year !== 'all') {
             $query->where('tahun', $year);
@@ -44,11 +47,21 @@ class DashboardMonevBospController extends Controller
         
         $sekolahSelisihLebih = $monevList->filter(function($item) {
             return $item->total_siswa_riil > $item->siswa_dinas_bos;
-        })->count();
+        })->sum(function($item) {
+            return $item->total_siswa_riil - $item->siswa_dinas_bos;
+        });
         
         $sekolahSelisihKurang = $monevList->filter(function($item) {
             return $item->total_siswa_riil < $item->siswa_dinas_bos;
-        })->count();
+        })->sum(function($item) {
+            return $item->siswa_dinas_bos - $item->total_siswa_riil;
+        });
+
+        $totalRealisasiBosp = $monevList->sum('realisasi_bosp');
+        
+        $statusIjopData = $monevList->groupBy('status_ijop')->map(function ($row) {
+            return $row->count();
+        })->toArray();
 
         $bulanOptions = [
             'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -57,7 +70,8 @@ class DashboardMonevBospController extends Controller
 
         return view('adminNew.dashboard_monev_bosp', compact(
             'monevList', 'year', 'month', 'bulanOptions', 
-            'totalSekolahDimonev', 'totalSiswaRiil', 'sekolahSelisihLebih', 'sekolahSelisihKurang'
+            'totalSekolahDimonev', 'totalSiswaRiil', 'sekolahSelisihLebih', 'sekolahSelisihKurang',
+            'totalRealisasiBosp', 'statusIjopData'
         ));
     }
 }

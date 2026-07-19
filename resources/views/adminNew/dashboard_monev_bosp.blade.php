@@ -2,14 +2,49 @@
 @section('title', 'Dashboard Monev BOSP SMK')
 @section('titelcard', 'Dashboard Monev BOSP SMK')
 
+@section('style')
+<style>
+    @media print {
+        body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        .btn, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate {
+            display: none !important;
+        }
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+        .print-title {
+            display: block !important;
+            text-align: center;
+            font-weight: bold;
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #000;
+        }
+    }
+    .print-title {
+        display: none;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         
+        <div class="print-title">
+            Dashboard Data Monev BOSP SMK <br>
+            Bulan {{ $month !== 'all' ? $month : 'Semua Bulan' }} Tahun {{ $year !== 'all' ? $year : 'Semua Tahun' }}
+        </div>
+
         <!-- Filter Card -->
         <div class="card mb-4">
-            <div class="card-header pb-0 p-3">
+            <div class="card-header pb-0 p-3 d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">Filter Data Monev BOSP SMK</h6>
+                <button onclick="window.print()" class="btn btn-sm btn-danger"><i class="ti ti-file-pdf me-1"></i> Download PDF</button>
             </div>
             <div class="card-body mt-3">
                 <form action="{{ route('admin.dashboard_monev_bosp') }}" method="GET" class="row gx-3 gy-2 align-items-center">
@@ -40,35 +75,57 @@
 
         <!-- Metrics Cards -->
         <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-lg col-md-4 col-sm-6 mb-3">
                 <div class="card text-center text-white bg-primary h-100">
-                    <div class="card-body">
-                        <h4 class="card-title text-white mb-2">{{ $totalSekolahDimonev }}</h4>
-                        <p class="card-text mb-0">Jumlah Sekolah yang sudah dimonev</p>
+                    <div class="card-body p-2">
+                        <h4 class="card-title text-white mb-1">{{ $totalSekolahDimonev }}</h4>
+                        <p class="card-text mb-0 small">Jumlah Sekolah yang sudah dimonev</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-lg col-md-4 col-sm-6 mb-3">
                 <div class="card text-center text-white bg-info h-100">
-                    <div class="card-body">
-                        <h4 class="card-title text-white mb-2">{{ number_format($totalSiswaRiil, 0, ',', '.') }}</h4>
-                        <p class="card-text mb-0">Total siswa yang dimonev (Riil)</p>
+                    <div class="card-body p-2">
+                        <h4 class="card-title text-white mb-1">{{ number_format($totalSiswaRiil, 0, ',', '.') }}</h4>
+                        <p class="card-text mb-0 small">Total siswa yang dimonev (Riil)</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-lg col-md-4 col-sm-6 mb-3">
                 <div class="card text-center text-white bg-warning h-100">
-                    <div class="card-body">
-                        <h4 class="card-title text-white mb-2">{{ $sekolahSelisihLebih }}</h4>
-                        <p class="card-text mb-0">Total Selisih Kelebihan Siswa</p>
+                    <div class="card-body p-2">
+                        <h4 class="card-title text-white mb-1">{{ $sekolahSelisihLebih }}</h4>
+                        <p class="card-text mb-0 small">Total Selisih Kelebihan Siswa</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-lg col-md-4 col-sm-6 mb-3">
                 <div class="card text-center text-white bg-danger h-100">
+                    <div class="card-body p-2">
+                        <h4 class="card-title text-white mb-1">{{ $sekolahSelisihKurang }}</h4>
+                        <p class="card-text mb-0 small">Total Selisih Kekurangan Siswa</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg col-md-4 col-sm-6 mb-3">
+                <div class="card text-center text-white bg-success h-100">
+                    <div class="card-body p-2">
+                        <h4 class="card-title text-white mb-1">Rp {{ number_format($totalRealisasiBosp, 0, ',', '.') }}</h4>
+                        <p class="card-text mb-0 small">Total Realisasi BOSP</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-md-6 offset-md-3">
+                <div class="card h-100">
+                    <div class="card-header pb-0 text-center">
+                        <h6 class="mb-0">Proporsi Status Izin Operasional (IJOP)</h6>
+                    </div>
                     <div class="card-body">
-                        <h4 class="card-title text-white mb-2">{{ $sekolahSelisihKurang }}</h4>
-                        <p class="card-text mb-0">Total Selisih Kekurangan Siswa</p>
+                        <canvas id="ijopChart" style="max-height: 350px;"></canvas>
                     </div>
                 </div>
             </div>
@@ -77,10 +134,10 @@
         <!-- Tables Row -->
         <div class="row">
             <!-- Table Lebih -->
-            <div class="col-md-6 mb-4">
+            <div class="col-md-12 mb-4">
                 <div class="card h-100">
                     <div class="card-header pb-0">
-                        <h6 class="mb-0 text-warning">Daftar Sekolah Data Lebih (Aktual > BOS)</h6>
+                        <h6 class="mb-0 text-warning">Data Aktual Siswa Berlebih</h6>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -92,6 +149,7 @@
                                         <th>Kabupaten</th>
                                         <th>Pengawas</th>
                                         <th>Selisih</th>
+                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -104,6 +162,27 @@
                                             <td>{{ $data->sekolah->kabupaten->nama_kabupaten ?? '-' }}</td>
                                             <td>{{ $data->pengawas->name ?? '-' }}</td>
                                             <td class="text-warning">+{{ $data->total_siswa_riil - $data->siswa_dinas_bos }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-info btn-view-detail" 
+                                                    data-info="{{ json_encode([
+                                                        'sekolah' => $data->sekolah->nama_sekolah ?? '-',
+                                                        'kabupaten' => $data->sekolah->kabupaten->nama_kabupaten ?? '-',
+                                                        'pengawas' => $data->pengawas->name ?? '-',
+                                                        'bulan' => $data->bulan,
+                                                        'tahun' => $data->tahun,
+                                                        'status_ijop' => $data->status_ijop,
+                                                        'siswa_kelas_10' => $data->siswa_kelas_10,
+                                                        'siswa_kelas_11' => $data->siswa_kelas_11,
+                                                        'siswa_kelas_12' => $data->siswa_kelas_12,
+                                                        'total_siswa_riil' => $data->total_siswa_riil,
+                                                        'siswa_dinas_bos' => $data->siswa_dinas_bos,
+                                                        'realisasi_bosp' => $data->realisasi_bosp,
+                                                        'catatan' => $data->catatan_observasi,
+                                                        'file' => $data->file_sptjm ? asset('public/sptjm/' . $data->file_sptjm) : ''
+                                                    ]) }}">
+                                                    View Detail
+                                                </button>
+                                            </td>
                                         </tr>
                                         @endif
                                     @endforeach
@@ -114,11 +193,11 @@
                 </div>
             </div>
 
-            <!-- Table Kurang -->
-            <div class="col-md-6 mb-4">
+            <!-- Table Sesuai -->
+            <div class="col-md-12 mb-4">
                 <div class="card h-100">
                     <div class="card-header pb-0">
-                        <h6 class="mb-0 text-danger">Daftar Sekolah Data Kurang (Aktual < BOS)</h6>
+                        <h6 class="mb-0 text-success">Data Siswa sesuai</h6>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -130,6 +209,67 @@
                                         <th>Kabupaten</th>
                                         <th>Pengawas</th>
                                         <th>Selisih</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $no = 1; @endphp
+                                    @foreach($monevList as $data)
+                                        @if($data->total_siswa_riil == $data->siswa_dinas_bos)
+                                        <tr>
+                                            <td>{{ $no++ }}</td>
+                                            <td>{{ $data->sekolah->nama_sekolah ?? '-' }}</td>
+                                            <td>{{ $data->sekolah->kabupaten->nama_kabupaten ?? '-' }}</td>
+                                            <td>{{ $data->pengawas->name ?? '-' }}</td>
+                                            <td class="text-success">0</td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-info btn-view-detail" 
+                                                    data-info="{{ json_encode([
+                                                        'sekolah' => $data->sekolah->nama_sekolah ?? '-',
+                                                        'kabupaten' => $data->sekolah->kabupaten->nama_kabupaten ?? '-',
+                                                        'pengawas' => $data->pengawas->name ?? '-',
+                                                        'bulan' => $data->bulan,
+                                                        'tahun' => $data->tahun,
+                                                        'status_ijop' => $data->status_ijop,
+                                                        'siswa_kelas_10' => $data->siswa_kelas_10,
+                                                        'siswa_kelas_11' => $data->siswa_kelas_11,
+                                                        'siswa_kelas_12' => $data->siswa_kelas_12,
+                                                        'total_siswa_riil' => $data->total_siswa_riil,
+                                                        'siswa_dinas_bos' => $data->siswa_dinas_bos,
+                                                        'realisasi_bosp' => $data->realisasi_bosp,
+                                                        'catatan' => $data->catatan_observasi,
+                                                        'file' => $data->file_sptjm ? asset('public/sptjm/' . $data->file_sptjm) : ''
+                                                    ]) }}">
+                                                    View Detail
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Kurang -->
+            <div class="col-md-12 mb-4">
+                <div class="card h-100">
+                    <div class="card-header pb-0">
+                        <h6 class="mb-0 text-danger">Data Aktual Siswa Kurang</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped datatable-custom">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Sekolah</th>
+                                        <th>Kabupaten</th>
+                                        <th>Pengawas</th>
+                                        <th>Selisih</th>
+                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -142,6 +282,27 @@
                                             <td>{{ $data->sekolah->kabupaten->nama_kabupaten ?? '-' }}</td>
                                             <td>{{ $data->pengawas->name ?? '-' }}</td>
                                             <td class="text-danger">{{ $data->total_siswa_riil - $data->siswa_dinas_bos }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-info btn-view-detail" 
+                                                    data-info="{{ json_encode([
+                                                        'sekolah' => $data->sekolah->nama_sekolah ?? '-',
+                                                        'kabupaten' => $data->sekolah->kabupaten->nama_kabupaten ?? '-',
+                                                        'pengawas' => $data->pengawas->name ?? '-',
+                                                        'bulan' => $data->bulan,
+                                                        'tahun' => $data->tahun,
+                                                        'status_ijop' => $data->status_ijop,
+                                                        'siswa_kelas_10' => $data->siswa_kelas_10,
+                                                        'siswa_kelas_11' => $data->siswa_kelas_11,
+                                                        'siswa_kelas_12' => $data->siswa_kelas_12,
+                                                        'total_siswa_riil' => $data->total_siswa_riil,
+                                                        'siswa_dinas_bos' => $data->siswa_dinas_bos,
+                                                        'realisasi_bosp' => $data->realisasi_bosp,
+                                                        'catatan' => $data->catatan_observasi,
+                                                        'file' => $data->file_sptjm ? asset('public/sptjm/' . $data->file_sptjm) : ''
+                                                    ]) }}">
+                                                    View Detail
+                                                </button>
+                                            </td>
                                         </tr>
                                         @endif
                                     @endforeach
@@ -155,12 +316,191 @@
 
     </div>
 </div>
+
+<!-- Modal Detail -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailModalTitle">Detail Laporan Monev BOSP</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Sekolah:</strong> <span id="det-sekolah"></span><br>
+                <strong>Kabupaten:</strong> <span id="det-kabupaten"></span><br>
+                <strong>Pengawas:</strong> <span id="det-pengawas"></span><br>
+                <strong>Periode:</strong> <span id="det-periode"></span>
+            </div>
+            <div class="col-md-6">
+                <strong>Status IJOP:</strong> <span id="det-ijop"></span><br>
+                <div class="mt-2 p-2 rounded" id="det-status-container">
+                    <strong>Status Data Siswa:</strong> <span id="det-status-siswa" class="fw-bold"></span>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row mb-2">
+            <div class="col-md-4">
+                <strong>Siswa Kelas 10:</strong> <span id="det-k10"></span>
+            </div>
+            <div class="col-md-4">
+                <strong>Siswa Kelas 11:</strong> <span id="det-k11"></span>
+            </div>
+            <div class="col-md-4">
+                <strong>Siswa Kelas 12:</strong> <span id="det-k12"></span>
+            </div>
+        </div>
+        <div class="row mb-3 bg-light p-2 rounded align-items-center">
+            <div class="col-md-6">
+                <strong>Total Siswa Riil:</strong> <span id="det-riil" class="fs-5 fw-bold text-primary"></span>
+            </div>
+            <div class="col-md-6">
+                <strong>Siswa Dinas BOS:</strong> <span id="det-bos" class="fs-5 fw-bold text-primary"></span>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="p-2 bg-success text-white rounded">
+                    <strong>Realisasi BOSP:</strong> <span class="fs-5 fw-bolder">Rp <span id="det-realisasi"></span></span>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12 mb-2">
+                <strong>Catatan Observasi:</strong>
+                <p id="det-catatan" class="mt-1 mb-0 border p-2 bg-light rounded" style="min-height: 60px;"></p>
+            </div>
+            <div class="col-md-12 mt-2">
+                <strong>File SPTJM:</strong>
+                <div id="det-file-container" class="mt-1">
+                    <a href="#" id="det-file" target="_blank" class="btn btn-sm btn-primary"><i class="ti ti-download me-1"></i> Download SPTJM</a>
+                    <span id="det-no-file" class="text-muted" style="display:none;">Tidak ada file</span>
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @section('script')
+<!-- Memastikan library Chart.js ada (biasanya sudah ada dari layout induk, namun bisa ditambah jika belum) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
 <script>
     $(document).ready(function() {
         $('.datatable-custom').DataTable();
+
+        // Register datalabels plugin
+        Chart.register(ChartDataLabels);
+
+        // Handle View Detail click
+        $(document).on('click', '.btn-view-detail', function() {
+            const data = $(this).data('info');
+            
+            $('#det-sekolah').text(data.sekolah);
+            $('#det-kabupaten').text(data.kabupaten);
+            $('#det-pengawas').text(data.pengawas);
+            
+            const monthNames = {
+                '01': 'Januari', '02': 'Februari', '03': 'Maret', '04': 'April',
+                '05': 'Mei', '06': 'Juni', '07': 'Juli', '08': 'Agustus',
+                '09': 'September', '10': 'Oktober', '11': 'November', '12': 'Desember'
+            };
+            const monthName = monthNames[data.bulan] || data.bulan;
+            $('#det-periode').text(monthName + ' ' + data.tahun);
+            
+            $('#det-ijop').text(data.status_ijop);
+            $('#det-riil').text(data.total_siswa_riil);
+            $('#det-bos').text(data.siswa_dinas_bos);
+            
+            // Set Status Data Siswa
+            let statusText = '';
+            let statusClass = '';
+            if (parseInt(data.total_siswa_riil) > parseInt(data.siswa_dinas_bos)) {
+                statusText = 'Data Aktual Siswa Berlebih';
+                statusClass = 'bg-warning text-white border border-warning';
+            } else if (parseInt(data.total_siswa_riil) < parseInt(data.siswa_dinas_bos)) {
+                statusText = 'Data Aktual Siswa Kurang';
+                statusClass = 'bg-danger text-white border border-danger';
+            } else {
+                statusText = 'Data Siswa Sesuai';
+                statusClass = 'bg-success text-white border border-success';
+            }
+            $('#det-status-siswa').text(statusText);
+            $('#det-status-container').removeClass().addClass('mt-2 p-2 rounded ' + statusClass);
+            
+            // Format currency
+            const formatter = new Intl.NumberFormat('id-ID');
+            $('#det-realisasi').text(formatter.format(data.realisasi_bosp));
+            
+            $('#det-k10').text(data.siswa_kelas_10);
+            $('#det-k11').text(data.siswa_kelas_11);
+            $('#det-k12').text(data.siswa_kelas_12);
+            
+            $('#det-catatan').text(data.catatan || '-');
+            
+            if (data.file) {
+                $('#det-file').attr('href', data.file).show();
+                $('#det-no-file').hide();
+            } else {
+                $('#det-file').hide();
+                $('#det-no-file').show();
+            }
+            
+            $('#detailModal').modal('show');
+        });
+
+        // Data for Status IJOP (Pie Chart)
+        const ijopData = @json(array_values($statusIjopData));
+        const ijopLabels = @json(array_keys($statusIjopData));
+
+        const ctxIjop = document.getElementById('ijopChart').getContext('2d');
+        new Chart(ctxIjop, {
+            type: 'pie',
+            data: {
+                labels: ijopLabels,
+                datasets: [{
+                    label: 'Jumlah Sekolah',
+                    data: ijopData,
+                    backgroundColor: [
+                        '#7367f0', // Primary
+                        '#28c76f', // Success
+                        '#ff9f43', // Warning
+                        '#ea5455', // Danger
+                        '#00cfe8', // Info
+                        '#82868b'  // Secondary
+                    ],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    datalabels: {
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: function(value, context) {
+                            return value; // Display the raw count
+                        }
+                    }
+                }
+            }
+        });
     });
 </script>
 @endsection

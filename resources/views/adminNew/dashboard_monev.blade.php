@@ -1,6 +1,6 @@
 @extends(Auth::user()->role == 'Pengawas' ? 'layouts.pengawas.home' : 'layouts.admin.home')
-@section('title', 'Dashboard Monev SMK')
-@section('titelcard', 'Dashboard Monev SMK')
+@section('title', 'Dashboard Monev')
+@section('titelcard', 'Dashboard Monev')
 
 @section('content')
 <div class="content-wrapper">

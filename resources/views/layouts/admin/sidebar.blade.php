@@ -32,12 +32,23 @@
                 <div data-i18n="Dashboard Monev">Dashboard Monev</div>
             </a>
         </li>
+        @php
+            $showBospSmk = true;
+            if ($user && $user->role == 'Stakeholder') {
+                $userJenjang = json_decode($user->jenjang, true) ?? [];
+                if (!in_array('SMK', $userJenjang) && !in_array('All', $userJenjang)) {
+                    $showBospSmk = false;
+                }
+            }
+        @endphp
+        @if($showBospSmk)
         <li class="menu-item {{ request()->is('dashboard-monev-bosp*') ? 'active' : '' }}">
             <a href="{{ route('admin.dashboard_monev_bosp') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-file-report"></i>
                 <div data-i18n="Dashboard Monev BOSP SMK">Dashboard Monev BOSP SMK</div>
             </a>
         </li>
+        @endif
         @if ($user && ($user->role == 'Super Admin' || $user->role == 'Stakeholder'))
 
           <!-- master data -->
