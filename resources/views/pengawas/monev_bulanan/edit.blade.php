@@ -1,6 +1,6 @@
 @extends('layouts.pengawas.home')
-@section('title', 'Buat Laporan Monev Bulanan')
-@section('titelcard', 'Buat Laporan Monev Bulanan')
+@section('title', 'Edit Laporan Monev Bulanan')
+@section('titelcard', 'Edit Laporan Monev Bulanan')
 @section('content')
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -27,8 +27,9 @@
                         </div>
                         @endif
 
-                        <form action="{{ route('pengawas.monev-bulanan.store') }}" method="POST">
+                        <form action="{{ route('pengawas.monev-bulanan.update', $monev->id) }}" method="POST">
                             @csrf
+                            @method('PUT')
                             
                             <h5 class="mt-3 border-bottom pb-2">Informasi Laporan</h5>
                             <div class="row">
@@ -38,7 +39,7 @@
                                         <option value="">-- Pilih Sekolah --</option>
                                         @foreach($sekolahBinaan as $binaan)
                                             @if($binaan->sekolah)
-                                                <option value="{{ $binaan->sekolah->id }}" {{ old('sekolah_id') == $binaan->sekolah->id ? 'selected' : '' }}>
+                                                <option value="{{ $binaan->sekolah->id }}" {{ old('sekolah_id', $monev->sekolah_id) == $binaan->sekolah->id ? 'selected' : '' }}>
                                                     {{ $binaan->sekolah->nama_sekolah }}
                                                 </option>
                                             @endif
@@ -50,13 +51,13 @@
                                     <select name="bulan" class="form-select select2" required>
                                         <option value="">-- Pilih Bulan --</option>
                                         @foreach($bulanOptions as $bulan)
-                                            <option value="{{ $bulan }}" {{ old('bulan') == $bulan ? 'selected' : '' }}>{{ $bulan }}</option>
+                                            <option value="{{ $bulan }}" {{ old('bulan', $monev->bulan) == $bulan ? 'selected' : '' }}>{{ $bulan }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label">Tahun <span class="text-danger">*</span></label>
-                                    <input type="number" name="tahun" class="form-control" value="{{ old('tahun', $tahunSekarang) }}" required>
+                                    <input type="number" name="tahun" class="form-control" value="{{ old('tahun', $monev->tahun) }}" required>
                                 </div>
                             </div>
 
@@ -103,15 +104,15 @@
                             <div class="row">
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Total MoU Industri</label>
-                                    <input type="number" name="total_mou" class="form-control" value="{{ old('total_mou', 0) }}">
+                                    <input type="number" name="total_mou" class="form-control" value="{{ old('total_mou', $monev->total_mou) }}">
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Jumlah Prestasi</label>
-                                    <input type="number" name="jumlah_prestasi" class="form-control" value="{{ old('jumlah_prestasi', 0) }}">
+                                    <input type="number" name="jumlah_prestasi" class="form-control" value="{{ old('jumlah_prestasi', $monev->jumlah_prestasi) }}">
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Keterserapan BOS/BOP (%)</label>
-                                    <input type="number" step="0.01" name="serapan_bosp" class="form-control" value="{{ old('serapan_bosp', 0) }}">
+                                    <input type="number" step="0.01" name="serapan_bosp" class="form-control" value="{{ old('serapan_bosp', $monev->serapan_bosp) }}">
                                 </div>
                             </div>
 
@@ -119,15 +120,15 @@
                             <div class="row">
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Siswa Drop Out (DO)</label>
-                                    <input type="number" name="siswa_do" class="form-control" value="{{ old('siswa_do', 0) }}">
+                                    <input type="number" name="siswa_do" class="form-control" value="{{ old('siswa_do', $monev->siswa_do) }}">
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Siswa Mutasi Keluar</label>
-                                    <input type="number" name="siswa_mutasi" class="form-control" value="{{ old('siswa_mutasi', 0) }}">
+                                    <input type="number" name="siswa_mutasi" class="form-control" value="{{ old('siswa_mutasi', $monev->siswa_mutasi) }}">
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Siswa Pindahan</label>
-                                    <input type="number" name="siswa_pindahan" class="form-control" value="{{ old('siswa_pindahan', 0) }}">
+                                    <input type="number" name="siswa_pindahan" class="form-control" value="{{ old('siswa_pindahan', $monev->siswa_pindahan) }}">
                                 </div>
                             </div>
 
@@ -146,31 +147,31 @@
                                     <tbody>
                                         <tr>
                                             <td>Ruang Kelas</td>
-                                            <td><input type="number" name="sarpras_kelas_baik" class="form-control form-control-sm" value="{{ old('sarpras_kelas_baik', 0) }}"></td>
-                                            <td><input type="number" name="sarpras_kelas_rr" class="form-control form-control-sm" value="{{ old('sarpras_kelas_rr', 0) }}"></td>
-                                            <td><input type="number" name="sarpras_kelas_rs" class="form-control form-control-sm" value="{{ old('sarpras_kelas_rs', 0) }}"></td>
-                                            <td><input type="number" name="sarpras_kelas_rb" class="form-control form-control-sm" value="{{ old('sarpras_kelas_rb', 0) }}"></td>
+                                            <td><input type="number" name="sarpras_kelas_baik" class="form-control form-control-sm" value="{{ old('sarpras_kelas_baik', $monev->sarpras_kelas_baik) }}"></td>
+                                            <td><input type="number" name="sarpras_kelas_rr" class="form-control form-control-sm" value="{{ old('sarpras_kelas_rr', $monev->sarpras_kelas_rr) }}"></td>
+                                            <td><input type="number" name="sarpras_kelas_rs" class="form-control form-control-sm" value="{{ old('sarpras_kelas_rs', $monev->sarpras_kelas_rs) }}"></td>
+                                            <td><input type="number" name="sarpras_kelas_rb" class="form-control form-control-sm" value="{{ old('sarpras_kelas_rb', $monev->sarpras_kelas_rb) }}"></td>
                                         </tr>
                                         <tr>
                                             <td>RPS (Ruang Praktik Siswa)</td>
-                                            <td><input type="number" name="sarpras_rps_baik" class="form-control form-control-sm" value="{{ old('sarpras_rps_baik', 0) }}"></td>
-                                            <td><input type="number" name="sarpras_rps_rr" class="form-control form-control-sm" value="{{ old('sarpras_rps_rr', 0) }}"></td>
-                                            <td><input type="number" name="sarpras_rps_rs" class="form-control form-control-sm" value="{{ old('sarpras_rps_rs', 0) }}"></td>
-                                            <td><input type="number" name="sarpras_rps_rb" class="form-control form-control-sm" value="{{ old('sarpras_rps_rb', 0) }}"></td>
+                                            <td><input type="number" name="sarpras_rps_baik" class="form-control form-control-sm" value="{{ old('sarpras_rps_baik', $monev->sarpras_rps_baik) }}"></td>
+                                            <td><input type="number" name="sarpras_rps_rr" class="form-control form-control-sm" value="{{ old('sarpras_rps_rr', $monev->sarpras_rps_rr) }}"></td>
+                                            <td><input type="number" name="sarpras_rps_rs" class="form-control form-control-sm" value="{{ old('sarpras_rps_rs', $monev->sarpras_rps_rs) }}"></td>
+                                            <td><input type="number" name="sarpras_rps_rb" class="form-control form-control-sm" value="{{ old('sarpras_rps_rb', $monev->sarpras_rps_rb) }}"></td>
                                         </tr>
                                         <tr>
                                             <td>Laboratorium</td>
-                                            <td><input type="number" name="sarpras_lab_baik" class="form-control form-control-sm" value="{{ old('sarpras_lab_baik', 0) }}"></td>
-                                            <td><input type="number" name="sarpras_lab_rr" class="form-control form-control-sm" value="{{ old('sarpras_lab_rr', 0) }}"></td>
-                                            <td><input type="number" name="sarpras_lab_rs" class="form-control form-control-sm" value="{{ old('sarpras_lab_rs', 0) }}"></td>
-                                            <td><input type="number" name="sarpras_lab_rb" class="form-control form-control-sm" value="{{ old('sarpras_lab_rb', 0) }}"></td>
+                                            <td><input type="number" name="sarpras_lab_baik" class="form-control form-control-sm" value="{{ old('sarpras_lab_baik', $monev->sarpras_lab_baik) }}"></td>
+                                            <td><input type="number" name="sarpras_lab_rr" class="form-control form-control-sm" value="{{ old('sarpras_lab_rr', $monev->sarpras_lab_rr) }}"></td>
+                                            <td><input type="number" name="sarpras_lab_rs" class="form-control form-control-sm" value="{{ old('sarpras_lab_rs', $monev->sarpras_lab_rs) }}"></td>
+                                            <td><input type="number" name="sarpras_lab_rb" class="form-control form-control-sm" value="{{ old('sarpras_lab_rb', $monev->sarpras_lab_rb) }}"></td>
                                         </tr>
                                         <tr>
                                             <td>Perpustakaan</td>
-                                            <td><input type="number" name="sarpras_perpus_baik" class="form-control form-control-sm" value="{{ old('sarpras_perpus_baik', 0) }}"></td>
-                                            <td><input type="number" name="sarpras_perpus_rr" class="form-control form-control-sm" value="{{ old('sarpras_perpus_rr', 0) }}"></td>
-                                            <td><input type="number" name="sarpras_perpus_rs" class="form-control form-control-sm" value="{{ old('sarpras_perpus_rs', 0) }}"></td>
-                                            <td><input type="number" name="sarpras_perpus_rb" class="form-control form-control-sm" value="{{ old('sarpras_perpus_rb', 0) }}"></td>
+                                            <td><input type="number" name="sarpras_perpus_baik" class="form-control form-control-sm" value="{{ old('sarpras_perpus_baik', $monev->sarpras_perpus_baik) }}"></td>
+                                            <td><input type="number" name="sarpras_perpus_rr" class="form-control form-control-sm" value="{{ old('sarpras_perpus_rr', $monev->sarpras_perpus_rr) }}"></td>
+                                            <td><input type="number" name="sarpras_perpus_rs" class="form-control form-control-sm" value="{{ old('sarpras_perpus_rs', $monev->sarpras_perpus_rs) }}"></td>
+                                            <td><input type="number" name="sarpras_perpus_rb" class="form-control form-control-sm" value="{{ old('sarpras_perpus_rb', $monev->sarpras_perpus_rb) }}"></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -180,27 +181,27 @@
                             <div class="row">
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label">Penyelarasan kurikulum</label>
-                                    <input type="number" name="mou_kurikulum" class="form-control" value="{{ old('mou_kurikulum', 0) }}">
+                                    <input type="number" name="mou_kurikulum" class="form-control" value="{{ old('mou_kurikulum', $monev->mou_kurikulum) }}">
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label">Peningkatan kompetensi guru</label>
-                                    <input type="number" name="mou_guru" class="form-control" value="{{ old('mou_guru', 0) }}">
+                                    <input type="number" name="mou_guru" class="form-control" value="{{ old('mou_guru', $monev->mou_guru) }}">
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label">Peningkatan kompetensi siswa (pkl)</label>
-                                    <input type="number" name="mou_murid" class="form-control" value="{{ old('mou_murid', 0) }}">
+                                    <input type="number" name="mou_murid" class="form-control" value="{{ old('mou_murid', $monev->mou_murid) }}">
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label">Sertifikasi (LSP atau Ujikom)</label>
-                                    <input type="number" name="mou_sertifikasi" class="form-control" value="{{ old('mou_sertifikasi', 0) }}">
+                                    <input type="number" name="mou_sertifikasi" class="form-control" value="{{ old('mou_sertifikasi', $monev->mou_sertifikasi) }}">
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label">Rekruitmen</label>
-                                    <input type="number" name="mou_rekrutmen" class="form-control" value="{{ old('mou_rekrutmen', 0) }}">
+                                    <input type="number" name="mou_rekrutmen" class="form-control" value="{{ old('mou_rekrutmen', $monev->mou_rekrutmen) }}">
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label">MoU Bantuan atau CSR</label>
-                                    <input type="number" name="mou_csr" class="form-control" value="{{ old('mou_csr', 0) }}">
+                                    <input type="number" name="mou_csr" class="form-control" value="{{ old('mou_csr', $monev->mou_csr) }}">
                                 </div>
                             </div>
 
@@ -208,15 +209,15 @@
                             <div class="row">
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Bekerja</label>
-                                    <input type="number" name="lulusan_kerja" class="form-control" value="{{ old('lulusan_kerja', 0) }}">
+                                    <input type="number" name="lulusan_kerja" class="form-control" value="{{ old('lulusan_kerja', $monev->lulusan_kerja) }}">
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Melanjutkan Kuliah</label>
-                                    <input type="number" name="lulusan_kuliah" class="form-control" value="{{ old('lulusan_kuliah', 0) }}">
+                                    <input type="number" name="lulusan_kuliah" class="form-control" value="{{ old('lulusan_kuliah', $monev->lulusan_kuliah) }}">
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Wirausaha</label>
-                                    <input type="number" name="lulusan_wirausaha" class="form-control" value="{{ old('lulusan_wirausaha', 0) }}">
+                                    <input type="number" name="lulusan_wirausaha" class="form-control" value="{{ old('lulusan_wirausaha', $monev->lulusan_wirausaha) }}">
                                 </div>
                             </div>
 
@@ -224,16 +225,16 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Guru Bersertifikat Pendidik (%)</label>
-                                    <input type="number" step="0.01" name="guru_sertifikat" class="form-control" value="{{ old('guru_sertifikat', 0) }}">
+                                    <input type="number" step="0.01" name="guru_sertifikat" class="form-control" value="{{ old('guru_sertifikat', $monev->guru_sertifikat) }}">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Guru Tidak Linier (%)</label>
-                                    <input type="number" step="0.01" name="guru_non_linier" class="form-control" value="{{ old('guru_non_linier', 0) }}">
+                                    <input type="number" step="0.01" name="guru_non_linier" class="form-control" value="{{ old('guru_non_linier', $monev->guru_non_linier) }}">
                                 </div>
                             </div>
 
                             <div class="mt-4">
-                                <button type="submit" class="btn btn-primary">Simpan Laporan</button>
+                                <button type="submit" class="btn btn-primary">Update Laporan</button>
                                 <a href="{{ route('pengawas.monev-bulanan.index') }}" class="btn btn-secondary">Batal</a>
                             </div>
 

@@ -91,6 +91,29 @@
                               <label for="kode_area">Kode Area</label>
                               <input type="number" value="{{ $models->profile->kode_area  }}" class="form-control" name="kode_area" id="kode_area" placeholder="Kode Area">
                      </div>
+                     @php
+                        $aksesJenjang = $models->akses_jenjang ? json_decode($models->akses_jenjang, true) : [];
+                        $aksesKabupaten = $models->akses_kabupaten ? json_decode($models->akses_kabupaten, true) : [];
+                        if(!is_array($aksesJenjang)) $aksesJenjang = [];
+                        if(!is_array($aksesKabupaten)) $aksesKabupaten = [];
+                     @endphp
+                     <div class="form-group">
+                        <label for="akses_jenjang">Akses Jenjang (Bisa pilih lebih dari satu)</label>
+                        <select name="akses_jenjang[]" id="akses_jenjang" class="form-control select2" multiple required>
+                           <option value="SMK" {{ in_array('SMK', $aksesJenjang) ? 'selected' : '' }}>SMK</option>
+                           <option value="SMA" {{ in_array('SMA', $aksesJenjang) ? 'selected' : '' }}>SMA</option>
+                           <option value="SKh" {{ in_array('SKh', $aksesJenjang) ? 'selected' : '' }}>SKh</option>
+                        </select>
+                     </div>
+
+                     <div class="form-group">
+                        <label for="akses_kabupaten">Akses Kabupaten (Bisa pilih lebih dari satu)</label>
+                        <select name="akses_kabupaten[]" id="akses_kabupaten" class="form-control select2" multiple required>
+                           @foreach($wilayah as $w)
+                           <option value="{{ $w->id }}" {{ in_array($w->id, $aksesKabupaten) ? 'selected' : '' }}>{{ $w->nama_kabupaten }}</option>
+                           @endforeach
+                        </select>
+                     </div>
                      <hr>
                      <p>Info Login Update password bila ingin ubah</p>
                     <div class="form-group">

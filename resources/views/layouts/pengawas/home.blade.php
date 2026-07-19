@@ -108,10 +108,16 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
                   <div data-i18n="Dashboards">Dashboards</div>
                 </a>
               </li>
-              <li class="menu-item {{ request()->is('dashboard-monev*') ? 'active' : '' }}">
+              <li class="menu-item {{ (request()->is('dashboard-monev') || request()->is('dashboard-monev/*')) ? 'active' : '' }}">
                 <a href="{{ route('admin.dashboard_monev') }}" class="menu-link">
                   <i class="menu-icon tf-icons ti ti-file-report"></i>
                   <div data-i18n="Dashboard Monev">Dashboard Monev</div>
+                </a>
+              </li>
+              <li class="menu-item {{ request()->is('dashboard-monev-bosp*') ? 'active' : '' }}">
+                <a href="{{ route('admin.dashboard_monev_bosp') }}" class="menu-link">
+                  <i class="menu-icon tf-icons ti ti-file-report"></i>
+                  <div data-i18n="Dashboard Monev BOSP SMK">Dashboard Monev BOSP SMK</div>
                 </a>
               </li>
               <!-- Dashboards -->
@@ -125,6 +131,12 @@ lang="{{ str_replace('_', '-', app()->getLocale()) }}"
                 <a href="{{ route('pengawas.monev-bulanan.index') }}" class="menu-link">
                   <i class="menu-icon tf-icons ti ti-file-report"></i>
                   <div data-i18n="Monev Bulanan">Monev Bulanan</div>
+                </a>
+              </li>
+              <li class="menu-item {{ (request()->is('pengawas/monev-bosp*')) ? 'active' : '' }}">
+                <a href="{{ route('pengawas.monev-bosp.index') }}" class="menu-link">
+                  <i class="menu-icon tf-icons ti ti-file-report"></i>
+                  <div data-i18n="Monev BOSP SMK">Monev BOSP SMK</div>
                 </a>
               </li>
               {{-- <!-- Layouts -->

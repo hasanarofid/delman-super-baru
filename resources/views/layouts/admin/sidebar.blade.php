@@ -32,6 +32,12 @@
                 <div data-i18n="Dashboard Monev">Dashboard Monev</div>
             </a>
         </li>
+        <li class="menu-item {{ request()->is('dashboard-monev-bosp*') ? 'active' : '' }}">
+            <a href="{{ route('admin.dashboard_monev_bosp') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-file-report"></i>
+                <div data-i18n="Dashboard Monev BOSP SMK">Dashboard Monev BOSP SMK</div>
+            </a>
+        </li>
         @if ($user && ($user->role == 'Super Admin' || $user->role == 'Stakeholder'))
 
           <!-- master data -->

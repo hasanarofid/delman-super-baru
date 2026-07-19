@@ -92,6 +92,23 @@
                               <label for="kode_area">Kode Area</label>
                               <input type="number" class="form-control" name="kode_area" id="kode_area" placeholder="Kode Area">
                      </div>
+                     <div class="form-group">
+                        <label for="akses_jenjang">Akses Jenjang (Bisa pilih lebih dari satu)</label>
+                        <select name="akses_jenjang[]" id="akses_jenjang" class="form-control select2" multiple required>
+                           <option value="SMK">SMK</option>
+                           <option value="SMA">SMA</option>
+                           <option value="SKh">SKh</option>
+                        </select>
+                     </div>
+
+                     <div class="form-group">
+                        <label for="akses_kabupaten">Akses Kabupaten (Bisa pilih lebih dari satu)</label>
+                        <select name="akses_kabupaten[]" id="akses_kabupaten" class="form-control select2" multiple required>
+                           @foreach($wilayah as $w)
+                           <option value="{{ $w->id }}">{{ $w->nama_kabupaten }}</option>
+                           @endforeach
+                        </select>
+                     </div>
                      <hr>
                      <p>Info Login</p>
                     <div class="form-group">

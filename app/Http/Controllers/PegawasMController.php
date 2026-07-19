@@ -238,9 +238,8 @@ class PegawasMController extends Controller
 
     /** add data pengawas */
     public function add(){
-        //  $wilayah = Kabupaten::get();
-        // dd($wilayah);
-         return view('pengawas.add');
+         $wilayah = Kabupaten::orderBy('nama_kabupaten', 'asc')->get();
+         return view('pengawas.add', compact('wilayah'));
     }
 
      /** add data pengawas */
@@ -303,6 +302,10 @@ class PegawasMController extends Controller
             $user->alamat_lengkap = $request->alamat_lengkap;
             $user->kode_area = $request->kode_area;
             $user->kabupaten_id = 1; // Set kabupaten_id to 1 as requested
+            
+            $user->akses_jenjang = $request->akses_jenjang ? json_encode($request->akses_jenjang) : null;
+            $user->akses_kabupaten = $request->akses_kabupaten ? json_encode($request->akses_kabupaten) : null;
+            
             $user->save();
 
             // Update associated profile
@@ -320,7 +323,8 @@ class PegawasMController extends Controller
 
     public function edit($id){
         $models = User::where('id',$id)->first();
-        return view('pengawas.edit',compact('models'));
+        $wilayah = Kabupaten::orderBy('nama_kabupaten', 'asc')->get();
+        return view('pengawas.edit',compact('models', 'wilayah'));
     }
 
      public function hapus($id){
@@ -344,6 +348,10 @@ class PegawasMController extends Controller
             $user->kota = $request->kota;
             $user->alamat_lengkap = $request->alamat_lengkap;
             $user->kode_area = $request->kode_area;
+            
+            $user->akses_jenjang = $request->akses_jenjang ? json_encode($request->akses_jenjang) : null;
+            $user->akses_kabupaten = $request->akses_kabupaten ? json_encode($request->akses_kabupaten) : null;
+            
              $user->save();
 
             // Update associated profile

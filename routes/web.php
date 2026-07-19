@@ -57,6 +57,7 @@ Route::get('/', function () {
 Route::get('/', 'AdminController@index')->name('admin.index')->middleware(['auth']);
 Route::get('/dashboard', 'AdminController@index')->name('admin.index')->middleware(['auth']);
 Route::get('/dashboard-monev', 'DashboardMonevBulananController@index')->name('admin.dashboard_monev')->middleware(['auth']);
+Route::get('/dashboard-monev-bosp', 'DashboardMonevBospController@index')->name('admin.dashboard_monev_bosp')->middleware(['auth']);
 Route::get('/chart-data', 'AdminController@chartData')->name('admin.chartData')->middleware(['auth']);
 Route::get('/chart-data2', 'AdminController@chartData2')->name('admin.chartData2')->middleware(['auth']);
 Route::get('/chartDataRaportPendidikan', 'AdminController@chartDataRaportPendidikan')->name('admin.chartDataRaportPendidikan')->middleware(['auth']);
@@ -854,6 +855,20 @@ Route::middleware(['web', 'pengawas'])->group(function () {
         Route::get('/', 'PengawasMonevBulananController@index')->name('pengawas.monev-bulanan.index');
         Route::get('/create', 'PengawasMonevBulananController@create')->name('pengawas.monev-bulanan.create');
         Route::post('/', 'PengawasMonevBulananController@store')->name('pengawas.monev-bulanan.store');
+        Route::get('/{id}/edit', 'PengawasMonevBulananController@edit')->name('pengawas.monev-bulanan.edit');
+        Route::put('/{id}', 'PengawasMonevBulananController@update')->name('pengawas.monev-bulanan.update');
+        Route::delete('/{id}', 'PengawasMonevBulananController@destroy')->name('pengawas.monev-bulanan.destroy');
+    });
+
+    Route::prefix('pengawas/monev-bosp')->group(function () {
+        Route::get('/', 'MonevBospController@index')->name('pengawas.monev-bosp.index');
+        Route::get('/export', 'MonevBospController@export')->name('pengawas.monev-bosp.export');
+        Route::get('/create', 'MonevBospController@create')->name('pengawas.monev-bosp.create');
+        Route::post('/', 'MonevBospController@store')->name('pengawas.monev-bosp.store');
+        Route::get('/{id}/edit', 'MonevBospController@edit')->name('pengawas.monev-bosp.edit');
+        Route::put('/{id}', 'MonevBospController@update')->name('pengawas.monev-bosp.update');
+        Route::delete('/{id}', 'MonevBospController@destroy')->name('pengawas.monev-bosp.destroy');
+        Route::post('/export', 'MonevBospController@exportExcel')->name('pengawas.monev-bosp.export');
     });
 
     Route::prefix('pengawas/dokumentasipendampingan')->group(function () {
