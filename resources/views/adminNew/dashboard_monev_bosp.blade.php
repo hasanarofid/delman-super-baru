@@ -9,7 +9,9 @@
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
-        .btn, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate {
+        .btn, .dataTables_filter, .dataTables_length, .dataTables_info, .dataTables_paginate,
+        .dataTables_wrapper .row:first-child, .dataTables_wrapper .row:last-child,
+        footer, .content-footer {
             display: none !important;
         }
         .card {
@@ -41,7 +43,7 @@
         </div>
 
         <!-- Filter Card -->
-        <div class="card mb-4">
+        <div class="card mb-4 d-print-none">
             <div class="card-header pb-0 p-3 d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">Filter Data Monev BOSP SMK</h6>
                 <button onclick="window.print()" class="btn btn-sm btn-danger"><i class="ti ti-file-pdf me-1"></i> Download PDF</button>
@@ -149,7 +151,7 @@
                                         <th>Kabupaten</th>
                                         <th>Pengawas</th>
                                         <th>Selisih</th>
-                                        <th>Aksi</th>
+                                        <th class="d-print-none">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -162,7 +164,7 @@
                                             <td>{{ $data->sekolah->kabupaten->nama_kabupaten ?? '-' }}</td>
                                             <td>{{ $data->pengawas->name ?? '-' }}</td>
                                             <td class="text-warning">+{{ $data->total_siswa_riil - $data->siswa_dinas_bos }}</td>
-                                            <td>
+                                            <td class="d-print-none">
                                                 <button type="button" class="btn btn-sm btn-info btn-view-detail" 
                                                     data-info="{{ json_encode([
                                                         'sekolah' => $data->sekolah->nama_sekolah ?? '-',
@@ -209,7 +211,7 @@
                                         <th>Kabupaten</th>
                                         <th>Pengawas</th>
                                         <th>Selisih</th>
-                                        <th>Aksi</th>
+                                        <th class="d-print-none">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -222,7 +224,7 @@
                                             <td>{{ $data->sekolah->kabupaten->nama_kabupaten ?? '-' }}</td>
                                             <td>{{ $data->pengawas->name ?? '-' }}</td>
                                             <td class="text-success">0</td>
-                                            <td>
+                                            <td class="d-print-none">
                                                 <button type="button" class="btn btn-sm btn-info btn-view-detail" 
                                                     data-info="{{ json_encode([
                                                         'sekolah' => $data->sekolah->nama_sekolah ?? '-',
@@ -269,7 +271,7 @@
                                         <th>Kabupaten</th>
                                         <th>Pengawas</th>
                                         <th>Selisih</th>
-                                        <th>Aksi</th>
+                                        <th class="d-print-none">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -282,7 +284,7 @@
                                             <td>{{ $data->sekolah->kabupaten->nama_kabupaten ?? '-' }}</td>
                                             <td>{{ $data->pengawas->name ?? '-' }}</td>
                                             <td class="text-danger">{{ $data->total_siswa_riil - $data->siswa_dinas_bos }}</td>
-                                            <td>
+                                            <td class="d-print-none">
                                                 <button type="button" class="btn btn-sm btn-info btn-view-detail" 
                                                     data-info="{{ json_encode([
                                                         'sekolah' => $data->sekolah->nama_sekolah ?? '-',

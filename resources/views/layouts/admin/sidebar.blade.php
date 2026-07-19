@@ -35,7 +35,7 @@
         @php
             $showBospSmk = true;
             if ($user && $user->role == 'Stakeholder') {
-                $userJenjang = json_decode($user->jenjang, true) ?? [];
+                $userJenjang = json_decode($user->akses_jenjang, true) ?? [];
                 if (!in_array('SMK', $userJenjang) && !in_array('All', $userJenjang)) {
                     $showBospSmk = false;
                 }
