@@ -60,14 +60,14 @@
 
                      <div class="form-group">
                         <label for="pangkat">Pangkat</label>
-                        <select name="pangkat" id="pangkat" class="form-control select2" required>
+                        <select name="pangkat" id="pangkat" class="form-control select2">
                            <option value="">.: Pilih Pangkat :.</option>
                         </select>
                      </div>
 
                      <div class="form-group">
                         <label for="gol_ruang">Gol. Ruang</label>
-                        <select name="gol_ruang" id="gol_ruang" class="form-control select2" required>
+                        <select name="gol_ruang" id="gol_ruang" class="form-control select2">
                            <option value="">.: Pilih Gol. Ruang :.</option>
                         </select>
 

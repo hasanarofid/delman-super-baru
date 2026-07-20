@@ -58,7 +58,7 @@
 
                      <div class="form-group">
                         <label for="pangkat">Pangkat</label>
-                        <select name="pangkat" id="pangkat" class="form-control select2" required>
+                        <select name="pangkat" id="pangkat" class="form-control select2">
                            <option value="">.: Pilih Pangkat :.</option>
                            @if($models->pangkat)
                               <option value="{{ $models->pangkat }}" selected>{{ $models->pangkat }}</option>
@@ -68,7 +68,7 @@
 
                      <div class="form-group">
                         <label for="gol_ruang">Gol. Ruang</label>
-                        <select name="gol_ruang" id="gol_ruang" class="form-control select2" required>
+                        <select name="gol_ruang" id="gol_ruang" class="form-control select2">
                            <option value="">.: Pilih Gol. Ruang :.</option>
                            @if($models->gol_ruang)
                               <option value="{{ $models->gol_ruang }}" selected>{{ $models->gol_ruang }}</option>
