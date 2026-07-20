@@ -1,6 +1,6 @@
 @extends('layouts.pengawas.home')
-@section('title', 'Edit Laporan Monev BOSP SMK')
-@section('titelcard', 'Edit Laporan Monev BOSP SMK')
+@section('title', 'Edit Laporan Monev BOSP')
+@section('titelcard', 'Edit Laporan Monev BOSP')
 @section('content')
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -8,7 +8,7 @@
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-header pb-0 p-3">
-                        <h6 class="mb-0">Formulir Monev BOSP SMK</h6>
+                        <h6 class="mb-0">Formulir Monev BOSP</h6>
                     </div>
                 <div class="card-body">
                     @if(session('error'))

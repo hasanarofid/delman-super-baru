@@ -1,6 +1,6 @@
 @extends('layouts.pengawas.home')
-@section('title', 'Riwayat Laporan Monev BOSP SMK')
-@section('titelcard', 'Laporan Monev BOSP SMK')
+@section('title', 'Riwayat Laporan Monev BOSP')
+@section('titelcard', 'Laporan Monev BOSP')
 @section('content')
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -10,7 +10,7 @@
                     <div class="card-header pb-0 p-3">
                         <div class="row">
                             <div class="col-6 d-flex align-items-center">
-                                <h6 class="mb-0">Daftar Laporan Monev BOSP SMK</h6>
+                                <h6 class="mb-0">Daftar Laporan Monev BOSP</h6>
                             </div>
                             <div class="col-6 d-flex justify-content-end">
                                 <a class="btn btn-primary waves-effect waves-light" href="{{ route('pengawas.monev-bosp.create') }}">

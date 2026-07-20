@@ -1,6 +1,6 @@
 @extends(Auth::user()->role == 'Pengawas' ? 'layouts.pengawas.home' : 'layouts.admin.home')
-@section('title', 'Dashboard Monev BOSP SMK')
-@section('titelcard', 'Dashboard Monev BOSP SMK')
+@section('title', 'Dashboard Monev BOSP')
+@section('titelcard', 'Dashboard Monev BOSP')
 
 @section('style')
 <style>
@@ -38,14 +38,14 @@
     <div class="container-xxl flex-grow-1 container-p-y">
         
         <div class="print-title">
-            Dashboard Data Monev BOSP SMK <br>
+            Dashboard Data Monev BOSP <br>
             Bulan {{ $month !== 'all' ? $month : 'Semua Bulan' }} Tahun {{ $year !== 'all' ? $year : 'Semua Tahun' }}
         </div>
 
         <!-- Filter Card -->
         <div class="card mb-4 d-print-none">
             <div class="card-header pb-0 p-3 d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">Filter Data Monev BOSP SMK</h6>
+                <h6 class="mb-0">Filter Data Monev BOSP</h6>
                 <button onclick="window.print()" class="btn btn-sm btn-danger"><i class="ti ti-file-pdf me-1"></i> Download PDF</button>
             </div>
             <div class="card-body mt-3">

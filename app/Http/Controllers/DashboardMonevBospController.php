@@ -14,10 +14,28 @@ class DashboardMonevBospController extends Controller
         $month = $request->input('bulan', 'all');
 
         $user = Auth::user();
-        $query = MonevBosp::with(['pengawas', 'sekolah.kabupaten'])
-                 ->whereHas('sekolah', function($q) {
-                     $q->where('nama_sekolah', 'like', '%SMK%');
-                 });
+        $query = MonevBosp::with(['pengawas', 'sekolah.kabupaten']);
+
+        if ($user) {
+            $identifier = strtolower($user->username . ' ' . $user->email);
+            
+            if (strpos($identifier, 'sma') !== false) {
+                $query->whereHas('sekolah', function($q) {
+                    $q->where('nama_sekolah', 'like', '%SMA%');
+                });
+            } elseif (strpos($identifier, 'smk') !== false) {
+                $query->whereHas('sekolah', function($q) {
+                    $q->where('nama_sekolah', 'like', '%SMK%');
+                });
+            } else {
+                // Maintain default behavior for backwards compatibility, except for pengawas
+                if (strtolower($user->role) != 'pengawas') {
+                    $query->whereHas('sekolah', function($q) {
+                        $q->where('nama_sekolah', 'like', '%SMK%');
+                    });
+                }
+            }
+        }
 
         if ($year !== 'all') {
             $query->where('tahun', $year);

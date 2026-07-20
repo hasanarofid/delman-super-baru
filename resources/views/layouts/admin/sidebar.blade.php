@@ -33,19 +33,19 @@
             </a>
         </li>
         @php
-            $showBospSmk = true;
+            $showBospMenu = true;
             if ($user && $user->role == 'Stakeholder') {
                 $userJenjang = json_decode($user->akses_jenjang, true) ?? [];
-                if (!in_array('SMK', $userJenjang) && !in_array('All', $userJenjang)) {
-                    $showBospSmk = false;
+                if (!in_array('SMK', $userJenjang) && !in_array('SMA', $userJenjang) && !in_array('All', $userJenjang)) {
+                    $showBospMenu = false;
                 }
             }
         @endphp
-        @if($showBospSmk)
+        @if($showBospMenu)
         <li class="menu-item {{ request()->is('dashboard-monev-bosp*') ? 'active' : '' }}">
             <a href="{{ route('admin.dashboard_monev_bosp') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-file-report"></i>
-                <div data-i18n="Dashboard Monev BOSP SMK">Dashboard Monev BOSP SMK</div>
+                <div data-i18n="Dashboard Monev BOSP">Dashboard Monev BOSP</div>
             </a>
         </li>
         @endif
