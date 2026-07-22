@@ -262,6 +262,8 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         Route::get('/hapus-sekolah/{id}', 'SekolahMController@hapus')->name('sekolah.hapus');
         Route::get('/excelcontoh-sekolah', 'SekolahMController@excelcontoh')->name('sekolah.excelcontoh');
         Route::post('/update-kabupaten', 'SekolahMController@updateKabupaten')->name('sekolah.updateKabupaten');
+        Route::get('/export-all-sekolah', 'SekolahMController@exportAll')->name('sekolah.exportAll');
+        Route::post('/import-kabupaten-sekolah', 'SekolahMController@importKabupaten')->name('sekolah.importKabupaten');
         // end route panel menu sekolah
     });
 

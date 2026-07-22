@@ -35,6 +35,20 @@
                           {{ Session::get('error') }}
                       </div>
                       @endif
+
+                      <div class="row mb-3">
+                        <div class="col-12">
+                          @if (Auth::user()->role == 'Super Admin')
+                            <a class="btn btn-sm bg-success text-white" target="_blank" href="{{ route('sekolah.exportAll') }}">
+                                <i class="fa fa-file-excel-o" aria-hidden="true"></i> Export Semua Data Sekolah
+                            </a>
+                            <button type="button" class="btn btn-sm bg-warning text-white" data-bs-toggle="modal" data-bs-target="#importKabupatenModal">
+                                <i class="fa fa-upload" aria-hidden="true"></i> Import Data Sekolah Kabupaten
+                            </button>
+                          @endif
+                        </div>
+                      </div>
+
                       <div class="table-responsive p-0">
                         <table class="table" id="data-table">
                           <thead>
@@ -97,6 +111,32 @@
             </form>
       </div>
   </div>
+</div>
+
+<!-- Modal Import Kabupaten -->
+<div class="modal fade" id="importKabupatenModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Import Data Sekolah Kabupaten</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('sekolah.importKabupaten') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">File Excel/CSV</label>
+                        <input type="file" class="form-control" name="file" required accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                        <small class="form-text text-muted">Pastikan file sesuai dengan format export.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Import Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 @endsection

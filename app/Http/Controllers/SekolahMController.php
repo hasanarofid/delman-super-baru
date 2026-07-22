@@ -161,4 +161,19 @@ class SekolahMController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Kabupaten Sekolah berhasil diupdate']);
     }
+    public function exportAll()
+    {
+        return Excel::download(new \App\Exports\SekolahKabupatenExport, 'Data_Sekolah_Kabupaten.xlsx');
+    }
+
+    public function importKabupaten(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        Excel::import(new \App\Imports\SekolahKabupatenImport, $request->file('file'));
+        
+        return redirect()->back()->with('success', 'Data Kabupaten Sekolah berhasil diimport dan diupdate');
+    }
 }
