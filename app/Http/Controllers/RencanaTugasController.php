@@ -414,9 +414,15 @@ class RencanaTugasController extends Controller
 
     protected function sendWhatsAppMessage($phone, $message, $nama_kepala_sekolah_id, $model)
     {
-        $token = 'ChvMJmr8Y5PwD130iY6kZqNQoAvCNQBxvH4RKiCOckJCAvEtVZtBO2Gyubj9THyU';
-        $secretKey = '3eOzFZaU'; 
-        $url = "https://jogja.wablas.com/api/send-message";
+        $token = env('WABLAS_TOKEN', 'ChvMJmr8Y5PwD130iY6kZqNQoAvCNQBxvH4RKiCOckJCAvEtVZtBO2Gyubj9THyU');
+        $secretKey = env('WABLAS_SECRET', '3eOzFZaU');
+        $url = env('WABLAS_ENDPOINT', 'https://jogja.wablas.com/api/send-message');
+
+        // Pencegahan Spam (Delay acak 1 hingga max WABLAS_DELAY_SECONDS)
+        $maxDelay = (int) env('WABLAS_DELAY_SECONDS', 3);
+        if ($maxDelay > 0) {
+            sleep(rand(1, max(1, $maxDelay)));
+        }
 
         // Format nomor telepon
         $phone = preg_replace('/[^0-9]/', '', $phone);
@@ -433,6 +439,11 @@ class RencanaTugasController extends Controller
 
         // Branding Replacement
         $message = str_ireplace(['simodip', 'sistem modip', 'Sistem Monitoring dan Evaluasi Digital Pengawas'], 'DelmanSuper', $message);
+
+        // Pencegahan Blokir (Variasi Pesan Unik / Anti-Spam Suffix)
+        if (filter_var(env('WABLAS_ANTI_SPAM_SUFFIX', true), FILTER_VALIDATE_BOOLEAN)) {
+            $message .= "\n\n[Ref: " . date('YmdHis') . "-" . rand(100, 999) . "]";
+        }
 
         $logEntry = new WhatsappMessagesLog();
         $logEntry->rencana_kerja_id = $model->id;
