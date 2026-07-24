@@ -18,22 +18,22 @@ use Illuminate\Support\Facades\Storage;
 |
 */
 
-// clear view
+// clear view & config cache
 Route::get('/clear-view', function () {
     Artisan::call('view:clear');
-    Artisan::call('config:cache');
+    Artisan::call('config:clear');
+    Artisan::call('cache:clear');
     Artisan::call('clear-compiled');
-    Artisan::call('config:cache');
-    Artisan::call('clear-compiled');
-    return 'clear all cache config route';
+    return 'All view, config, and application cache cleared successfully!';
 });
 Route::get('/config-cache', function () {
+    Artisan::call('config:clear');
     Artisan::call('config:cache');
-    return 'View Cache cleared!';
+    return 'Config Cache rebuilt successfully!';
 });
 Route::get('/clear-compiled', function () {
     Artisan::call('clear-compiled');
-    return 'View Cache cleared!';
+    return 'Compiled Cache cleared!';
 });
 // call migrate
 Route::get('/composer/autoload', function () {

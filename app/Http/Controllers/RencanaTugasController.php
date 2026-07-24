@@ -414,12 +414,12 @@ class RencanaTugasController extends Controller
 
     protected function sendWhatsAppMessage($phone, $message, $nama_kepala_sekolah_id, $model)
     {
-        $token = env('WABLAS_TOKEN', 'ChvMJmr8Y5PwD130iY6kZqNQoAvCNQBxvH4RKiCOckJCAvEtVZtBO2Gyubj9THyU');
-        $secretKey = env('WABLAS_SECRET', '3eOzFZaU');
-        $url = env('WABLAS_ENDPOINT', 'https://jogja.wablas.com/api/send-message');
+        $token = config('services.wablas.token') ?: env('WABLAS_TOKEN');
+        $secretKey = config('services.wablas.secret') ?: env('WABLAS_SECRET');
+        $url = config('services.wablas.endpoint') ?: env('WABLAS_ENDPOINT', 'https://jogja.wablas.com/api/send-message');
 
         // Pencegahan Spam (Delay acak 1 hingga max WABLAS_DELAY_SECONDS)
-        $maxDelay = (int) env('WABLAS_DELAY_SECONDS', 3);
+        $maxDelay = (int) (config('services.wablas.delay') ?: env('WABLAS_DELAY_SECONDS', 10));
         if ($maxDelay > 0) {
             sleep(rand(1, max(1, $maxDelay)));
         }

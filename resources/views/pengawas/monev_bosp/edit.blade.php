@@ -102,7 +102,7 @@
                                 <input type="text" id="total_siswa_riil" class="form-control" readonly value="0">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="siswa_dinas_bos" class="form-label">Data Siswa (Cutoff Dinas/BOS)</label>
+                                <label for="siswa_dinas_bos" class="form-label">Data Dapodik Cutoff April</label>
                                 <input type="number" name="siswa_dinas_bos" id="siswa_dinas_bos" class="form-control hitung-selisih" required min="0" value="{{ old('siswa_dinas_bos', $monev->siswa_dinas_bos) }}">
                             </div>
                             <div class="col-md-4 mb-3">

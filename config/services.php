@@ -30,4 +30,13 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'wablas' => [
+        'endpoint' => env('WABLAS_ENDPOINT', 'https://jogja.wablas.com/api/send-message'),
+        'token' => env('WABLAS_TOKEN'),
+        'secret' => env('WABLAS_SECRET'),
+        'delay' => env('WABLAS_DELAY_SECONDS', 10),
+        'anti_spam_suffix' => env('WABLAS_ANTI_SPAM_SUFFIX', true),
+    ],
+
 ];
+

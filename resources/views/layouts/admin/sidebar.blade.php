@@ -45,7 +45,7 @@
         <li class="menu-item {{ request()->is('dashboard-monev-bosp*') ? 'active' : '' }}">
             <a href="{{ route('admin.dashboard_monev_bosp') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-file-report"></i>
-                <div data-i18n="Dashboard Monev BOSP">Dashboard Monev BOSP</div>
+                <div data-i18n="Dashboard Monev Dapodik">Dashboard Monev Dapodik</div>
             </a>
         </li>
         @endif

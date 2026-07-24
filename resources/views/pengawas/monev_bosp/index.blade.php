@@ -42,7 +42,7 @@
                                         <th>Sekolah</th>
                                         <th>Bulan / Tahun</th>
                                         <th>Siswa Riil</th>
-                                        <th>Siswa BOS</th>
+                                        <th>Data Dapodik (Cutoff April)</th>
                                         <th>Selisih</th>
                                         <th>Status Selisih</th>
                                         <th>Aksi</th>

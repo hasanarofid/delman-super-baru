@@ -1,6 +1,6 @@
 @extends(Auth::user()->role == 'Pengawas' ? 'layouts.pengawas.home' : 'layouts.admin.home')
-@section('title', 'Dashboard Monev BOSP')
-@section('titelcard', 'Dashboard Monev BOSP')
+@section('title', 'Dashboard Monev Dapodik (BOSP)')
+@section('titelcard', 'Dashboard Monev Dapodik (BOSP)')
 
 @section('style')
 <style>
@@ -28,7 +28,7 @@
         }
     }
     .print-title {
-        display: none;
+        display: none !important;
     }
 </style>
 @endsection
@@ -37,21 +37,21 @@
 <div class="content-wrapper">
     <div class="container-xxl flex-grow-1 container-p-y">
         
-        <div class="print-title">
-            Dashboard Data Monev BOSP <br>
+        <div class="print-title d-none d-print-block">
+            Dashboard Data Monev Dapodik (BOSP) <br>
             Bulan {{ $month !== 'all' ? $month : 'Semua Bulan' }} Tahun {{ $year !== 'all' ? $year : 'Semua Tahun' }}
         </div>
 
         <!-- Filter Card -->
-        <div class="card mb-4 d-print-none">
+        <div class="card mb-4 d-print-none shadow-sm">
             <div class="card-header pb-0 p-3 d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">Filter Data Monev BOSP</h6>
+                <h6 class="mb-0 fw-bold text-primary"><i class="ti ti-filter me-1"></i> Filter Data Monev Dapodik (BOSP)</h6>
                 <button onclick="window.print()" class="btn btn-sm btn-danger"><i class="ti ti-file-pdf me-1"></i> Download PDF</button>
             </div>
             <div class="card-body mt-3">
                 <form action="{{ route('admin.dashboard_monev_bosp') }}" method="GET" class="row gx-3 gy-2 align-items-center">
                     <div class="col-sm-3">
-                        <label class="visually-hidden" for="tahun">Tahun</label>
+                        <label class="form-label mb-1 small fw-semibold" for="tahun">Tahun</label>
                         <select class="form-select" id="tahun" name="tahun">
                             <option value="all" {{ $year == 'all' ? 'selected' : '' }}>Semua Tahun</option>
                             @for ($i = date('Y') - 5; $i <= date('Y'); $i++)
@@ -60,7 +60,7 @@
                         </select>
                     </div>
                     <div class="col-sm-3">
-                        <label class="visually-hidden" for="bulan">Bulan</label>
+                        <label class="form-label mb-1 small fw-semibold" for="bulan">Bulan</label>
                         <select class="form-select" id="bulan" name="bulan">
                             <option value="all" {{ $month == 'all' ? 'selected' : '' }}>Semua Bulan</option>
                             @foreach ($bulanOptions as $bln)
@@ -68,12 +68,191 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary">Filter</button>
+                    <div class="col-sm-4">
+                        <label class="form-label mb-1 small fw-semibold" for="kabupaten_id">Kabupaten / Kota</label>
+                        <select class="form-select" id="kabupaten_id" name="kabupaten_id">
+                            <option value="all" {{ $selectedKabupaten == 'all' ? 'selected' : '' }}>Semua Kabupaten / Kota</option>
+                            @foreach ($kabupatenOptions as $kab)
+                                <option value="{{ $kab->id }}" {{ $selectedKabupaten == $kab->id ? 'selected' : '' }}>{{ $kab->nama_kabupaten }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-auto align-self-end">
+                        <button type="submit" class="btn btn-primary"><i class="ti ti-search me-1"></i> Filter</button>
                     </div>
                 </form>
             </div>
+        <!-- Percentage & Progress Analytics Cards -->
+        @if($isPengawas)
+        <!-- Dashboard Progress untuk Pengawas -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 border-start border-primary border-4 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="card-title text-uppercase text-muted mb-0 fw-semibold">Capaian Monev Sekolah Dampingan</h6>
+                            <span class="badge bg-primary fs-6">{{ $persentaseMonev }}%</span>
+                        </div>
+                        <h2 class="mb-1 text-primary fw-bold">{{ $sekolahSudahMonevCount }} <span class="fs-5 text-muted fw-normal">/ {{ $totalSekolahBinaan }} Sekolah</span></h2>
+                        <p class="text-muted small mb-2">{{ $sekolahSudahMonevCount }} dari {{ $totalSekolahBinaan }} sekolah dampingan sudah di-monev</p>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ $persentaseMonev }}%" aria-valuenow="{{ $persentaseMonev }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 border-start border-success border-4 shadow-sm text-center">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h1 class="text-success fw-bold mb-0">{{ $sekolahSudahMonevCount }}</h1>
+                        <p class="card-text text-muted mb-0 font-weight-bold">Sekolah Sudah Monev</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 border-start border-danger border-4 shadow-sm text-center">
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <h1 class="text-danger fw-bold mb-0">{{ max(0, $totalSekolahBinaan - $sekolahSudahMonevCount) }}</h1>
+                        <p class="card-text text-muted mb-0 font-weight-bold">Sekolah Belum Monev</p>
+                    </div>
+                </div>
+            </div>
         </div>
+        @else
+        <!-- Dashboard Progress untuk Admin / Stakeholder (Kabid / Dinas) -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 border-start border-success border-4 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="card-title text-uppercase text-muted mb-0 fw-semibold">Kepatuhan Laporan Pengawas (Kabid View)</h6>
+                            <span class="badge bg-success fs-6">{{ $persentasePengawasLapor }}%</span>
+                        </div>
+                        <h2 class="mb-1 text-success fw-bold">{{ $pengawasSudahLaporCount }} <span class="fs-5 text-muted fw-normal">/ {{ $totalPengawas }} Pengawas</span></h2>
+                        <p class="text-muted small mb-2">{{ $pengawasSudahLaporCount }} dari {{ $totalPengawas }} Pengawas sudah membuat laporan monev</p>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ $persentasePengawasLapor }}%" aria-valuenow="{{ $persentasePengawasLapor }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 border-start border-info border-4 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="card-title text-uppercase text-muted mb-0 fw-semibold">Total Capaian Sekolah Dimonev (Wilayah)</h6>
+                            <span class="badge bg-info fs-6">{{ $persentaseSekolahWilayah }}%</span>
+                        </div>
+                        <h2 class="mb-1 text-info fw-bold">{{ $totalSekolahDimonev }} <span class="fs-5 text-muted fw-normal">/ {{ $totalSekolahBinaanWilayah }} Total Sekolah Binaan</span></h2>
+                        <p class="text-muted small mb-2">{{ $totalSekolahDimonev }} dari total {{ $totalSekolahBinaanWilayah }} sekolah binaan ter-monev di wilayah ini</p>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ $persentaseSekolahWilayah }}%" aria-valuenow="{{ $persentaseSekolahWilayah }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rekap Monitoring Kepatuhan Pengawas (Kabid & Admin View) -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-primary font-weight-bold"><i class="ti ti-chart-bar me-1"></i> Monitoring Kepatuhan Pelaporan Pengawas (Kabid & Admin View)</h6>
+                        <span class="badge bg-primary">{{ count($rekapKepatuhanPengawas) }} Pengawas Scope</span>
+                    </div>
+                    <div class="card-body mt-3">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped datatable-custom">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th style="width: 50px;">No</th>
+                                        <th>Nama Pengawas</th>
+                                        <th>NIP / Identitas</th>
+                                        <th class="text-center">Sekolah Binaan</th>
+                                        <th class="text-center">Sudah Monev</th>
+                                        <th style="width: 250px;">Progress Laporan</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($rekapKepatuhanPengawas as $idx => $item)
+                                    <tr>
+                                        <td>{{ $idx + 1 }}</td>
+                                        <td class="fw-semibold text-dark">{{ $item['nama'] }}</td>
+                                        <td>{{ $item['nip'] }}</td>
+                                        <td class="text-center fw-bold">{{ $item['total_binaan'] }} Sekolah</td>
+                                        <td class="text-center fw-bold text-success">{{ $item['sudah_monev'] }} Sekolah</td>
+                                        <td>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <small class="fw-bold">{{ $item['persentase'] }}%</small>
+                                                <small class="text-muted">{{ $item['sudah_monev'] }}/{{ $item['total_binaan'] }}</small>
+                                            </div>
+                                            <div class="progress" style="height: 6px;">
+                                                <div class="progress-bar {{ $item['persentase'] >= 100 ? 'bg-success' : ($item['persentase'] > 0 ? 'bg-warning' : 'bg-danger') }}" role="progressbar" style="width: {{ $item['persentase'] }}%"></div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge {{ $item['status_badge'] }} px-3 py-2 fs-7">{{ $item['status_text'] }}</span>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        @if($isPengawas)
+        <!-- Rekap Detail Sekolah Dampingan Pengawas (Pengawas View) -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 text-primary font-weight-bold"><i class="ti ti-list-check me-1"></i> Status Pelaporan Sekolah Binaan Saya</h6>
+                        <span class="badge bg-primary">{{ $totalSekolahBinaan }} Sekolah Dampingan</span>
+                    </div>
+                    <div class="card-body mt-3">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped datatable-custom">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th style="width: 50px;">No</th>
+                                        <th>Nama Sekolah Binaan</th>
+                                        <th>NPSN</th>
+                                        <th>Kabupaten</th>
+                                        <th class="text-center">Status Monev (Bulan Ini)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $sekolahDimonevIds = $monevList->pluck('sekolah_id')->unique()->toArray(); @endphp
+                                    @foreach($sekolahBinaanList as $idx => $binaan)
+                                    @php $sudah = in_array($binaan->id_sekolah, $sekolahDimonevIds); @endphp
+                                    <tr>
+                                        <td>{{ $idx + 1 }}</td>
+                                        <td class="fw-semibold text-dark">{{ $binaan->sekolah->nama_sekolah ?? '-' }}</td>
+                                        <td>{{ $binaan->sekolah->npsn ?? '-' }}</td>
+                                        <td>{{ $binaan->sekolah->kabupaten->nama_kabupaten ?? '-' }}</td>
+                                        <td class="text-center">
+                                            @if($sudah)
+                                                <span class="badge bg-success px-3 py-2"><i class="ti ti-check me-1"></i> Sudah Monev</span>
+                                            @else
+                                                <span class="badge bg-danger px-3 py-2"><i class="ti ti-x me-1"></i> Belum Monev</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
 
         <!-- Metrics Cards -->
         <div class="row mb-4">

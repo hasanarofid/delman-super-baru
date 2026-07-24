@@ -127,8 +127,8 @@ class PelaporanController extends Controller
     public static function buildUmpanBalik($id)
     {
         $pelaporan = Pelaporan::find($id);
-        $token = env('WABLAS_TOKEN', 'ChvMJmr8Y5PwD130iY6kZqNQoAvCNQBxvH4RKiCOckJCAvEtVZtBO2Gyubj9THyU');
-        $secretKey = env('WABLAS_SECRET', '3eOzFZaU');
+        $token = config('services.wablas.token') ?: env('WABLAS_TOKEN');
+        $secretKey = config('services.wablas.secret') ?: env('WABLAS_SECRET');
         $authorization = "{$token}.{$secretKey}";
         if ($pelaporan->sasaran == 'Guru') {
             $user = GuruM::find($pelaporan->object);
