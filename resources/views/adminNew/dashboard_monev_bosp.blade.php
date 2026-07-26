@@ -46,7 +46,10 @@
         <div class="card mb-4 d-print-none shadow-sm">
             <div class="card-header pb-0 p-3 d-flex justify-content-between align-items-center">
                 <h6 class="mb-0 fw-bold text-primary"><i class="ti ti-filter me-1"></i> Filter Data Monev Dapodik (BOSP)</h6>
-                <button onclick="window.print()" class="btn btn-sm btn-danger"><i class="ti ti-file-pdf me-1"></i> Download PDF</button>
+                <div>
+                    <a href="{{ route('admin.dashboard_monev_bosp.export', request()->query()) }}" class="btn btn-sm btn-success me-1"><i class="ti ti-file-spreadsheet me-1"></i> Download Excel</a>
+                    <a href="{{ route('admin.dashboard_monev_bosp.pdf', request()->query()) }}" class="btn btn-sm btn-danger"><i class="ti ti-file-pdf me-1"></i> Download PDF</a>
+                </div>
             </div>
             <div class="card-body mt-3">
                 <form action="{{ route('admin.dashboard_monev_bosp') }}" method="GET" class="row gx-3 gy-2 align-items-center">

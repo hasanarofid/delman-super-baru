@@ -58,6 +58,8 @@ Route::get('/', 'AdminController@index')->name('admin.index')->middleware(['auth
 Route::get('/dashboard', 'AdminController@index')->name('admin.index')->middleware(['auth']);
 Route::get('/dashboard-monev', 'DashboardMonevBulananController@index')->name('admin.dashboard_monev')->middleware(['auth']);
 Route::get('/dashboard-monev-bosp', 'DashboardMonevBospController@index')->name('admin.dashboard_monev_bosp')->middleware(['auth']);
+Route::get('/dashboard-monev-bosp/export', 'DashboardMonevBospController@exportExcel')->name('admin.dashboard_monev_bosp.export')->middleware(['auth']);
+Route::get('/dashboard-monev-bosp/pdf', 'DashboardMonevBospController@exportPdf')->name('admin.dashboard_monev_bosp.pdf')->middleware(['auth']);
 Route::get('/chart-data', 'AdminController@chartData')->name('admin.chartData')->middleware(['auth']);
 Route::get('/chart-data2', 'AdminController@chartData2')->name('admin.chartData2')->middleware(['auth']);
 Route::get('/chartDataRaportPendidikan', 'AdminController@chartDataRaportPendidikan')->name('admin.chartDataRaportPendidikan')->middleware(['auth']);
@@ -241,6 +243,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         Route::get('/getRuang', 'PegawasMController@getRuang')->name('masterpengawas.getRuang');
         Route::get('/tesWa', 'PegawasMController@tesWa')->name('masterpengawas.tesWa');
         Route::get('/setSekolahBinaan/{id}', 'PegawasMController@setSekolahBinaan')->name('masterpengawas.setSekolahBinaan');
+        Route::get('/deleteSekolahBinaan/{id}', 'PegawasMController@deleteSekolahBinaan')->name('masterpengawas.deleteSekolahBinaan');
         Route::post('/update-kabupaten', 'PegawasMController@updateKabupaten')->name('masterpengawas.updateKabupaten');
 
 

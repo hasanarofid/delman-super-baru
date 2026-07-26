@@ -115,18 +115,28 @@ class PegawasMController extends Controller
     }
 
     public function setSekolahBinaan($id){
-        $models = User::where('id',$id)->first();
+        $models = User::where('id',$id)->firstOrFail();
         $user = Auth::user();
         $query = SekolahM::query();
 
         $query = $this->applyStakeholderFilter($query, 'kabupaten_id', 'nama_sekolah', null);
 
-        $sekolah = $query->get();
-        $binaan = SekolahbinaanT::with('sekolah')->where('id_pengawas',$id)->get();
-        $total_binaan = SekolahbinaanT::with('sekolah')->where('id_pengawas',$id)->count();
+        $sekolah = $query->orderBy('nama_sekolah', 'asc')->get();
+        $binaan = SekolahbinaanT::with(['sekolah.kabupaten'])->where('id_pengawas',$id)->get();
+        $total_binaan = $binaan->count();
 
-        // dd($binaan);
         return view('pengawas.add_sekolahbinaan',compact('models','sekolah','binaan','total_binaan'));
+    }
+
+    public function deleteSekolahBinaan($id)
+    {
+        $binaan = SekolahbinaanT::find($id);
+        if ($binaan) {
+            $namaSekolah = $binaan->sekolah->nama_sekolah ?? 'Sekolah';
+            $binaan->delete();
+            return redirect()->back()->with('success', 'Sekolah ' . $namaSekolah . ' berhasil dihapus dari binaan pengawas.');
+        }
+        return redirect()->back()->with('error', 'Data sekolah binaan tidak ditemukan.');
     }
 
 
