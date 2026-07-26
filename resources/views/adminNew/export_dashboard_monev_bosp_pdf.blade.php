@@ -149,7 +149,7 @@
         <table>
             <tr>
                 <td width="33%">
-                    <div class="summary-title">Kepatuhan Pengawas</div>
+                    <div class="summary-title">Keterlibatan Pengawas</div>
                     <div class="summary-value">{{ $pengawasSudahLaporCount }} / {{ $totalPengawas }}</div>
                     <div style="font-size: 9px; color: #4a5568;">{{ $persentasePengawasLapor }}% Lapor</div>
                 </td>
@@ -184,8 +184,8 @@
         </table>
     </div>
 
-    <!-- Tabel 1: Rekap Kepatuhan Pengawas -->
-    <div class="section-title">1. Rekapitulasi Kepatuhan Laporan Pengawas</div>
+    <!-- Tabel 1: Rekap Keterlibatan Pengawas -->
+    <div class="section-title">1. Rekapitulasi Keterlibatan Laporan Pengawas</div>
     <table class="data-table">
         <thead>
             <tr>

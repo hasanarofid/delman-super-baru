@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\MonevBulanan;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\StakeholderAccess;
 
 class DashboardMonevBulananController extends Controller
 {
+    use StakeholderAccess;
+
     public function index(Request $request)
     {
         $year = $request->input('tahun', date('Y'));
@@ -16,20 +19,15 @@ class DashboardMonevBulananController extends Controller
         $user = Auth::user();
         $query = MonevBulanan::with(['pengawas', 'sekolah']);
 
+        // Apply Stakeholder / Admin / Pengawas Access Control
+        $query = $this->applyStakeholderFilter($query, 'sekolah.kabupaten_id', 'nama_sekolah', 'pengawas', 'sekolah');
+
         if ($year !== 'all') {
             $query->where('tahun', $year);
         }
 
         if ($month !== 'all') {
             $query->where('bulan', $month);
-        }
-
-        if ($user && $user->role == 'Stakeholder' && $user->kabupaten_id) {
-            $kelompok_kabupaten = \App\Kabupaten::find($user->kabupaten_id)->kelompok_kabupaten;
-            $kabupaten_ids = \App\Kabupaten::where('kelompok_kabupaten', $kelompok_kabupaten)->pluck('id');
-            $query->whereHas('sekolah', function($q) use ($kabupaten_ids) {
-                $q->whereIn('kabupaten_id', $kabupaten_ids);
-            });
         }
 
         if ($user && strtolower($user->role) == 'pengawas') {

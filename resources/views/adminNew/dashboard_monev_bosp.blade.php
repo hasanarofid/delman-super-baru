@@ -128,7 +128,7 @@
                 <div class="card h-100 border-start border-success border-4 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="card-title text-uppercase text-muted mb-0 fw-semibold">Kepatuhan Laporan Pengawas (Kabid View)</h6>
+                            <h6 class="card-title text-uppercase text-muted mb-0 fw-semibold">Keterlibatan Laporan Pengawas (Kabid View)</h6>
                             <span class="badge bg-success fs-6">{{ $persentasePengawasLapor }}%</span>
                         </div>
                         <h2 class="mb-1 text-success fw-bold">{{ $pengawasSudahLaporCount }} <span class="fs-5 text-muted fw-normal">/ {{ $totalPengawas }} Pengawas</span></h2>
@@ -156,12 +156,12 @@
             </div>
         </div>
 
-        <!-- Rekap Monitoring Kepatuhan Pengawas (Kabid & Admin View) -->
+        <!-- Rekap Monitoring Keterlibatan Pengawas (Kabid & Admin View) -->
         <div class="row mb-4">
             <div class="col-md-12">
                 <div class="card shadow-sm">
                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 text-primary font-weight-bold"><i class="ti ti-chart-bar me-1"></i> Monitoring Kepatuhan Pelaporan Pengawas (Kabid & Admin View)</h6>
+                        <h6 class="mb-0 text-primary font-weight-bold"><i class="ti ti-chart-bar me-1"></i> Monitoring Keterlibatan Pelaporan Pengawas (Kabid & Admin View)</h6>
                         <span class="badge bg-primary">{{ count($rekapKepatuhanPengawas) }} Pengawas Scope</span>
                     </div>
                     <div class="card-body mt-3">
