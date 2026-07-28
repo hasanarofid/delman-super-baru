@@ -80,8 +80,8 @@ function kirimWaBlast(id,id_sekolah) {
             // Show success message with SweetAlert and re-enable button
             Swal.fire({
                 icon: 'success',
-                title: 'Success',
-                text: 'WA message sent successfully!',
+                title: 'Pesan Masuk Antrean',
+                text: 'Mengikuti ketentuan terbaru dari WhatsApp, notifikasi Anda telah masuk antrean dan akan terkirim secara bertahap dalam kurun waktu 30 menit hingga 1 jam.',
                 confirmButtonText: 'OK'
             }).then(() => {
                 // Reload DataTable after successful WA blast

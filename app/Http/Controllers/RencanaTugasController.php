@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\DynamicUmpanbalikController;
+use App\Services\WaBlastSafetyService;
 
 class RencanaTugasController extends Controller
 {
@@ -114,6 +115,9 @@ class RencanaTugasController extends Controller
                     return $row->bulan . ' - ' . $row->tahun_ajaran;
                 })
                 ->addColumn('nama_sekolah', function ($row) {
+                    if ($row->is_mandiri == 1) {
+                        return '<span class="badge bg-label-info m-1">Mandiri (Refleksi)</span>';
+                    }
                     $sekolahIds = explode(',', $row->sekolah_id);
                     $sekolahs = SekolahM::whereIn('id', $sekolahIds)->get();
 
@@ -414,15 +418,19 @@ class RencanaTugasController extends Controller
 
     protected function sendWhatsAppMessage($phone, $message, $nama_kepala_sekolah_id, $model)
     {
+        // Rate limiting & Warming-up check
+        $safetyCheck = WaBlastSafetyService::checkCanSend();
+        if (!$safetyCheck['allowed']) {
+            Log::warning($safetyCheck['message']);
+            throw new \Exception($safetyCheck['message']);
+        }
+
+        // Apply dynamic safety delay based on warming-up phase
+        WaBlastSafetyService::applySafetyDelay();
+
         $token = config('services.wablas.token') ?: env('WABLAS_TOKEN');
         $secretKey = config('services.wablas.secret') ?: env('WABLAS_SECRET');
         $url = config('services.wablas.endpoint') ?: env('WABLAS_ENDPOINT', 'https://jogja.wablas.com/api/send-message');
-
-        // Pencegahan Spam (Delay acak 1 hingga max WABLAS_DELAY_SECONDS)
-        $maxDelay = (int) (config('services.wablas.delay') ?: env('WABLAS_DELAY_SECONDS', 10));
-        if ($maxDelay > 0) {
-            sleep(rand(1, max(1, $maxDelay)));
-        }
 
         // Format nomor telepon
         $phone = preg_replace('/[^0-9]/', '', $phone);
@@ -437,13 +445,8 @@ class RencanaTugasController extends Controller
             return;
         }
 
-        // Branding Replacement
-        $message = str_ireplace(['simodip', 'sistem modip', 'Sistem Monitoring dan Evaluasi Digital Pengawas'], 'DelmanSuper', $message);
-
-        // Pencegahan Blokir (Variasi Pesan Unik / Anti-Spam Suffix)
-        if (filter_var(env('WABLAS_ANTI_SPAM_SUFFIX', true), FILTER_VALIDATE_BOOLEAN)) {
-            $message .= "\n\n[Ref: " . date('YmdHis') . "-" . rand(100, 999) . "]";
-        }
+        // Branding & Anti-Spam Suffix
+        $message = WaBlastSafetyService::prepareMessageBody($message);
 
         $logEntry = new WhatsappMessagesLog();
         $logEntry->rencana_kerja_id = $model->id;

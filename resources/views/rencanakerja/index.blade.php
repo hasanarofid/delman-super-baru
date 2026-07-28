@@ -223,8 +223,8 @@ $('#sendWaWithCategoryForm').submit(function(e) {
         success: function(response) {
             Swal.fire({
                 icon: 'success',
-                title: 'Success',
-                text: 'WA message with dynamic feedback sent successfully!',
+                title: 'Pesan Masuk Antrean',
+                text: 'Mengikuti ketentuan terbaru dari WhatsApp, notifikasi Anda telah masuk antrean dan akan terkirim secara bertahap dalam kurun waktu 30 menit hingga 1 jam.',
                 confirmButtonText: 'OK'
             }).then(() => {
                 $('#data-table').DataTable().ajax.reload();
