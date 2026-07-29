@@ -139,6 +139,20 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         Route::get('/hapus-aspekprogram{id}', 'AspekprogramController@hapus')->name('aspekprogram.hapus');
     });
 
+    Route::prefix('pengaturan-aspek')->group(function () {
+        Route::get('/', 'AspekprogramController@pengaturan')->name('aspekprogram.pengaturan');
+        Route::post('/store', 'AspekprogramController@storePengaturan')->name('aspekprogram.storePengaturan');
+        Route::get('/get-pengaturan', 'AspekprogramController@getPengaturanData')->name('aspekprogram.getPengaturanData');
+    });
+
+    Route::prefix('pesan-stakeholder')->group(function () {
+        Route::get('/', 'PesanStakeholderController@index')->name('pesan_stakeholder.index');
+        Route::post('/store', 'PesanStakeholderController@store')->name('pesan_stakeholder.store');
+        Route::post('/update/{id}', 'PesanStakeholderController@update')->name('pesan_stakeholder.update');
+        Route::get('/delete/{id}', 'PesanStakeholderController@destroy')->name('pesan_stakeholder.destroy');
+        Route::get('/toggle/{id}', 'PesanStakeholderController@toggleStatus')->name('pesan_stakeholder.toggleStatus');
+    });
+
     Route::prefix('pengawas')->middleware(['auth'])->group(function () {
         Route::get('/', 'PengawasController@index')->name('pengawas.index');
         Route::post('/export-dashboard-kinerja', 'PengawasController@exportDashboardKinerja')->name('pengawas.exportDashboardKinerja');

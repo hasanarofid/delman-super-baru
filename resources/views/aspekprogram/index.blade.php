@@ -13,7 +13,7 @@
                                 <h6 class="mb-0">Tabel Aspek Report Pendidikan</h6>
                             </div>
                             <div class="col-6 d-flex justify-content-end">
-                                @if (Auth::user()->role == 'Super Admin')
+                                @if (Auth::user()->role == 'Super Admin' || Auth::user()->role == 'Stakeholder')
                                 <div class="btn-group" role="group" aria-label="Basic example">
                                     <a class="btn btn-primary waves-effect waves-light" href="{{ route('aspekprogram.add') }}">
                                         <i class="fas fa-plus" aria-hidden="true"></i>&nbsp;Add Aspek Report Pendidikan

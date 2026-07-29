@@ -19,6 +19,7 @@ use DataTables;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Models\UmpanbalikCategory;
+use App\Models\PengaturanAspekStakeholder;
 use Carbon\Carbon;
 use App\Services\WaBlastSafetyService;
 class PerencanaanController extends Controller
@@ -65,6 +66,38 @@ class PerencanaanController extends Controller
         }
         $jenisProgram = JenisProgram::where('status', true)->get();
         $aspekProgram = AspekProgram::where('status', true)->get();
+
+        // Filtering penguncian aspek dari Stakeholder untuk Pengawas
+        $user = Auth::user();
+        if ($user && $user->role == 'Pengawas') {
+            $userKabId = $user->kabupaten_id;
+            $userJenjangs = json_decode($user->akses_jenjang, true) ?? [];
+            $cMonth = date('n');
+            $cYear = date('Y');
+
+            $disabledAspekIds = PengaturanAspekStakeholder::where(function ($q) use ($userKabId) {
+                if ($userKabId) {
+                    $q->where('kabupaten_id', $userKabId)->orWhereNull('kabupaten_id');
+                }
+            })->where(function ($q) use ($user) {
+                $q->where('pengawas_id', $user->id)->orWhereNull('pengawas_id');
+            })->where(function ($q) use ($userJenjangs) {
+                if (!empty($userJenjangs) && !in_array('All', $userJenjangs)) {
+                    $q->whereIn('jenjang', $userJenjangs)->orWhereNull('jenjang');
+                }
+            })->where(function ($q) use ($cMonth) {
+                $q->where('bulan', $cMonth)->orWhereNull('bulan');
+            })->where(function ($q) use ($cYear) {
+                $q->where('tahun', $cYear)->orWhereNull('tahun');
+            })->where('is_active', 0)->pluck('aspek_program_id')->toArray();
+
+            if (!empty($disabledAspekIds)) {
+                $aspekProgram = $aspekProgram->reject(function ($item) use ($disabledAspekIds) {
+                    return in_array($item->id, $disabledAspekIds);
+                });
+            }
+        }
+
         $umpanbalikCategories = UmpanbalikCategory::where('status', true)->get();
 
         $currentYear = date('Y');
@@ -168,9 +201,41 @@ class PerencanaanController extends Controller
         // Jika RHK 3 ATAU Umpan Balik bukan Default (0), maka dianggap Mandiri
         $is_mandiri = ($kategori_id == 11 || ($umpanbalik_cat != 0 && !empty($umpanbalik_cat))) ? 1 : 0;
 
+        // Validasi backend: Penguncian aspek dari Stakeholder
+        $aspekIdInput = $request->post('aspekprogram_id');
+        $user = Auth::user();
+        if ($user && $user->role == 'Pengawas' && $aspekIdInput) {
+            $userKabId = $user->kabupaten_id;
+            $userJenjangs = json_decode($user->akses_jenjang, true) ?? [];
+            $cMonth = $request->post('bulan', date('n'));
+            $cYear = date('Y');
+
+            $isClosed = PengaturanAspekStakeholder::where(function ($q) use ($userKabId) {
+                if ($userKabId) {
+                    $q->where('kabupaten_id', $userKabId)->orWhereNull('kabupaten_id');
+                }
+            })->where(function ($q) use ($user) {
+                $q->where('pengawas_id', $user->id)->orWhereNull('pengawas_id');
+            })->where(function ($q) use ($userJenjangs) {
+                if (!empty($userJenjangs) && !in_array('All', $userJenjangs)) {
+                    $q->whereIn('jenjang', $userJenjangs)->orWhereNull('jenjang');
+                }
+            })->where(function ($q) use ($cMonth) {
+                $q->where('bulan', $cMonth)->orWhereNull('bulan');
+            })->where(function ($q) use ($cYear) {
+                $q->where('tahun', $cYear)->orWhereNull('tahun');
+            })->where('aspek_program_id', $aspekIdInput)
+              ->where('is_active', 0)
+              ->exists();
+
+            if ($isClosed) {
+                return redirect()->back()->withInput()->with('error', 'Aspek Raport Pendidikan yang dipilih sedang DITUTUP oleh Stakeholder untuk periode ini.');
+            }
+        }
+
         try {
-            return \DB::transaction(function () use ($request, $sekolah_ids, $is_mandiri) {
-                $model = new RencanaKerjaT();
+            $model = new RencanaKerjaT();
+            \DB::transaction(function () use ($request, $sekolah_ids, $is_mandiri, $model) {
                 $model->tahun_ajaran = date('Y');
                 $model->id_pengawas = Auth::user()->id;
                 $model->nama_program_kerja = $request->post('nama_program_kerja');
@@ -185,15 +250,15 @@ class PerencanaanController extends Controller
                 $model->tenggat_waktu = $request->post('tenggat_waktu');
                 $model->id_umpanbalik_category = $request->post('id_umpanbalik_category');
                 $model->save();
-
-                // Proses pengiriman WA (Jika ini gagal, transaction akan rollback)
-                try {
-                    $this->kirimWa($model->id);
-                    return redirect()->route('pengawas.perencanaan')->with('success', 'Perencanaan berhasil disimpan dan pesan WA terkirim!');
-                } catch (\Exception $e) {
-                    return redirect()->route('pengawas.perencanaan')->with('error', 'Perencanaan berhasil disimpan, namun pesan WA GAGAL dikirim. Error: ' . $e->getMessage());
-                }
             });
+
+            // Proses pengiriman WA di luar DB Transaction agar tidak menahan lock MySQL / menyebabkan timeout
+            try {
+                $this->kirimWa($model->id);
+                return redirect()->route('pengawas.perencanaan')->with('success', 'Perencanaan berhasil disimpan dan pesan WA terkirim!');
+            } catch (\Exception $e) {
+                return redirect()->route('pengawas.perencanaan')->with('error', 'Perencanaan berhasil disimpan, namun pesan WA GAGAL dikirim. Error: ' . $e->getMessage());
+            }
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal membuat rencana kerja: ' . $e->getMessage());
         }

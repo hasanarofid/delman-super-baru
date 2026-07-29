@@ -52,15 +52,15 @@
         @if ($user && ($user->role == 'Super Admin' || $user->role == 'Stakeholder'))
 
           <!-- master data -->
-          @if ($user->role == 'Super Admin')
-          <li class="menu-item {{ ( request()->is('superadmin/mastertupoksi*') || request()->is('superadmin/jenisprogram*')  || request()->is('superadmin/aspekprogram*')   ) ? 'active open' : '' }}">
+          @if ($user->role == 'Super Admin' || $user->role == 'Stakeholder')
+          <li class="menu-item {{ ( request()->is('superadmin/mastertupoksi*') || request()->is('superadmin/jenisprogram*') || request()->is('superadmin/aspekprogram*') || request()->is('superadmin/pengaturan-aspek*') ) ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
               <i class="menu-icon tf-icons ti ti-layout-sidebar"></i>
               <div data-i18n="Master Data">Master Data</div>
             </a>
 
             <ul class="menu-sub">
-             
+                @if ($user->role == 'Super Admin')
                 <li class="menu-item {{ (request()->is('superadmin/mastertupoksi*')) ? 'active' : '' }}">
                     <a href="{{ route('mastertupoksi.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons fas fa-list-alt"></i>
@@ -73,17 +73,31 @@
                         <div data-i18n="Jenis Program">Jenis Program</div>
                     </a>
                 </li>
-                <li class="menu-item {{ (request()->is('superadmin/aspekprogram*')) ? 'active' : '' }}">
+                @endif
+                <li class="menu-item {{ (request()->is('superadmin/aspekprogram*') && !request()->is('superadmin/pengaturan-aspek*')) ? 'active' : '' }}">
                     <a href="{{ route('aspekprogram.index') }}" class="menu-link">
                     <i class="menu-icon tf-icons fas fa-list"></i>
                         <div data-i18n="Aspek Raport Pendidikan">Aspek Raport Pendidikan</div>
                     </a>
                 </li>
+                <li class="menu-item {{ (request()->is('superadmin/pengaturan-aspek*')) ? 'active' : '' }}">
+                    <a href="{{ route('aspekprogram.pengaturan') }}" class="menu-link">
+                    <i class="menu-icon tf-icons fas fa-toggle-on"></i>
+                        <div data-i18n="Buka/Tutup Aspek">Atur Aspek Periodik</div>
+                    </a>
+                </li>
                 
             </ul>
           </li>
-           <!-- end master data -->
-           @endif
+          <!-- end master data -->
+
+          <li class="menu-item {{ (request()->is('superadmin/pesan-stakeholder*')) ? 'active' : '' }}">
+            <a href="{{ route('pesan_stakeholder.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons fas fa-bullhorn"></i>
+                <div data-i18n="Pesan Stakeholder">Pesan Stakeholder</div>
+            </a>
+          </li>
+          @endif
 
             <!-- master delmansuper -->
           <li class="menu-item {{ ( request()->is('superadmin/masterkabupaten*') || request()->is('superadmin/masterpengawas*') || request()->is('superadmin/sekolah*')  || request()->is('superadmin/guru*') || request()->is('superadmin/stakeholder*')  ) ? 'active open' : '' }}">

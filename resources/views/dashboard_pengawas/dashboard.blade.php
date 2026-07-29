@@ -771,3 +771,59 @@
             });
         });
     </script>
+
+    @if(isset($pesanStakeholder) && $pesanStakeholder)
+    <!-- Modal Pop-Up Pesan Stakeholder -->
+    <div class="modal fade" id="modalPesanStakeholder" tabindex="-1" aria-labelledby="modalPesanStakeholderLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title text-white font-weight-bold" id="modalPesanStakeholderLabel">
+                        <i class="fas fa-bullhorn me-2"></i>{{ $pesanStakeholder->judul }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar avatar-md me-3 bg-label-primary rounded-circle p-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-user-tie fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 font-weight-bold">{{ $pesanStakeholder->stakeholder ? $pesanStakeholder->stakeholder->name : 'Stakeholder / Kadis' }}</h6>
+                            <small class="text-muted">Pesan Resmi Stakeholder &bull; {{ $pesanStakeholder->updated_at->format('d M Y H:i') }}</small>
+                        </div>
+                    </div>
+                    <div class="alert alert-info border-0 bg-label-info p-3 mb-0" style="font-size: 1.05rem; line-height: 1.6;">
+                        {!! nl2br(e($pesanStakeholder->isi_pesan)) !!}
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-primary px-4 fw-bold" id="btnUnderstandPesan" data-bs-dismiss="modal">
+                        <i class="fas fa-check-circle me-1"></i> Saya Mengerti
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var pesanId = "{{ $pesanStakeholder->id }}";
+            var pesanUpdatedAt = "{{ $pesanStakeholder->updated_at }}";
+            var storageKey = "stakeholder_pesan_read_" + pesanId + "_" + btoa(pesanUpdatedAt);
+
+            if (!localStorage.getItem(storageKey)) {
+                var modalEl = document.getElementById('modalPesanStakeholder');
+                if (modalEl) {
+                    var modalPesan = new bootstrap.Modal(modalEl);
+                    modalPesan.show();
+                }
+
+                document.getElementById('btnUnderstandPesan')?.addEventListener('click', function () {
+                    localStorage.setItem(storageKey, 'true');
+                });
+            }
+        });
+    </script>
+    @endif
+

@@ -406,11 +406,28 @@ return response()->json($chartData);
             ];
         }
 
+        $user = Auth::user();
+        $pesanStakeholder = null;
+        if ($user) {
+            $pesanStakeholder = \App\Models\PesanStakeholder::with('stakeholder')
+                ->where('is_active', 1)
+                ->where(function ($q) use ($user) {
+                    if ($user->kabupaten_id) {
+                        $q->where('kabupaten_id', $user->kabupaten_id)->orWhereNull('kabupaten_id');
+                    } else {
+                        $q->whereNull('kabupaten_id');
+                    }
+                })
+                ->latest()
+                ->first();
+        }
+
         return view('dashboard_pengawas.dashboard',
         compact(
             'months',
             'currentYear',    
-            'years'
+            'years',
+            'pesanStakeholder'
             )
         );
 
