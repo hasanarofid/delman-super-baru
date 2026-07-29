@@ -86,7 +86,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
-        public_path('shared') => '/home/u144635195/shared-storage',
+        public_path('shared') => file_exists('/home/u144635195/shared-storage') ? '/home/u144635195/shared-storage' : storage_path('shared'),
     ],
 
 ];

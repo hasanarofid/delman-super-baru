@@ -1019,7 +1019,8 @@ Route::get('/umpanbalik-done', function () {
 
 Auth::routes();
 Route::get('laporan/{filename}', function ($filename) {
-    $path = '/home/u144635195/shared-storage/laporan/' . $filename;
+    try { DB::disconnect(); } catch (\Throwable $e) {}
+    $path = Storage::disk('shared')->path('laporan/' . $filename);
 
     if (!File::exists($path)) {
         Log::error('Image file not found: ' . $path);
@@ -1031,12 +1032,14 @@ Route::get('laporan/{filename}', function ($filename) {
 
     $response = Response::make($file, 200);
     $response->header("Content-Type", $type);
+    $response->header("Access-Control-Allow-Origin", "*");
 
     return $response;
-})->name('laporan');
+})->name('laporan')->withoutMiddleware(['web']);
 
 Route::get('fotopengawas/{filename}', function ($filename) {
-    $path = '/home/u144635195/shared-storage/pengawas/' . $filename;
+    try { DB::disconnect(); } catch (\Throwable $e) {}
+    $path = Storage::disk('shared')->path('pengawas/' . $filename);
 
     if (!File::exists($path)) {
         Log::error('Image file not found: ' . $path);
@@ -1048,22 +1051,33 @@ Route::get('fotopengawas/{filename}', function ($filename) {
 
     $response = Response::make($file, 200);
     $response->header("Content-Type", $type);
+    $response->header("Access-Control-Allow-Origin", "*");
 
     return $response;
-    $type = File::mimeType($path);
-    $response = Response::make($file, 200);
-    return $response;
-})->name('fotopengawas');
+})->name('fotopengawas')->withoutMiddleware(['web']);
 
 Route::get('umpanbalik-dynamic/{filename}', function ($filename) {
+    try { DB::disconnect(); } catch (\Throwable $e) {}
     if (Storage::disk('shared')->exists('umpanbalik_dynamic/' . $filename)) {
         $path = Storage::disk('shared')->path('umpanbalik_dynamic/' . $filename);
     } else {
-        abort(404);
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="90" viewBox="0 0 120 90" fill="none"><rect width="120" height="90" rx="8" fill="#F3F4F6"/><path d="M40 38C40 35.7909 41.7909 34 44 34H76C78.2091 34 80 35.7909 80 38V54C80 56.2091 78.2091 58 76 58H44C41.7909 58 40 56.2091 40 54V38Z" fill="#9CA3AF"/><circle cx="50" cy="42" r="3" fill="#E5E7EB"/><path d="M44 52L52 44L60 52H44Z" fill="#E5E7EB"/><path d="M56 52L66 42L76 52H56Z" fill="#E5E7EB"/><text x="60" y="72" font-family="sans-serif" font-size="9" fill="#6B7280" text-anchor="middle">Foto Tidak Ditemukan</text></svg>';
+        return Response::make($svg, 200)
+            ->header("Content-Type", "image/svg+xml")
+            ->header("Access-Control-Allow-Origin", "*");
     }
 
     $file = File::get($path);
-    $type = File::mimeType($path);
+    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+    $mimeMap = [
+        'jpg'  => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png'  => 'image/png',
+        'gif'  => 'image/gif',
+        'webp' => 'image/webp',
+        'svg'  => 'image/svg+xml',
+    ];
+    $type = $mimeMap[$ext] ?? File::mimeType($path);
     $width = request()->input('w');
 
     if ($width && is_numeric($width) && extension_loaded('gd')) {
@@ -1088,9 +1102,9 @@ Route::get('umpanbalik-dynamic/{filename}', function ($filename) {
                 $source = imagecreatefromgif($path);
                 break;
             default:
-                // Return original if type not supported
                 $response = Response::make($file, 200);
                 $response->header("Content-Type", $type);
+                $response->header("Access-Control-Allow-Origin", "*");
                 return $response;
         }
 
@@ -1123,38 +1137,58 @@ Route::get('umpanbalik-dynamic/{filename}', function ($filename) {
 
         $response = Response::make($resizedFile, 200);
         $response->header("Content-Type", $type);
+        $response->header("Access-Control-Allow-Origin", "*");
         return $response;
     }
 
     $response = Response::make($file, 200);
     $response->header("Content-Type", $type);
+    $response->header("Access-Control-Allow-Origin", "*");
 
     return $response;
-})->name('umpanbalik.dynamic.file');
+})->name('umpanbalik.dynamic.file')->withoutMiddleware(['web']);
 
 Route::get('favicon/{filename?}', function ($filename) {
-    $path = '/home/u144635195/shared-storage/favicon/' . $filename;
+    try { DB::disconnect(); } catch (\Throwable $e) {}
+    $path = Storage::disk('shared')->path('favicon/' . $filename);
+    if (!File::exists($path)) {
+        abort(404);
+    }
     $file = File::get($path);
     $type = File::mimeType($path);
     $response = Response::make($file, 200);
     $response->header("Content-Type", $type);
     return $response;
-})->name('favicon');
+})->name('favicon')->withoutMiddleware(['web']);
 
 
 Route::get('umpanbalikfoto/{filename}', function ($filename) {
-    $path = '/home/u144635195/shared-storage/umpanbalik/' . $filename;
+    try { DB::disconnect(); } catch (\Throwable $e) {}
+    $path = Storage::disk('shared')->path('umpanbalik/' . $filename);
 
     if (!File::exists($path)) {
         Log::error('Image file not found: ' . $path);
-        abort(404);
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="90" viewBox="0 0 120 90" fill="none"><rect width="120" height="90" rx="8" fill="#F3F4F6"/><path d="M40 38C40 35.7909 41.7909 34 44 34H76C78.2091 34 80 35.7909 80 38V54C80 56.2091 78.2091 58 76 58H44C41.7909 58 40 56.2091 40 54V38Z" fill="#9CA3AF"/><circle cx="50" cy="42" r="3" fill="#E5E7EB"/><path d="M44 52L52 44L60 52H44Z" fill="#E5E7EB"/><path d="M56 52L66 42L76 52H56Z" fill="#E5E7EB"/><text x="60" y="72" font-family="sans-serif" font-size="9" fill="#6B7280" text-anchor="middle">Foto Tidak Ditemukan</text></svg>';
+        return Response::make($svg, 200)
+            ->header("Content-Type", "image/svg+xml")
+            ->header("Access-Control-Allow-Origin", "*");
     }
 
     $file = File::get($path);
-    $type = File::mimeType($path);
+    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+    $mimeMap = [
+        'jpg'  => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png'  => 'image/png',
+        'gif'  => 'image/gif',
+        'webp' => 'image/webp',
+        'svg'  => 'image/svg+xml',
+    ];
+    $type = $mimeMap[$ext] ?? File::mimeType($path);
 
     $response = Response::make($file, 200);
     $response->header("Content-Type", $type);
+    $response->header("Access-Control-Allow-Origin", "*");
 
     return $response;
-})->name('umpanbalikfoto');
+})->name('umpanbalikfoto')->withoutMiddleware(['web']);
