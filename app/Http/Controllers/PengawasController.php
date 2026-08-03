@@ -162,6 +162,15 @@ class PengawasController extends Controller
         }
         $user->name = $request->post('nama');
         $user->no_telp = $request->post('telp');
+        if ($request->has('nama_atasan')) {
+            $user->nama_atasan = $request->post('nama_atasan');
+        }
+        if ($request->has('nip_atasan')) {
+            $user->nip_atasan = $request->post('nip_atasan');
+        }
+        if ($request->has('jabatan_atasan')) {
+            $user->jabatan_atasan = $request->post('jabatan_atasan');
+        }
         $user->save();
         $profile = Profile::where('user_id',$user->id)->first();
         $profile->alamat_lengkap = $request->post('alamat');

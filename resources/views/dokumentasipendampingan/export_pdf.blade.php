@@ -161,16 +161,24 @@
         </tbody>
     </table>
 
-    <div class="signature-section" style="margin-top: 60px;">
-        <div class="signature-box">
-            <p style="margin-bottom: 10px;">Pengawas Sekolah,</p>
-            <div style="font-size: 24px; font-weight: bold; margin: 40px 0;">#</div>
-            <p style="margin-bottom: 0;"><strong><u>{{ $pengawasProfile ? $pengawasProfile->name : '..........................................' }}</u></strong></p>
-            <p style="margin-top: 5px;">NIP. {{ $pengawasProfile ? $pengawasProfile->nip : '..........................................' }}</p>
-        </div>
-    </div>
-
-    <div style="clear: both;"></div>
+    <table style="width: 100%; margin-top: 40px; border: none; page-break-inside: avoid;">
+        <tr>
+            <td style="width: 50%; text-align: left; vertical-align: top; border: none;">
+                @if($pengawasProfile && !empty($pengawasProfile->nama_atasan))
+                    <p style="margin-bottom: 10px;">Mengetahui,<br><strong>{{ $pengawasProfile->jabatan_atasan ?? 'Atasan Langsung' }}</strong></p>
+                    <div style="height: 50px;"></div>
+                    <p style="margin-bottom: 0;"><strong><u>{{ $pengawasProfile->nama_atasan }}</u></strong></p>
+                    <p style="margin-top: 5px;">NIP. {{ $pengawasProfile->nip_atasan ?? '-' }}</p>
+                @endif
+            </td>
+            <td style="width: 50%; text-align: left; vertical-align: top; border: none;">
+                <p style="margin-bottom: 10px;">Pengawas Sekolah,</p>
+                <div style="height: 50px;"></div>
+                <p style="margin-bottom: 0;"><strong><u>{{ $pengawasProfile ? $pengawasProfile->name : '..........................................' }}</u></strong></p>
+                <p style="margin-top: 5px;">NIP. {{ $pengawasProfile ? $pengawasProfile->nip : '..........................................' }}</p>
+            </td>
+        </tr>
+    </table>
 
     <div class="footer">
         <table>

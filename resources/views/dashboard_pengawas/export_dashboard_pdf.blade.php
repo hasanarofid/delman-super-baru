@@ -324,15 +324,24 @@
         </tbody>
     </table>
 
-    <div class="signature-section" style="margin-top: 60px;">
-        <div class="signature-box" style="float: right; width: 300px; text-align: center;">
-            <p style="margin-bottom: 10px;">Pengawas Sekolah,</p>
-            <div style="font-size: 24px; font-weight: bold; margin: 40px 0;">#</div>
-            <p style="margin-bottom: 0;"><strong><u>{{ $user->name }}</u></strong></p>
-            <p style="margin-top: 5px;">NIP. {{ $user->nip }}</p>
-        </div>
-        <div style="clear: both;"></div>
-    </div>
+    <table style="width: 100%; margin-top: 40px; border: none; page-break-inside: avoid;">
+        <tr>
+            <td style="width: 50%; text-align: left; vertical-align: top; border: none;">
+                @if(!empty($user->nama_atasan))
+                    <p style="margin-bottom: 10px;">Mengetahui,<br><strong>{{ $user->jabatan_atasan ?? 'Atasan Langsung' }}</strong></p>
+                    <div style="height: 50px;"></div>
+                    <p style="margin-bottom: 0;"><strong><u>{{ $user->nama_atasan }}</u></strong></p>
+                    <p style="margin-top: 5px;">NIP. {{ $user->nip_atasan ?? '-' }}</p>
+                @endif
+            </td>
+            <td style="width: 50%; text-align: left; vertical-align: top; border: none;">
+                <p style="margin-bottom: 10px;">Pengawas Sekolah,</p>
+                <div style="height: 50px;"></div>
+                <p style="margin-bottom: 0;"><strong><u>{{ $user->name }}</u></strong></p>
+                <p style="margin-top: 5px;">NIP. {{ $user->nip }}</p>
+            </td>
+        </tr>
+    </table>
 
     <div class="footer">
         Laporan ini digenerate secara otomatis melalui sistem Delman Super. Kebenaran data adalah tanggung jawab pengawas sekolah bersangkutan.

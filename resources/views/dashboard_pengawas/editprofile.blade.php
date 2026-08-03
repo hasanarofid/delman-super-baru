@@ -94,6 +94,20 @@
                                         {{ $user->profile->bio }}
                                     </textarea>
                                 </div>
+                                <hr class="my-3">
+                                <h6 class="fw-bold mb-2">Data Atasan Langsung (Untuk Kolom Mengetahui pada Laporan PDF)</h6>
+                                <div class="mb-3">
+                                    <label for="nama_atasan" class="form-label">Nama Atasan Langsung</label>
+                                    <input type="text" class="form-control" id="nama_atasan" name="nama_atasan" value="{{ $user->nama_atasan }}" placeholder="Nama Atasan Langsung (contoh: Drs. H. Ahmad, M.Pd.)">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="nip_atasan" class="form-label">NIP Atasan Langsung</label>
+                                    <input type="text" class="form-control" id="nip_atasan" name="nip_atasan" value="{{ $user->nip_atasan }}" placeholder="NIP Atasan Langsung">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="jabatan_atasan" class="form-label">Jabatan Atasan Langsung</label>
+                                    <input type="text" class="form-control" id="jabatan_atasan" name="jabatan_atasan" value="{{ $user->jabatan_atasan }}" placeholder="Jabatan Atasan (contoh: Kepala Cabang Dinas Pendidikan)">
+                                </div>
                                 <button type="submit" class="btn btn-primary button-profile">Ubah Profile</button>
                             </form>
                     </div>

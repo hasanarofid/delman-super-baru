@@ -115,6 +115,20 @@
                         </select>
                      </div>
                      <hr>
+                     <p class="fw-bold">Data Atasan Langsung (Untuk Kolom Mengetahui pada Laporan PDF)</p>
+                     <div class="form-group">
+                        <label for="nama_atasan">Nama Atasan Langsung</label>
+                        <input type="text" value="{{ $models->nama_atasan }}" class="form-control" name="nama_atasan" id="nama_atasan" placeholder="Nama Atasan Langsung (contoh: Drs. H. Ahmad, M.Pd.)">
+                     </div>
+                     <div class="form-group">
+                        <label for="nip_atasan">NIP Atasan Langsung</label>
+                        <input type="text" value="{{ $models->nip_atasan }}" class="form-control" name="nip_atasan" id="nip_atasan" placeholder="NIP Atasan Langsung">
+                     </div>
+                     <div class="form-group">
+                        <label for="jabatan_atasan">Jabatan Atasan Langsung</label>
+                        <input type="text" value="{{ $models->jabatan_atasan }}" class="form-control" name="jabatan_atasan" id="jabatan_atasan" placeholder="Jabatan Atasan (contoh: Kepala Cabang Dinas Pendidikan)">
+                     </div>
+                     <hr>
                      <p>Info Login Update password bila ingin ubah</p>
                     <div class="form-group">
                               <label for="email">Email</label>

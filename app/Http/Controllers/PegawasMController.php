@@ -316,6 +316,10 @@ class PegawasMController extends Controller
             $user->akses_jenjang = $request->akses_jenjang ? json_encode($request->akses_jenjang) : null;
             $user->akses_kabupaten = $request->akses_kabupaten ? json_encode($request->akses_kabupaten) : null;
             
+            $user->nama_atasan = $request->nama_atasan;
+            $user->nip_atasan = $request->nip_atasan;
+            $user->jabatan_atasan = $request->jabatan_atasan;
+            
             $user->save();
 
             // Update associated profile
@@ -361,6 +365,10 @@ class PegawasMController extends Controller
             
             $user->akses_jenjang = $request->akses_jenjang ? json_encode($request->akses_jenjang) : null;
             $user->akses_kabupaten = $request->akses_kabupaten ? json_encode($request->akses_kabupaten) : null;
+            
+            $user->nama_atasan = $request->nama_atasan;
+            $user->nip_atasan = $request->nip_atasan;
+            $user->jabatan_atasan = $request->jabatan_atasan;
             
              $user->save();
 
