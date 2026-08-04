@@ -2,14 +2,22 @@
 
 namespace App\Services;
 
+use App\Helpers\SpintaxHelper;
 use App\Models\WaBlastSetting;
 use App\Models\WhatsappMessagesLog;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class WaBlastSafetyService
 {
+    /** Cache key untuk format auth Wablas yang berhasil */
+    private const AUTH_CACHE_KEY = 'wablas_auth_format';
+
+    /** Durasi cache auth dalam menit (6 jam) */
+    private const AUTH_CACHE_MINUTES = 360;
     /**
      * Check if a message can be sent based on daily limits & warming-up rules.
      *
@@ -116,11 +124,114 @@ class WaBlastSafetyService
             $message
         );
 
+        // Spintax: variasi pesan agar tidak identik antar-penerima
+        $message = SpintaxHelper::parse($message);
+
         // Anti-Spam Suffix
-        if (filter_var(env('WABLAS_ANTI_SPAM_SUFFIX', true), FILTER_VALIDATE_BOOLEAN)) {
+        if (filter_var(config('services.wablas.anti_spam_suffix', true), FILTER_VALIDATE_BOOLEAN)) {
             $message .= "\n\n[Ref: " . date('YmdHis') . "-" . rand(100, 999) . "]";
         }
 
         return $message;
+    }
+
+    /**
+     * Dapatkan format auth Wablas yang berhasil (cache 6 jam).
+     * Menghilangkan percobaan 3x HTTP setiap pengiriman.
+     */
+    public static function getWorkingAuthFormat(string $token, string $secret, string $endpoint): string
+    {
+        $cached = Cache::get(self::AUTH_CACHE_KEY);
+        if ($cached) {
+            return $cached;
+        }
+
+        // Daftar format auth Wablas (urut dari yang paling umum)
+        $formats = [
+            'token_dot_secret' => "{$token}.{$secret}",
+            'token_only'       => $token,
+        ];
+
+        foreach ($formats as $name => $authHeader) {
+            try {
+                $response = Http::withHeaders(['Authorization' => $authHeader])
+                    ->asForm()
+                    ->timeout(15)
+                    ->post($endpoint, [
+                        'phone'   => '6200000000000', // Dummy — tidak terkirim
+                        'message' => 'ping',
+                    ]);
+
+                // Jika tidak 403/401, format ini valid
+                if (!in_array($response->status(), [401, 403])) {
+                    Cache::put(self::AUTH_CACHE_KEY, $authHeader, now()->addMinutes(self::AUTH_CACHE_MINUTES));
+                    Log::info("[WA Auth] Format '{$name}' berhasil, di-cache {" . self::AUTH_CACHE_MINUTES . "} menit.");
+                    return $authHeader;
+                }
+            } catch (\Exception $e) {
+                Log::warning("[WA Auth] Format '{$name}' gagal: " . $e->getMessage());
+            }
+        }
+
+        // Fallback: pakai format pertama, biarkan job handle error-nya
+        $fallback = "{$token}.{$secret}";
+        Cache::put(self::AUTH_CACHE_KEY, $fallback, now()->addMinutes(30));
+        return $fallback;
+    }
+
+    /**
+     * Hapus cache auth format (dipanggil saat Error 463 / auth berubah).
+     */
+    public static function clearAuthCache(): void
+    {
+        Cache::forget(self::AUTH_CACHE_KEY);
+    }
+
+    /**
+     * Validasi nomor telepon Indonesia.
+     * Panjang setelah prefix 62: 10-14 digit (total 12-16 digit).
+     *
+     * @return array ['valid' => bool, 'phone' => string, 'reason' => string|null]
+     */
+    public static function validatePhoneNumber(string $phone): array
+    {
+        $phone = self::formatPhoneNumber($phone);
+
+        $digitOnly = preg_replace('/[^0-9]/', '', $phone);
+        $length    = strlen($digitOnly);
+
+        if ($length < 12 || $length > 15) {
+            return [
+                'valid'  => false,
+                'phone'  => $digitOnly,
+                'reason' => "Panjang nomor tidak valid ({$length} digit, harus 12-15 setelah prefix 62)",
+            ];
+        }
+
+        if (substr($digitOnly, 0, 2) !== '62') {
+            return [
+                'valid'  => false,
+                'phone'  => $digitOnly,
+                'reason' => "Nomor tidak diawali prefix 62",
+            ];
+        }
+
+        return ['valid' => true, 'phone' => $digitOnly, 'reason' => null];
+    }
+
+    /**
+     * Format nomor telepon ke prefix 62.
+     */
+    public static function formatPhoneNumber(string $phone): string
+    {
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+
+        if (substr($phone, 0, 1) === '0') {
+            $phone = '62' . substr($phone, 1);
+        } elseif (substr($phone, 0, 2) !== '62') {
+            $phone = '62' . $phone;
+        }
+
+        return $phone;
     }
 }

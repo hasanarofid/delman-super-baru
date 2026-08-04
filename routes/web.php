@@ -168,6 +168,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         Route::get('/kirim-wa/{id}', 'RencanaTugasController@kirimWa')->name('rencanatugas.kirimwa');
         Route::get('/kirim-wa-with-category/{id}/{id_category}', 'RencanaTugasController@kirimWaWithCategory')->name('rencanatugas.kirimwa.withcategory');
         Route::get('/kirim-wa-sekolah/{id}/{id_sekolah}', 'RencanaTugasController@kirimWaSekolah')->name('rencanatugas.kirimWaSekolah');
+        Route::get('/wa-status/{id}', 'RencanaTugasController@waStatus')->name('rencanatugas.waStatus');
     });
 
     Route::prefix('listumpanbalik')->group(function () {

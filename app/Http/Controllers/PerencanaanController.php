@@ -332,26 +332,18 @@ class PerencanaanController extends Controller
         $id_umpanbalik_category = $model->id_umpanbalik_category;
 
         if ($model->is_mandiri == 1) {
-            // Logika untuk Mandiri (RHK 3)
             $pengawas = User::with('profile')->find($model->id_pengawas);
-            
-            // Cek nomor telpon di tabel users dulu, jika kosong cek di profile
             $no_telp = $pengawas->no_telp;
             if (empty($no_telp) && $pengawas->profile) {
                 $no_telp = $pengawas->profile->no_telp;
             }
 
-            $nama_pengawas = $pengawas->name;
-            $id_pengawas = $pengawas->id;
-
             if (empty($no_telp)) {
                 throw new \Exception("Anda belum mengisi nomor HP di profil.");
             }
 
-            // Gunakan buildDynamicUmpanBalik khusus untuk mandiri
-            $this->buildMandiriUmpanBalik($model, $nama_pengawas, $id_pengawas, $no_telp, $id_umpanbalik_category);
+            $this->buildMandiriUmpanBalik($model, $pengawas->name, $pengawas->id, $no_telp, $id_umpanbalik_category);
         } else {
-            // Logika lama untuk Sekolah (RHK 1 & 2)
             $sekolahIds = explode(',', $model->sekolah_id);
             $sekolahs = SekolahM::with('kepalaSekolahSatu')->whereIn('id', $sekolahIds)->get();
 
@@ -366,52 +358,36 @@ class PerencanaanController extends Controller
                 ->delete();
 
             foreach ($sekolahs as $list) {
-                $nama_sekolah = $list->nama_sekolah;
                 $kepalaSekolah = $list->kepalaSekolahSatu;
-
                 if ($kepalaSekolah && !empty($kepalaSekolah->no_telp)) {
-                    $nama_kepala_sekolah = $kepalaSekolah->nama;
-                    $nama_kepala_sekolah_id = $kepalaSekolah->id;
-                    $no_telp = $kepalaSekolah->no_telp;
-
                     if ($id_umpanbalik_category == 0) {
-                        $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+                        $this->buildUmpanBalik($model, $list->nama_sekolah, $kepalaSekolah->nama, $kepalaSekolah->id, $kepalaSekolah->no_telp);
                     } else {
-                        $this->buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_umpanbalik_category);
+                        $this->buildDynamicUmpanBalik($model, $list->nama_sekolah, $kepalaSekolah->nama, $kepalaSekolah->id, $kepalaSekolah->no_telp, $id_umpanbalik_category);
                     }
-
-                    sleep(rand(2, 5));
                 } else {
-                    throw new \Exception("Kepala sekolah {$nama_sekolah} tidak memiliki nomor telepon.");
+                    Log::warning("[Perencanaan] Kepala sekolah {$list->nama_sekolah} tidak memiliki nomor telepon.");
                 }
             }
         }
 
-        $model->status = 1;
+        $model->status = 2;
         $model->save();
     }
 
     public function buildMandiriUmpanBalik($model, $nama_pengawas, $id_pengawas, $no_telp, $id_category)
     {
-        // Untuk mandiri, id_user diisi dengan ID Pengawas (User)
-        // Kita perlu memastikan model UmpanbalikT bisa menerima ID User dari tabel users,
-        // namun biasanya id_user di model ini merujuk ke tabel guru_m (kepala sekolah).
-        // Mari kita cek tabel umpanbalik_t untuk melihat relasi id_user.
-        
-        $checkUmpanBalik = UmpanbalikT::where('id_user_pengawas', $id_pengawas) // Tambahkan kolom baru id_user_pengawas jika perlu
+        $checkUmpanBalik = UmpanbalikT::where('id_user_pengawas', $id_pengawas)
             ->where('id_pelaporan', $model->id)
             ->where('id_pengawas', $model->id_pengawas)
             ->where('id_category', $id_category)
             ->first();
 
-        // Karena id_user biasanya adalah GuruM, kita mungkin butuh kolom baru atau penanda.
-        // Opsi lain: Gunakan id_user tetapi simpan ID dari tabel users.
-        
         $generate_url = (string) \Illuminate\Support\Str::uuid();
         if (!$checkUmpanBalik) {
             UmpanbalikT::create([
-                'id_user' => 0, // Tandai sebagai bukan GuruM
-                'id_user_pengawas' => $id_pengawas, // Kolom baru
+                'id_user' => 0,
+                'id_user_pengawas' => $id_pengawas,
                 'id_pelaporan' => $model->id,
                 'generate_url' => $generate_url,
                 'id_pengawas' => $model->id_pengawas,
@@ -425,13 +401,13 @@ class PerencanaanController extends Controller
             $fullUrl = route('dynamic.umpanbalik.form', ['id_category' => $id_category, 'generate_url' => $checkUmpanBalik->generate_url]);
         }
 
-        $pesan = "Halo Pak/Bu {$nama_pengawas},\n"
+        $pesan = "{Halo|Selamat pagi|Hai} {Pak/Bu|Bapak/Ibu} {$nama_pengawas},\n"
             . "Anda telah membuat Rencana Kerja Mandiri: {$model->nama_program_kerja}.\n"
-            . "Silakan isi umpan balik/refleksi mandiri pada link berikut: {$fullUrl}\n\n"
-            . "Terimakasih\n"
+            . "{Silakan|Mohon} isi umpan balik/refleksi mandiri pada link berikut: {$fullUrl}\n\n"
+            . "{Terima kasih|Terimakasih} {atas perhatiannya|}\n"
             . "DelmanSuper Platform";
 
-        $this->sendWhatsAppMessage($no_telp, $pesan, null, $model);
+        $this->dispatchWaJob($no_telp, $pesan, $model, null);
     }
 
     public function buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp)
@@ -462,57 +438,22 @@ class PerencanaanController extends Controller
         }
 
         $nama_pengawas = $model->pengawasnama ? $model->pengawasnama->name : 'Pengawas';
-        $pesan = "Yth Bapak / Ibu {$nama_kepala_sekolah}
-Kepala {$nama_sekolah},
-Pada bulan {$model->bulan} {$model->tahun_ajaran} pengawas {$nama_pengawas} akan melakukan kegiatan pengawasan {$model->nama_program_kerja} ke sekolah.
-Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}
+        $pesan = "{Yth.|Yang terhormat} {Bapak/Ibu|Bapak atau Ibu} {$nama_kepala_sekolah}\n"
+            . "Kepala {$nama_sekolah},\n"
+            . "Pada bulan {$model->bulan} {$model->tahun_ajaran}\n"
+            . "pengawas {$nama_pengawas}\n"
+            . "akan melakukan kegiatan pengawasan {$model->nama_program_kerja}\n"
+            . "ke sekolah.\n"
+            . "{Mohon dapat|Silakan} mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
+            . "Berikut ini beberapa catatan yang penting:\n"
+            . "1. Pastikan link diisi pada hari pengawas melakukan pengawasan.\n"
+            . "2. Sertakan 1 bukti pengawasan berupa foto kegiatan bersama pengawas.\n\n"
+            . "{Terima kasih|Terimakasih} {atas perhatian dan kerja samanya|}\n"
+            . "Pesan ini digenerate otomatis oleh DelmanSuper";
 
-Berikut ini beberapa catatan yang penting:
-1. Pastikan link diisi pada hari pengawas melakukan pengawasan.
-2. Sertakan 1 bukti pengawasan berupa foto kegiatan bersama pengawas.
-
-Terimakasih
-Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengawas (DelmanSuper)";
-
-        $pesan = trim($pesan);
-        $this->sendWhatsAppMessage($no_telp, $pesan, $nama_kepala_sekolah_id, $model);
+        $this->dispatchWaJob($no_telp, $pesan, $model, $nama_kepala_sekolah_id);
     }
 
-    // protected function sendWhatsAppMessage($phone, $message,$nama_kepala_sekolah_id,$model)
-    // {
-    //     $token = 'OZ9q0PSQUUV4PRZGxyKUfZjt9EFyt22dTIRnklQSepTmFlrFMN9BqaIs7RXtnD9I';
-    //     $url = "https://jogja.wablas.com/api/send-message";
-
-    //     $logEntry = new WhatsappMessagesLog();
-    //     $logEntry->rencana_kerja_id = $model->id; // Add the Rencana Kerja ID here
-    //     $logEntry->kepala_sekolah_id = $nama_kepala_sekolah_id;
-    //     $logEntry->phone_number = $phone;
-    //     $logEntry->message = $message;
-
-    //     try {
-    //         $response = Http::withHeaders([
-    //             'Authorization' => $token,
-    //         ])->post($url, [
-    //             'phone' => $phone,
-    //             'message' => $message,
-    //         ]);
-
-    //         if ($response->successful()) {
-    //             Log::info("WhatsApp message sent successfully to {$phone}");
-    //             $logEntry->is_sent = true;
-    //         } else {
-    //             Log::error("Failed to send WhatsApp message to {$phone}: " . $response->body());
-    //             $logEntry->is_sent = false;
-    //             $logEntry->failure_reason = "Failed to send message: " . $response->body();
-    //         }
-    //     } catch (\Exception $e) {
-    //         Log::error("WhatsApp API error for {$phone}: " . $e->getMessage());
-    //         $logEntry->is_sent = false;
-    //         $logEntry->failure_reason = "API error: " . $e->getMessage();
-    //     }
-
-    //     $logEntry->save(); // Save the log entry to the database
-    // }
     public function buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_category)
     {
         $checkUmpanBalik = UmpanbalikT::where('id_user', $nama_kepala_sekolah_id)
@@ -528,7 +469,6 @@ Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengaw
             $fullUrl = url('dynamic-umpanbalik/' . $id_category . '/' . $umpanBalik->generate_url);
         } else {
             $generate_url = (string) \Illuminate\Support\Str::uuid();
-
             UmpanbalikT::create([
                 'id_user' => $nama_kepala_sekolah_id,
                 'id_pelaporan' => $model->id,
@@ -537,147 +477,65 @@ Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengaw
                 'id_category' => $id_category,
                 'id_created_by' => Auth::user()->id,
                 'id_updated_by' => Auth::user()->id,
-                'tgl_rtl' => date('Y-m-d'), // Added missing tgl_rtl
+                'tgl_rtl' => date('Y-m-d'),
             ]);
-
             $fullUrl = route('dynamic.umpanbalik.form', ['id_category' => $id_category, 'generate_url' => $generate_url]);
         }
 
         $nama_pengawas = $model->pengawasnama ? $model->pengawasnama->name : 'Pengawas';
-        $pesan = "Yth Bapak / Ibu {$nama_kepala_sekolah}\n"
+        $pesan = "{Yth.|Yang terhormat} {Bapak/Ibu|Bapak atau Ibu} {$nama_kepala_sekolah}\n"
             . "Kepala {$nama_sekolah},\n"
             . "Pada bulan {$model->bulan} {$model->tahun_ajaran}\n"
             . "pengawas {$nama_pengawas}\n"
             . "akan melakukan kegiatan pengawasan {$model->nama_program_kerja}\n"
             . "ke sekolah.\n"
-            . "Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
+            . "{Mohon dapat|Silakan} mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
             . "Berikut ini beberapa catatan yang penting:\n"
             . "1. Pastikan link diisi pada hari pengawas melakukan pengawasan.\n"
             . "2. Sertakan 1 bukti pengawasan berupa foto kegiatan bersama pengawas.\n\n"
-            . "Terimakasih\n"
-            . "Pesan ini digenerate otomatis oleh Sistem Monitoring dan Evaluasi Digital Pengawas (DelmanSuper)";
+            . "{Terima kasih|Terimakasih} {atas perhatian dan kerja samanya|}\n"
+            . "Pesan ini digenerate otomatis oleh DelmanSuper";
 
-        $this->sendWhatsAppMessage($no_telp, $pesan, $nama_kepala_sekolah_id, $model);
+        $this->dispatchWaJob($no_telp, $pesan, $model, $nama_kepala_sekolah_id);
     }
 
-    protected function sendWhatsAppMessage($phone, $message, $nama_kepala_sekolah_id, $model)
+    /**
+     * Validasi nomor, siapkan pesan, lalu dispatch ke queue (async).
+     */
+    protected function dispatchWaJob($phone, $message, $model, $kepalaSekolahId)
     {
-        // Rate limiting & Warming-up check
-        $safetyCheck = WaBlastSafetyService::checkCanSend();
-        if (!$safetyCheck['allowed']) {
-            Log::warning($safetyCheck['message']);
-            throw new \Exception($safetyCheck['message']);
-        }
-
-        // Apply dynamic safety delay based on warming-up phase
-        WaBlastSafetyService::applySafetyDelay();
-
-        $token = config('services.wablas.token') ?: env('WABLAS_TOKEN');
-        $secretKey = config('services.wablas.secret') ?: env('WABLAS_SECRET');
-        $url = config('services.wablas.endpoint') ?: env('WABLAS_ENDPOINT', 'https://jogja.wablas.com/api/send-message');
-
-        // Format nomor telepon
-        $phone = preg_replace('/[^0-9]/', '', $phone);
-        if (substr($phone, 0, 1) == '0') {
-            $phone = '62' . substr($phone, 1);
-        } elseif (substr($phone, 0, 2) != '62') {
-            $phone = '62' . $phone;
-        }
-
-        if (empty(trim($message))) {
-            Log::error("WhatsApp message is empty for phone {$phone}");
+        $validation = WaBlastSafetyService::validatePhoneNumber($phone);
+        if (!$validation['valid']) {
+            Log::warning("[Perencanaan WA] Nomor tidak valid ({$phone}): {$validation['reason']}");
+            $logEntry = new WhatsappMessagesLog();
+            $logEntry->rencana_kerja_id = $model->id;
+            $logEntry->kepala_sekolah_id = $kepalaSekolahId;
+            $logEntry->phone_number = $phone;
+            $logEntry->message = $message;
+            $logEntry->is_sent = false;
+            $logEntry->failure_reason = "Nomor tidak valid: {$validation['reason']}";
+            $logEntry->save();
             return;
         }
 
-        // Branding & Anti-Spam Suffix
+        $phone = $validation['phone'];
+
+        if (empty(trim($message))) {
+            Log::error("[Perencanaan WA] Pesan kosong untuk nomor {$phone}");
+            return;
+        }
+
         $message = WaBlastSafetyService::prepareMessageBody($message);
 
-        $logEntry = new WhatsappMessagesLog();
-        $logEntry->rencana_kerja_id = $model->id;
-        $logEntry->kepala_sekolah_id = $nama_kepala_sekolah_id;
-        $logEntry->phone_number = $phone;
-        $logEntry->message = $message;
+        \App\Jobs\SendWhatsappMessageJob::dispatch(
+            $phone,
+            $message,
+            $model->id,
+            $kepalaSekolahId
+        );
 
-        try {
-            $data = ['phone' => $phone, 'message' => $message];
-
-            // Format 1: token.secretKey
-            $authorization = "{$token}.{$secretKey}";
-            $response = Http::withHeaders(['Authorization' => $authorization])->asForm()->post($url, $data);
-
-            if ($response->successful()) {
-                $logEntry->is_sent = true;
-                $logEntry->save();
-                return true;
-            }
-
-            // Format 2: secret in data (Jika 403 atau gagal format 1)
-            $dataWithSecret = array_merge($data, ['secret' => $secretKey]);
-            $response2 = Http::withHeaders(['Authorization' => $token])->asForm()->post($url, $dataWithSecret);
-
-            if ($response2->successful()) {
-                $logEntry->is_sent = true;
-                $logEntry->save();
-                return true;
-            }
-
-            // Format 3: token only
-            $response3 = Http::withHeaders(['Authorization' => $token])->asForm()->post($url, $data);
-
-            if ($response3->successful()) {
-                $logEntry->is_sent = true;
-                $logEntry->save();
-                return true;
-            }
-
-            // Semua gagal
-            $responseBody = $response3->body();
-            $resArr = json_decode($responseBody, true);
-            $errMsg = $resArr['message'] ?? $responseBody;
-
-            if (strpos($responseBody, 'IP') !== false) {
-                $errMsg .= " (IP Server belum di-whitelist di Wablas)";
-            }
-
-            $logEntry->is_sent = false;
-            $logEntry->failure_reason = "Semua format auth gagal. Terakhir: " . $errMsg;
-            $logEntry->save();
-
-            throw new \Exception($errMsg);
-
-        } catch (\Exception $e) {
-            $logEntry->is_sent = false;
-            $error_message = $e->getMessage();
-            $logEntry->failure_reason = substr($error_message, 0, 250); // Truncate to fit column
-            $logEntry->save();
-            throw $e;
-        }
+        Log::info("[Perencanaan WA] Job diantri untuk {$phone} (rencana_kerja_id: {$model->id})");
     }
-
-
-    // protected function sendWhatsAppMessage($phone, $message)
-    // {
-    //     $token = 'OZ9q0PSQUUV4PRZGxyKUfZjt9EFyt22dTIRnklQSepTmFlrFMN9BqaIs7RXtnD9I';
-    //     $url = "https://jogja.wablas.com/api/send-message";
-
-    //     try {
-    //         $response = Http::withHeaders([
-    //             'Authorization' => $token,
-    //         ])->post($url, [
-    //             'phone' => $phone,
-    //             'message' => $message,
-    //         ]);
-
-    //         if ($response->successful()) {
-    //             Log::info("WhatsApp message sent successfully to {$phone}");
-    //         } else {
-    //             Log::error("Failed to send WhatsApp message to {$phone}: " . $response->body());
-    //         }
-
-    //     } catch (\Exception $e) {
-    //         Log::error("WhatsApp API error for {$phone}: " . $e->getMessage());
-    //     }
-    // }
 
     public function exportPDF(Request $request)
     {

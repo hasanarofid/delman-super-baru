@@ -159,6 +159,8 @@ class RencanaTugasController extends Controller
         try {
             $model = RencanaKerjaT::with('pengawasnama')->findOrFail($id);
             $id_umpanbalik_category = $model->id_umpanbalik_category;
+            $errors = [];
+
             if ($model->is_mandiri == 1) {
                 $pengawas = User::with('profile')->find($model->id_pengawas);
                 $no_telp = $pengawas->no_telp;
@@ -183,36 +185,39 @@ class RencanaTugasController extends Controller
                     $nama_sekolah = $list->nama_sekolah;
                     $kepalaSekolah = $list->kepalaSekolahSatu;
                     if ($kepalaSekolah && !empty($kepalaSekolah->no_telp)) {
-                        $nama_kepala_sekolah = $kepalaSekolah->nama;
-                        $nama_kepala_sekolah_id = $kepalaSekolah->id;
-                        $no_telp = $kepalaSekolah->no_telp;
-
                         if ($id_umpanbalik_category == 0) {
-                            $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+                            $this->buildUmpanBalik($model, $nama_sekolah, $kepalaSekolah->nama, $kepalaSekolah->id, $kepalaSekolah->no_telp);
                         } else {
-                            $this->buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_umpanbalik_category);
+                            $this->buildDynamicUmpanBalik($model, $nama_sekolah, $kepalaSekolah->nama, $kepalaSekolah->id, $kepalaSekolah->no_telp, $id_umpanbalik_category);
                         }
-                        sleep(rand(2, 5));
                     } else {
-                        return response()->json(['success' => false, 'message' => "Kepala sekolah {$nama_sekolah} tidak memiliki nomor telepon."], 400);
+                        $errors[] = "Kepala sekolah {$nama_sekolah} tidak memiliki nomor telepon.";
                     }
                 }
             }
-            $model->status = 1;
+
+            // Status 2 = antri (queued), akan jadi 1 ketika semua job selesai
+            $model->status = 2;
             $model->save();
 
+            $message = 'Pesan WA sedang diantri untuk dikirim secara bertahap.';
+            if (!empty($errors)) {
+                $message .= ' Peringatan: ' . implode(' | ', $errors);
+            }
+
+            return response()->json(['success' => true, 'message' => $message]);
+
         } catch (\Exception $e) {
-            Log::error("Failed to send WhatsApp message: " . $e->getMessage());
+            Log::error("Failed to queue WhatsApp message: " . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Gagal kirim WA: ' . $e->getMessage()], 500);
         }
-
-        return response()->json(['success' => true, 'message' => 'Pesan WA berhasil dikirim!']);
     }
 
     public function kirimWaWithCategory($id, $id_category)
     {
         try {
-            $model = RencanaKerjaT::findOrFail($id);
+            $model = RencanaKerjaT::with('pengawasnama')->findOrFail($id);
+
             if ($model->is_mandiri == 1) {
                 $pengawas = User::with('profile')->find($model->id_pengawas);
                 $no_telp = $pengawas->no_telp;
@@ -230,41 +235,32 @@ class RencanaTugasController extends Controller
                 $sekolahs = SekolahM::with('kepalaSekolahSatu')->whereIn('id', $sekolahIds)->get();
 
                 foreach ($sekolahs as $list) {
-                    $nama_sekolah = $list->nama_sekolah;
                     $kepalaSekolah = $list->kepalaSekolahSatu;
                     if ($kepalaSekolah) {
-                        $nama_kepala_sekolah = $kepalaSekolah->nama;
-                        $nama_kepala_sekolah_id = $kepalaSekolah->id;
-                        $no_telp = $kepalaSekolah->no_telp;
-
                         if ($id_category == 0) {
-                            // Panggil fungsi buildUmpanBalik yang lama untuk URL statis
-                            $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
-                            sleep(rand(30, 60));
+                            $this->buildUmpanBalik($model, $list->nama_sekolah, $kepalaSekolah->nama, $kepalaSekolah->id, $kepalaSekolah->no_telp);
                         } else {
-                            // Memanggil fungsi buildDynamicUmpanBalik untuk URL dinamis
-                            $this->buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_category);
-                            sleep(rand(30, 60));
+                            $this->buildDynamicUmpanBalik($model, $list->nama_sekolah, $kepalaSekolah->nama, $kepalaSekolah->id, $kepalaSekolah->no_telp, $id_category);
                         }
                     }
                 }
             }
-            $model->status = 1;
+
+            $model->status = 2;
             $model->save();
 
-            return response()->json(['success' => true, 'message' => 'WA message with dynamic feedback sent successfully!']);
+            return response()->json(['success' => true, 'message' => 'Pesan WA sedang diantri untuk dikirim secara bertahap.']);
         } catch (\Exception $e) {
-            Log::error("Failed to send WhatsApp message with dynamic feedback: " . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Failed to send WA message.'], 500);
+            Log::error("Failed to queue WhatsApp message with category: " . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Gagal antri WA: ' . $e->getMessage()], 500);
         }
     }
 
-    //kirimwakepalasekolah
     public function kirimWaSekolah($id, $id_user)
     {
         try {
-            $model = RencanaKerjaT::findOrFail($id);
-            
+            $model = RencanaKerjaT::with('pengawasnama')->findOrFail($id);
+
             if ($model->is_mandiri == 1) {
                 $pengawas = User::with('profile')->find($model->id_pengawas);
                 $no_telp = $pengawas->no_telp;
@@ -279,23 +275,42 @@ class RencanaTugasController extends Controller
                 $this->buildMandiriUmpanBalik($model, $pengawas->name, $pengawas->id, $no_telp, $model->id_umpanbalik_category);
             } else {
                 $kepalaSekolah = GuruM::findOrFail($id_user);
-                $nama_sekolah = $kepalaSekolah->sekolah->nama_sekolah;
-                $nama_kepala_sekolah = $kepalaSekolah->nama;
-                $nama_kepala_sekolah_id = $kepalaSekolah->id;
-                $no_telp = $kepalaSekolah->no_telp;
-
-                // Memanggil fungsi buildUmpanBalik yang lama untuk URL statis
-                $this->buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp);
+                $this->buildUmpanBalik($model, $kepalaSekolah->sekolah->nama_sekolah, $kepalaSekolah->nama, $kepalaSekolah->id, $kepalaSekolah->no_telp);
             }
 
-            $model->status = 1;
+            $model->status = 2;
             $model->save();
-            
-            return response()->json(['success' => true, 'message' => 'WA message sent successfully!']);
+
+            return response()->json(['success' => true, 'message' => 'Pesan WA sedang diantri untuk dikirim.']);
         } catch (\Exception $e) {
-            Log::error("Failed to send WhatsApp message: " . $e->getMessage());
+            Log::error("Failed to queue WhatsApp message: " . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Gagal kirim WA: ' . $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Cek status antrian WA blast untuk rencana kerja tertentu.
+     */
+    public function waStatus($id)
+    {
+        $model = RencanaKerjaT::findOrFail($id);
+        $logs = WhatsappMessagesLog::where('rencana_kerja_id', $id)->get();
+
+        $total   = $logs->count();
+        $sent    = $logs->where('is_sent', true)->count();
+        $failed  = $logs->where('is_sent', false)->count();
+        $pending = DB::table('jobs')->where('queue', 'wa-blast')
+            ->where('payload', 'LIKE', "%\"rencanaKerjaId\":{$id}%")
+            ->count();
+
+        return response()->json([
+            'status'       => $model->status,
+            'status_label' => $model->status == 1 ? 'Selesai' : ($model->status == 2 ? 'Sedang Antri' : 'Belum Kirim'),
+            'total_log'    => $total,
+            'sent'         => $sent,
+            'failed'       => $failed,
+            'pending_jobs' => $pending,
+        ]);
     }
 
     public function buildMandiriUmpanBalik($model, $nama_pengawas, $id_pengawas, $no_telp, $id_category)
@@ -324,13 +339,14 @@ class RencanaTugasController extends Controller
             $fullUrl = route('dynamic.umpanbalik.form', ['id_category' => $id_category, 'generate_url' => $checkUmpanBalik->generate_url]);
         }
 
-        $pesan = "Halo Pak/Bu {$nama_pengawas},\n"
+        // Spintax: variasi salam agar tidak identik
+        $pesan = "{Halo|Selamat pagi|Hai} {Pak/Bu|Bapak/Ibu} {$nama_pengawas},\n"
             . "Anda telah membuat Rencana Kerja Mandiri: {$model->nama_program_kerja}.\n"
-            . "Silakan isi umpan balik/refleksi mandiri pada link berikut: {$fullUrl}\n\n"
-            . "Terimakasih\n"
+            . "{Silakan|Mohon} isi umpan balik/refleksi mandiri pada link berikut: {$fullUrl}\n\n"
+            . "{Terima kasih|Terimakasih} {atas perhatiannya|}\n"
             . "DelmanSuper Platform";
 
-        $this->sendWhatsAppMessage($no_telp, $pesan, null, $model);
+        $this->dispatchWaJob($no_telp, $pesan, $model, null);
     }
 
     public function buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp)
@@ -361,20 +377,21 @@ class RencanaTugasController extends Controller
             $fullUrl = url('umpan-balik/' . $uniqueUrl);
         }
 
-        $pesan = "Yth Bapak / Ibu {$nama_kepala_sekolah}\n"
+        // Spintax: variasi salam & penutup
+        $pesan = "{Yth.|Yang terhormat} {Bapak/Ibu|Bapak atau Ibu} {$nama_kepala_sekolah}\n"
             . "Kepala {$nama_sekolah},\n"
             . "Pada bulan {$model->bulan} {$model->tahun_ajaran}\n"
             . "pengawas {$model->pengawasnama->name}\n"
             . "akan melakukan kegiatan pengawasan {$model->nama_program_kerja}\n"
             . "ke sekolah.\n"
-            . "Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
+            . "{Mohon dapat|Silakan} mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
             . "Berikut ini beberapa catatan yang penting:\n"
             . "1. Pastikan link diisi pada hari pengawas melakukan pengawasan.\n"
             . "2. Sertakan 1 bukti pengawasan berupa foto kegiatan bersama pengawas.\n\n"
-            . "Terimakasih\n"
-            . "Pesan ini digenerate otomatis oleh DelmanSuper ";
+            . "{Terima kasih|Terimakasih} {atas perhatian dan kerja samanya|}\n"
+            . "Pesan ini digenerate otomatis oleh DelmanSuper";
 
-        $this->sendWhatsAppMessage($no_telp, $pesan, $nama_kepala_sekolah_id, $model);
+        $this->dispatchWaJob($no_telp, $pesan, $model, $nama_kepala_sekolah_id);
     }
 
     public function buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_category)
@@ -399,115 +416,63 @@ class RencanaTugasController extends Controller
             );
         }
 
-        $pesan = "Yth Bapak / Ibu {$nama_kepala_sekolah}\n"
+        // Spintax: variasi salam & penutup
+        $pesan = "{Yth.|Yang terhormat} {Bapak/Ibu|Bapak atau Ibu} {$nama_kepala_sekolah}\n"
             . "Kepala {$nama_sekolah},\n"
             . "Pada bulan {$model->bulan} {$model->tahun_ajaran}\n"
             . "pengawas {$model->pengawasnama->name}\n"
             . "akan melakukan kegiatan pengawasan {$model->nama_program_kerja}\n"
             . "ke sekolah.\n"
-            . "Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
+            . "{Mohon dapat|Silakan} mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
             . "Berikut ini beberapa catatan yang penting:\n"
             . "1. Pastikan link diisi pada hari pengawas melakukan pengawasan.\n"
             . "2. Sertakan 1 bukti pengawasan berupa foto kegiatan bersama pengawas.\n\n"
-            . "Terimakasih\n"
-            . "Pesan ini digenerate otomatis oleh DelmanSuper ";
+            . "{Terima kasih|Terimakasih} {atas perhatian dan kerja samanya|}\n"
+            . "Pesan ini digenerate otomatis oleh DelmanSuper";
 
-        $this->sendWhatsAppMessage($no_telp, $pesan, $nama_kepala_sekolah_id, $model);
+        $this->dispatchWaJob($no_telp, $pesan, $model, $nama_kepala_sekolah_id);
     }
 
-
-    protected function sendWhatsAppMessage($phone, $message, $nama_kepala_sekolah_id, $model)
+    /**
+     * Validasi nomor, siapkan pesan, lalu dispatch ke queue (async).
+     * Menggantikan sendWhatsAppMessage() yang synchronous.
+     */
+    protected function dispatchWaJob($phone, $message, $model, $kepalaSekolahId)
     {
-        // Rate limiting & Warming-up check
-        $safetyCheck = WaBlastSafetyService::checkCanSend();
-        if (!$safetyCheck['allowed']) {
-            Log::warning($safetyCheck['message']);
-            throw new \Exception($safetyCheck['message']);
-        }
+        // Validasi nomor telepon Indonesia
+        $validation = WaBlastSafetyService::validatePhoneNumber($phone);
+        if (!$validation['valid']) {
+            Log::warning("[WA Dispatch] Nomor tidak valid ({$phone}): {$validation['reason']}");
 
-        // Apply dynamic safety delay based on warming-up phase
-        WaBlastSafetyService::applySafetyDelay();
-
-        $token = config('services.wablas.token') ?: env('WABLAS_TOKEN');
-        $secretKey = config('services.wablas.secret') ?: env('WABLAS_SECRET');
-        $url = config('services.wablas.endpoint') ?: env('WABLAS_ENDPOINT', 'https://jogja.wablas.com/api/send-message');
-
-        // Format nomor telepon
-        $phone = preg_replace('/[^0-9]/', '', $phone);
-        if (substr($phone, 0, 1) == '0') {
-            $phone = '62' . substr($phone, 1);
-        } elseif (substr($phone, 0, 2) != '62') {
-            $phone = '62' . $phone;
-        }
-
-        if (empty(trim($message))) {
-            Log::error("WhatsApp message is empty for phone {$phone}");
+            $logEntry = new WhatsappMessagesLog();
+            $logEntry->rencana_kerja_id = $model->id;
+            $logEntry->kepala_sekolah_id = $kepalaSekolahId;
+            $logEntry->phone_number = $phone;
+            $logEntry->message = $message;
+            $logEntry->is_sent = false;
+            $logEntry->failure_reason = "Nomor tidak valid: {$validation['reason']}";
+            $logEntry->save();
             return;
         }
 
-        // Branding & Anti-Spam Suffix
+        $phone = $validation['phone'];
+
+        if (empty(trim($message))) {
+            Log::error("[WA Dispatch] Pesan kosong untuk nomor {$phone}");
+            return;
+        }
+
+        // Branding, spintax, dan anti-spam suffix
         $message = WaBlastSafetyService::prepareMessageBody($message);
 
-        $logEntry = new WhatsappMessagesLog();
-        $logEntry->rencana_kerja_id = $model->id;
-        $logEntry->kepala_sekolah_id = $nama_kepala_sekolah_id;
-        $logEntry->phone_number = $phone;
-        $logEntry->message = $message;
+        // Dispatch ke queue — tidak blocking HTTP request
+        \App\Jobs\SendWhatsappMessageJob::dispatch(
+            $phone,
+            $message,
+            $model->id,
+            $kepalaSekolahId
+        );
 
-        try {
-            $data = ['phone' => $phone, 'message' => $message];
-            
-            // Format 1: token.secretKey
-            $authorization = "{$token}.{$secretKey}";
-            $response = Http::withHeaders(['Authorization' => $authorization])->asForm()->post($url, $data);
-            
-            if ($response->successful()) {
-                $logEntry->is_sent = true;
-                $logEntry->save();
-                return true;
-            }
-
-            // Format 2: secret in data (Jika 403 atau gagal format 1)
-            $dataWithSecret = array_merge($data, ['secret' => $secretKey]);
-            $response2 = Http::withHeaders(['Authorization' => $token])->asForm()->post($url, $dataWithSecret);
-            
-            if ($response2->successful()) {
-                $logEntry->is_sent = true;
-                $logEntry->save();
-                return true;
-            }
-
-            // Format 3: token only
-            $response3 = Http::withHeaders(['Authorization' => $token])->asForm()->post($url, $data);
-            
-            if ($response3->successful()) {
-                $logEntry->is_sent = true;
-                $logEntry->save();
-                return true;
-            }
-
-            // Semua gagal
-            $responseBody = $response3->body();
-            $resArr = json_decode($responseBody, true);
-            $errMsg = $resArr['message'] ?? $responseBody;
-            
-            if (strpos($responseBody, 'IP') !== false) {
-                $errMsg .= " (IP Server belum di-whitelist di Wablas)";
-            }
-
-            $logEntry->is_sent = false;
-            $logEntry->failure_reason = "Semua format auth gagal. Terakhir: " . $errMsg;
-            $logEntry->save();
-
-            throw new \Exception($errMsg);
-
-        } catch (\Exception $e) {
-            $logEntry->is_sent = false;
-            if (empty($logEntry->failure_reason)) {
-                $logEntry->failure_reason = $e->getMessage();
-            }
-            $logEntry->save();
-            throw $e;
-        }
+        Log::info("[WA Dispatch] Job diantri untuk {$phone} (rencana_kerja_id: {$model->id})");
     }
 }
