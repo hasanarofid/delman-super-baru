@@ -384,10 +384,10 @@ return response()->json($chartData);
     }
 
     public function dashboard(){
-        $currentMonth = date('n'); // Numeric representation of the current month (1-12)
+        $currentMonthNumber = date('n'); // Numeric representation of the current month (1-12)
         $currentYear = date('Y');  // Current year
         $years = range($currentYear - 5, $currentYear + 5);
-         $months = [];
+        $months = [];
         
         // Array of month names in Indonesian
         $monthNamesIndo = [
@@ -405,15 +405,13 @@ return response()->json($chartData);
             12 => 'Desember'
         ];
         
-        // Generate the current and next 11 months in Indonesian
-        for ($i = 0; $i < 12; $i++) {
-            $timestamp = strtotime("+$i month");
-            $monthNumber = date('n', $timestamp);
+        for ($i = 1; $i <= 12; $i++) {
             $months[] = [
-                'value' => $monthNumber,                // Month number (1-12)
-                'name' => $monthNamesIndo[$monthNumber] // Full month name in Indonesian
+                'value' => $i,
+                'name' => $monthNamesIndo[$i]
             ];
         }
+        $currentBulan = $monthNamesIndo[$currentMonthNumber];
 
         $user = Auth::user();
         $pesanStakeholder = null;
@@ -435,6 +433,7 @@ return response()->json($chartData);
         compact(
             'months',
             'currentYear',    
+            'currentBulan',
             'years',
             'pesanStakeholder'
             )
@@ -801,13 +800,12 @@ return response()->json($chartData);
     {
         $user = User::with('profile')->find(Auth::user()->id);
         
-        // Data for tables (similar to index method)
-        $tahunini = date('Y');
         $monthNamesIndo = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
             7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
         ];
-        $bulanini = $monthNamesIndo[date('n')];
+        $tahunini = $request->input('tahun', date('Y'));
+        $bulanini = $request->input('bulan', $monthNamesIndo[date('n')]);
 
         $totalRencankerja = RencanaKerjaT::where('bulan', $bulanini)
             ->where('tahun_ajaran', $tahunini)
