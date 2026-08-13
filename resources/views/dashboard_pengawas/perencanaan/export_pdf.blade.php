@@ -188,19 +188,32 @@
 
     <table style="width: 100%; margin-top: 40px; border: none; page-break-inside: avoid;">
         <tr>
+            <td style="width: 50%; text-align: left; vertical-align: top; border: none; height: 55px;">
+                @if(!empty($user->nama_atasan))
+                    <p style="margin: 0; padding: 0;">Mengetahui,<br><strong>{{ $user->jabatan_atasan ?? 'Atasan Langsung' }}</strong></p>
+                @endif
+            </td>
+            <td style="width: 50%; text-align: left; vertical-align: top; border: none; height: 55px;">
+                <p style="margin: 0; padding: 0;">Pengawas Sekolah,</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 50%; text-align: left; vertical-align: middle; border: none; height: 70px;">
+            </td>
+            <td style="width: 50%; text-align: left; vertical-align: middle; border: none; height: 70px; padding-left: 30px;">
+                <p style="margin: 0; font-size: 14px; font-weight: bold; color: #000000;">#</p>
+            </td>
+        </tr>
+        <tr>
             <td style="width: 50%; text-align: left; vertical-align: top; border: none;">
                 @if(!empty($user->nama_atasan))
-                    <p style="margin-bottom: 10px;">Mengetahui,<br><strong>{{ $user->jabatan_atasan ?? 'Atasan Langsung' }}</strong></p>
-                    <div style="height: 50px;"></div>
                     <p style="margin-bottom: 0;"><strong><u>{{ $user->nama_atasan }}</u></strong></p>
-                    <p style="margin-top: 5px;">NIP. {{ $user->nip_atasan ?? '-' }}</p>
+                    <p style="margin-top: 3px;">NIP. {{ $user->nip_atasan ?? '-' }}</p>
                 @endif
             </td>
             <td style="width: 50%; text-align: left; vertical-align: top; border: none;">
-                <p style="margin-bottom: 10px;">Pengawas Sekolah,</p>
-                <div style="height: 50px;"></div>
                 <p style="margin-bottom: 0;"><strong><u>{{ $user->name }}</u></strong></p>
-                <p style="margin-top: 5px;">NIP. {{ $user->nip }}</p>
+                <p style="margin-top: 3px;">NIP. {{ $user->nip }}</p>
             </td>
         </tr>
     </table>

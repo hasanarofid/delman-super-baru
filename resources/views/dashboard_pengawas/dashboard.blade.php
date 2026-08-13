@@ -8,15 +8,42 @@
 
             <div class="row mt-4">
                 <div class="col-12 mb-4">
-                    <div class="card bg-primary text-white">
-                        <div class="card-body d-flex justify-content-between align-items-center">
+                    <div class="card bg-primary text-white shadow-sm border-0">
+                        <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
                             <div>
-                                <h4 class="text-white mb-0">Dashboard Kinerja Pengawas Sekolah</h4>
-                                <p class="mb-0">Export semua grafik dan data kinerja dalam satu dokumen PDF</p>
+                                <h4 class="text-white fw-bold mb-1 d-flex align-items-center">
+                                    <i class="ti ti-dashboard me-2 fs-3"></i>Dashboard Kinerja Pengawas Sekolah
+                                </h4>
+                                <p class="mb-0 text-white-50" style="font-size: 14px;">Export semua grafik dan data kinerja dalam satu dokumen PDF</p>
                             </div>
-                            <button id="export-full-pdf" class="btn btn-danger btn-lg shadow">
-                                <i class="ti ti-file-download me-2"></i> Download Dashboard Kinerja (PDF)
-                            </button>
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <div class="bg-white p-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-3">
+                                    <div class="d-flex align-items-center">
+                                        <label for="dash-filter-bulan" class="fw-bold mb-0 text-dark me-2" style="font-size: 13px; white-space: nowrap;">Bulan:</label>
+                                        <select id="dash-filter-bulan" class="select2 form-select form-select-sm" style="width: 140px;">
+                                            <option value="all">Semua Bulan</option>
+                                            @foreach ($months as $month)
+                                                <option value="{{ $month['name'] }}" {{ ($currentBulan ?? '') == $month['name'] ? 'selected' : '' }}>
+                                                    {{ $month['name'] }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <label for="dash-filter-tahun" class="fw-bold mb-0 text-dark me-2" style="font-size: 13px; white-space: nowrap;">Tahun:</label>
+                                        <select id="dash-filter-tahun" class="select2 form-select form-select-sm" style="width: 100px;">
+                                            @foreach ($years as $year)
+                                                <option value="{{ $year }}" {{ ($currentYear ?? '') == $year ? 'selected' : '' }}>
+                                                    {{ $year }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <button id="export-full-pdf" class="btn btn-danger btn-lg shadow d-flex align-items-center fw-semibold">
+                                    <i class="ti ti-file-download me-2 fs-4"></i> Download Dashboard Kinerja (PDF)
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -684,11 +711,15 @@
             }
 
             let umpanbalikChartInstance = null;
-            function fetchChartDataUmpanbalik() {
-                const currentYear = new Date().getFullYear();
-                fetch(`{{ route('pengawas.chartData2') }}?bln=all&tahun=${currentYear}&pengawas=all`)
+            function fetchChartDataUmpanbalik(month = 'all', year = 'all') {
+                const selectedMonth = month || $('#dash-filter-bulan').val() || 'all';
+                const selectedYear = (year && year !== 'all') ? year : ($('#dash-filter-tahun').val() || new Date().getFullYear());
+                fetch(`{{ route('pengawas.chartData2') }}?bln=${selectedMonth}&tahun=${selectedYear}&pengawas=all`)
                     .then(response => response.json())
                     .then(data => {
+                        if (umpanbalikChartInstance) {
+                            umpanbalikChartInstance.destroy();
+                        }
                         const ctx = document.getElementById('umpanbalikChart').getContext('2d');
                         umpanbalikChartInstance = new Chart(ctx, {
                             type: 'bar',
@@ -717,7 +748,28 @@
             }
 
             fetchChartDataRencana();
-            fetchChartDataUmpanbalik();
+            
+            // Initialize top filter select2 and onchange event handler
+            if ($.fn.select2) {
+                $('#dash-filter-bulan, #dash-filter-tahun').select2();
+            }
+            $('#dash-filter-bulan, #dash-filter-tahun').on('change', function() {
+                const selectedBulan = $('#dash-filter-bulan').val();
+                const selectedTahun = $('#dash-filter-tahun').val();
+
+                fetchChartDataUmpanbalik(selectedBulan, selectedTahun);
+                if (typeof fetchChartTerkonfrim === 'function') {
+                    fetchChartTerkonfrim(selectedBulan, selectedTahun);
+                }
+                if (typeof fetchChartDataRaportPendidikan === 'function') {
+                    fetchChartDataRaportPendidikan(selectedBulan, selectedTahun);
+                }
+            });
+
+            // Initial load with selected filters
+            const initialBulan = $('#dash-filter-bulan').val() || 'all';
+            const initialTahun = $('#dash-filter-tahun').val() || new Date().getFullYear();
+            fetchChartDataUmpanbalik(initialBulan, initialTahun);
 
             // Unified PDF Export Logic
             document.getElementById('export-full-pdf').addEventListener('click', function() {
@@ -748,6 +800,18 @@
                 csrfToken.name = '_token';
                 csrfToken.value = '{{ csrf_token() }}';
                 form.appendChild(csrfToken);
+
+                const inputBulan = document.createElement('input');
+                inputBulan.type = 'hidden';
+                inputBulan.name = 'bulan';
+                inputBulan.value = document.getElementById('dash-filter-bulan')?.value || '';
+                form.appendChild(inputBulan);
+
+                const inputTahun = document.createElement('input');
+                inputTahun.type = 'hidden';
+                inputTahun.name = 'tahun';
+                inputTahun.value = document.getElementById('dash-filter-tahun')?.value || '';
+                form.appendChild(inputTahun);
 
                 for (const [key, canvasId] of Object.entries(canvases)) {
                     const canvas = document.getElementById(canvasId);

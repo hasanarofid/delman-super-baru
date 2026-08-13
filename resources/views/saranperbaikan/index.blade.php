@@ -11,7 +11,7 @@
           {{ Session::get('success') }}
       </div>
       {{ Session::forget('success') }}
-  @endif
+      @endif
     <div class="col-12 col-lg-12 ">
       <!-- About User -->
       <div class="card h-100">
@@ -19,36 +19,42 @@
             <div class="card-title mb-0">
               <h5 class="m-0 me-2">Tabel Saran Perbaikan</h5>
             </div>
-
-          
           </div>
           <div class="app-card app-card-account shadow-sm d-flex flex-column align-items-start">
-  
-           
               <div class="app-card-body px-4 w-100">
-
-                <div class="row mb-3">
+                <div class="row mb-3 align-items-end">
                   <div class="col-md-4">
-                      <label for="filter-pengawas">Filter by Pengawas:</label>
-                      <select
-                      id="filter-pengawas"
-                      name="pengawas"
-                      class="select2 form-select"
-                      required
-                  >
-                      <option value="all">All</option> <!-- Option to show all records -->
-                      @foreach ($listPengawas as $item)
-                          <option value="{{ $item->id }}">{{ $item->name.' - '.$item->nip }}</option>
-                      @endforeach
-                  </select>
-                  
+                      <label for="filter-pengawas" class="form-label fw-bold">Filter by Pengawas:</label>
+                      <select id="filter-pengawas" name="pengawas" class="select2 form-select" required>
+                          <option value="all">All</option>
+                          @foreach ($listPengawas as $item)
+                              <option value="{{ $item->id }}">{{ $item->name.' - '.$item->nip }}</option>
+                          @endforeach
+                      </select>
                   </div>
-    
-                  
-                  
-              </div>
-
-              
+                  <div class="col-md-4">
+                      <label for="filter-bln" class="form-label fw-bold">Filter Bulan:</label>
+                      <select id="filter-bln" name="bln" class="select2 form-select" required>
+                          <option value="all">Semua Bulan</option>
+                          @foreach($months as $month)
+                              <option value="{{ $month['name'] }}">
+                                  {{ $month['name'] }}
+                              </option>
+                          @endforeach
+                      </select>
+                  </div>
+                  <div class="col-md-4">
+                      <label for="filter-tahun" class="form-label fw-bold">Filter Tahun:</label>
+                      <select id="filter-tahun" name="tahun" class="select2 form-select" required>
+                          <option value="all">Semua Tahun</option>
+                          @foreach($years as $year)
+                              <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>
+                                  {{ $year }}
+                              </option>
+                          @endforeach
+                      </select>
+                  </div>
+                </div>
                   <div class="table-responsive">
                       <table class="table table-bordered table-striped" id="dataTable">
                           <thead>
@@ -60,77 +66,43 @@
                             </tr>
                           </thead>
                       </table>
-                      <br>
-                      
                   </div>
-                  <br>
               </div>
           </div>
       </div>
-      <!--/ About User -->
-
-      <!--/ Profile Overview -->
   </div>
 </div>
-
-
-    
-
-    <div class="content-backdrop fade"></div>
-  </div>
 @endsection
 
-
 @section('script')
-
-
 <script>
   $(document).ready(function () {
-    $('#filter-pengawas').select2();
+    if ($.fn.select2) {
+        $('#filter-pengawas, #filter-bln, #filter-tahun').select2();
+    }
 
-$('#filter-pengawas').change(function () {
-$('#dataTable').DataTable().ajax.reload(); // Reload the table when filter changes
-});
-
-$('#dataTable').DataTable({
-     
+    var table = $('#dataTable').DataTable({
         processing: true,
         serverSide: false,
         ajax: {
-                url: "{{ route('saranperbaikan.getdata') }}",
-                data: function(d) {
-                         d.pengawas = $('#filter-pengawas').val();
-                 }
-            },
+            url: "{{ route('saranperbaikan.getdata') }}",
+            data: function(d) {
+                d.pengawas = $('#filter-pengawas').val();
+                d.bln = $('#filter-bln').val();
+                d.tahun = $('#filter-tahun').val();
+            }
+        },
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex'},
             {data: 'pengawas', name: 'pengawas'},
             {data: 'nama_sekolah', name: 'nama_sekolah'},
             {data: 'saran_perbaikan', name: 'saran_perbaikan'},
         ],
-        dom: 'Bfrtip',
-        buttons: [
-            {
-                extend: 'pdfHtml5',
-                text: '<i class="fas fa-file-pdf"></i> Export PDF',
-                className: 'btn btn-danger',
-                title: 'List Saran Perbaikan',
-                orientation: 'landscape',
-                pageSize: 'A4',
-                exportOptions: {
-                  columns: [0, 1,2,3], // Ekspor semua kolom yang terlihat
-                    modifier: {
-                        page: 'all' // Ekspor semua halaman
-                    }
-                }
-            }
-        ]
+    });
 
+    $('#filter-pengawas, #filter-bln, #filter-tahun').on('change', function () {
+        table.ajax.reload();
     });
   });
-
-
-  
 </script>
-
 @endsection
