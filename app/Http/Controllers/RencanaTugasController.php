@@ -128,13 +128,19 @@ class RencanaTugasController extends Controller
                     return $nama_sekolah;
                 })
                 ->addColumn('status', function ($row) {
-                    if ($row->status == 1) {
+                    $log = WhatsappMessagesLog::where('rencana_kerja_id', $row->id)->latest()->first();
+
+                    if ($row->status == 1 || ($log && $log->is_sent)) {
                         return '<span class="badge bg-label-success m-1">Sudah Kirim WA Blast</span>';
-                    } else {
-                        $log = WhatsappMessagesLog::where('rencana_kerja_id', $row->id)->latest()->first();
-                        $reason = $log ? '<br><small class="text-danger">Gagal: ' . $log->failure_reason . '</small>' : '';
-                        return '<span class="badge bg-label-danger m-1">Belum Kirim WA Blast</span>' . $reason;
                     }
+
+                    $reason = ($log && !empty($log->failure_reason)) ? '<br><small class="text-danger">Gagal: ' . e($log->failure_reason) . '</small>' : '';
+
+                    if ($row->status == 2) {
+                        return '<span class="badge bg-label-warning m-1">Sedang Antri WA Blast</span>' . $reason;
+                    }
+
+                    return '<span class="badge bg-label-danger m-1">Belum Kirim WA Blast</span>' . $reason;
                 })
                 ->addColumn('action', function ($row) {
                     $user = Auth::user();
@@ -160,6 +166,10 @@ class RencanaTugasController extends Controller
             $model = RencanaKerjaT::with('pengawasnama')->findOrFail($id);
             $id_umpanbalik_category = $model->id_umpanbalik_category;
             $errors = [];
+
+            // Status 2 = antri (queued), akan jadi 1 ketika semua job selesai
+            $model->status = 2;
+            $model->save();
 
             if ($model->is_mandiri == 1) {
                 $pengawas = User::with('profile')->find($model->id_pengawas);
@@ -196,10 +206,6 @@ class RencanaTugasController extends Controller
                 }
             }
 
-            // Status 2 = antri (queued), akan jadi 1 ketika semua job selesai
-            $model->status = 2;
-            $model->save();
-
             $message = 'Pesan WA sedang diantri untuk dikirim secara bertahap.';
             if (!empty($errors)) {
                 $message .= ' Peringatan: ' . implode(' | ', $errors);
@@ -217,6 +223,9 @@ class RencanaTugasController extends Controller
     {
         try {
             $model = RencanaKerjaT::with('pengawasnama')->findOrFail($id);
+
+            $model->status = 2;
+            $model->save();
 
             if ($model->is_mandiri == 1) {
                 $pengawas = User::with('profile')->find($model->id_pengawas);
@@ -246,9 +255,6 @@ class RencanaTugasController extends Controller
                 }
             }
 
-            $model->status = 2;
-            $model->save();
-
             return response()->json(['success' => true, 'message' => 'Pesan WA sedang diantri untuk dikirim secara bertahap.']);
         } catch (\Exception $e) {
             Log::error("Failed to queue WhatsApp message with category: " . $e->getMessage());
@@ -260,6 +266,9 @@ class RencanaTugasController extends Controller
     {
         try {
             $model = RencanaKerjaT::with('pengawasnama')->findOrFail($id);
+
+            $model->status = 2;
+            $model->save();
 
             if ($model->is_mandiri == 1) {
                 $pengawas = User::with('profile')->find($model->id_pengawas);
@@ -277,9 +286,6 @@ class RencanaTugasController extends Controller
                 $kepalaSekolah = GuruM::findOrFail($id_user);
                 $this->buildUmpanBalik($model, $kepalaSekolah->sekolah->nama_sekolah, $kepalaSekolah->nama, $kepalaSekolah->id, $kepalaSekolah->no_telp);
             }
-
-            $model->status = 2;
-            $model->save();
 
             return response()->json(['success' => true, 'message' => 'Pesan WA sedang diantri untuk dikirim.']);
         } catch (\Exception $e) {

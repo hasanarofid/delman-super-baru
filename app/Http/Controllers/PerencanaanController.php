@@ -158,13 +158,12 @@ class PerencanaanController extends Controller
                     return $row->bulan . ' - ' . $row->tahun_ajaran;
                 })
                 ->addColumn('status_wa', function ($row) {
-                    if ($row->status == 1) {
+                    $log = WhatsappMessagesLog::where('rencana_kerja_id', $row->id)->latest()->first();
+                    if ($row->status == 1 || ($log && $log->is_sent)) {
                         return '<span class="badge bg-label-success">Terkirim</span>';
-                    } else {
-                        $log = WhatsappMessagesLog::where('rencana_kerja_id', $row->id)->latest()->first();
-                        $reason = $log ? '<br><small class="text-danger">Gagal: ' . $log->failure_reason . '</small>' : '';
-                        return '<span class="badge bg-label-danger">Gagal/Belum</span>' . $reason;
                     }
+                    $reason = ($log && !empty($log->failure_reason)) ? '<br><small class="text-danger">Gagal: ' . e($log->failure_reason) . '</small>' : '';
+                    return '<span class="badge bg-label-danger">Gagal/Belum</span>' . $reason;
                 })
                 ->addColumn('nama_sekolah', function ($row) {
                     if ($row->is_mandiri == 1) {

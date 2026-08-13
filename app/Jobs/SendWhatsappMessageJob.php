@@ -102,6 +102,9 @@ class SendWhatsappMessageJob implements ShouldQueue
                 $logEntry->is_sent = true;
                 $logEntry->save();
                 Log::info("[WA Job] Berhasil kirim ke {$this->phone}");
+
+                // Update status pada rencana_kerja_t menjadi 1 (Sudah Kirim WA Blast)
+                \App\Models\RencanaKerjaT::where('id', $this->rencanaKerjaId)->update(['status' => 1]);
                 return;
             }
 
