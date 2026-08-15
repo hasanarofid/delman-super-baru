@@ -63,9 +63,6 @@ class SendWhatsappMessageJob implements ShouldQueue
         $secret   = config('services.wablas.secret');
         $endpoint = config('services.wablas.endpoint', 'https://jogja.wablas.com/api/send-message');
 
-        // Gunakan auth format yang sudah di-cache, atau deteksi otomatis
-        $authHeader = WaBlastSafetyService::getWorkingAuthFormat($token, $secret, $endpoint);
-
         $logEntry                  = new WhatsappMessagesLog();
         $logEntry->rencana_kerja_id = $this->rencanaKerjaId;
         $logEntry->kepala_sekolah_id = $this->kepalaSekolahId;
@@ -74,31 +71,53 @@ class SendWhatsappMessageJob implements ShouldQueue
         $logEntry->job_uuid        = $this->job ? $this->job->uuid() : null;
 
         try {
-            $response = Http::withHeaders(['Authorization' => $authHeader])
-                ->asForm()
+            $isWatBiz = str_contains($endpoint, 'watbiz.com');
+
+            if ($isWatBiz) {
+                // WatBiz API
+                $response = Http::withHeaders([
+                    'Api-key' => $token,
+                ])
+                ->asJson()
                 ->timeout(30)
                 ->post($endpoint, [
-                    'phone'   => $this->phone,
-                    'message' => $this->message,
+                    'number'    => $this->phone,
+                    'message'   => $this->message,
+                    'device_id' => (int) config('services.wablas.device_id', 0),
                 ]);
+            } else {
+                // Legacy Wablas / Dikontak API
+                $authHeader = WaBlastSafetyService::getWorkingAuthFormat($token, $secret, $endpoint);
+                $response = Http::withHeaders(['Authorization' => $authHeader])
+                    ->asForm()
+                    ->timeout(30)
+                    ->post($endpoint, [
+                        'phone'   => $this->phone,
+                        'message' => $this->message,
+                    ]);
+            }
 
             $body   = $response->body();
             $resArr = json_decode($body, true);
 
-            // Deteksi Error 463 (Rate Overlimit Wablas)
+            // Deteksi Error 463 / Rate Overlimit
             if ($this->isRateOverlimit($response->status(), $body)) {
                 Log::warning("[WA Job] Error 463 / Rate Overlimit ke {$this->phone}. Job di-pause 30 menit.");
                 $logEntry->is_sent        = false;
                 $logEntry->failure_reason = 'Rate Overlimit (463) – job dijadwal ulang 30 menit';
                 $logEntry->save();
 
-                // Invalidasi cache auth agar di-refresh saat retry
-                WaBlastSafetyService::clearAuthCache();
+                if (!$isWatBiz) {
+                    WaBlastSafetyService::clearAuthCache();
+                }
                 $this->release(1800);
                 return;
             }
 
-            if ($response->successful() && ($resArr['status'] ?? '') !== false) {
+            $statusVal = $resArr['status'] ?? '';
+            $isSuccess = $response->successful() && ($statusVal === true || $statusVal === 'success' || (is_array($resArr) && $statusVal !== false && $statusVal !== 'error'));
+
+            if ($isSuccess) {
                 $logEntry->is_sent = true;
                 $logEntry->save();
                 Log::info("[WA Job] Berhasil kirim ke {$this->phone}");
@@ -109,20 +128,20 @@ class SendWhatsappMessageJob implements ShouldQueue
             }
 
             // Gagal tapi bukan rate limit — tandai failure, biarkan retry normal
-            $errMsg = $resArr['message'] ?? $body;
+            $errMsg = $resArr['message'] ?? (str_contains($body, '<html') ? 'HTTP Error ' . $response->status() . ' (HTML 404/500)' : $body);
             if (str_contains($body, 'IP')) {
                 $errMsg .= ' (IP Server belum di-whitelist di Wablas)';
             }
 
             $logEntry->is_sent        = false;
-            $logEntry->failure_reason = $errMsg;
+            $logEntry->failure_reason = substr($errMsg, 0, 250);
             $logEntry->save();
 
             throw new \Exception("Wablas response gagal: {$errMsg}");
 
         } catch (\Exception $e) {
             if (empty($logEntry->failure_reason)) {
-                $logEntry->failure_reason = $e->getMessage();
+                $logEntry->failure_reason = substr($e->getMessage(), 0, 250);
                 $logEntry->is_sent        = false;
                 $logEntry->save();
             }
@@ -146,8 +165,9 @@ class SendWhatsappMessageJob implements ShouldQueue
                 'phone_number'      => $this->phone,
             ],
             [
+                'message'        => $this->message,
                 'is_sent'        => false,
-                'failure_reason' => 'Job gagal permanen setelah ' . $this->tries . ' percobaan: ' . $exception->getMessage(),
+                'failure_reason' => substr('Job gagal permanen setelah ' . $this->tries . ' percobaan: ' . $exception->getMessage(), 0, 250),
             ]
         );
     }

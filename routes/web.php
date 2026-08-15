@@ -322,6 +322,7 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
     Route::prefix('wablasthistory')->group(function () {
         Route::get('/', 'WablasthistoryController@index')->name('wablasthistory.index');
         Route::get('/get-history', 'WablasthistoryController@getdata')->name('wablasthistory.getdata');
+        Route::post('/kirim-masal', 'WablasthistoryController@kirimMasal')->name('wablasthistory.kirimmasal');
     });
 
     // end route menu admin

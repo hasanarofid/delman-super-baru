@@ -23,7 +23,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row mb-3">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="filter-pengawas">Filter by Pengawas:</label>
                                 <select
                                 id="filter-pengawas"
@@ -39,8 +39,8 @@
                             
                             </div>
 
-                            <div class="col-md-4">
-                                <label for="filter-pengawas">Filter Bulan:</label>
+                            <div class="col-md-3">
+                                <label for="filter-bln">Filter Bulan:</label>
                                 <select
                                 id="filter-bln"
                                 name="bln"
@@ -56,7 +56,7 @@
                             </select>
                             
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="filter-tahun">Filter Tahun:</label>
                                 <select
                                     id="filter-tahun"
@@ -72,8 +72,20 @@
                                     @endforeach
                                 </select>
                             </div>
-                            
-                            
+                            <div class="col-md-3">
+                                <label for="filter-status-wa">Filter Status WA:</label>
+                                <select
+                                    id="filter-status-wa"
+                                    name="status_wa"
+                                    class="select2 form-select"
+                                    required
+                                >
+                                    <option value="all">All (Semua)</option>
+                                    <option value="belum_kirim">Belum Kirim WA Blast</option>
+                                    <option value="sedang_antri">Sedang Antri WA Blast</option>
+                                    <option value="sudah_kirim">Sudah Kirim WA Blast</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="table-responsive p-0">
@@ -223,20 +235,29 @@ $('#sendWaWithCategoryForm').submit(function(e) {
         success: function(response) {
             Swal.fire({
                 icon: 'success',
-                title: 'Pesan Masuk Antrean',
-                text: 'Mengikuti ketentuan terbaru dari WhatsApp, notifikasi Anda telah masuk antrean dan akan terkirim secara bertahap dalam kurun waktu 30 menit hingga 1 jam.',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                $('#data-table').DataTable().ajax.reload();
+                title: 'Berhasil!',
+                text: response.message || 'Pesan WA telah masuk antrean dan akan terkirim secara bertahap.',
+                confirmButtonText: 'OK',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed || result.isDismissed) {
+                    if ($.fn.DataTable.isDataTable('#data-table')) {
+                        $('#data-table').DataTable().ajax.reload(null, false);
+                    }
+                }
             });
             button.prop('disabled', false).html('<i class="fa fa-envelope"></i> Kirim Wa');
         },
         error: function(xhr, status, error) {
             console.error(xhr.responseText);
+            let errText = 'Failed to send WA message with dynamic feedback. Please try again.';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errText = xhr.responseJSON.message;
+            }
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Failed to send WA message with dynamic feedback. Please try again.',
+                text: errText,
                 confirmButtonText: 'OK'
             });
             button.prop('disabled', false).html('<i class="fa fa-envelope"></i> Kirim Wa');
@@ -249,20 +270,11 @@ $('#sendWaWithCategoryForm').submit(function(e) {
         $('#filter-pengawas').select2();
         $('#filter-bln').select2();
         $('#filter-tahun').select2();
+        $('#filter-status-wa').select2();
         var isExporting = false;
-        $('#filter-pengawas').change(function () {
-    $('#data-table').DataTable().ajax.reload(); // Reload the table when filter changes
-});
-
-
-$('#filter-bln').change(function () {
-    $('#data-table').DataTable().ajax.reload(); // Reload the table when filter changes
-});
-
-
-$('#filter-tahun').change(function () {
-    $('#data-table').DataTable().ajax.reload(); // Reload the table when filter changes
-});
+        $('#filter-pengawas, #filter-bln, #filter-tahun, #filter-status-wa').change(function () {
+            $('#data-table').DataTable().ajax.reload(); // Reload the table when filter changes
+        });
 
 $('#data-table').DataTable({
             processing: true,
@@ -273,6 +285,7 @@ $('#data-table').DataTable({
                          d.pengawas = $('#filter-pengawas').val();
                          d.bln = $('#filter-bln').val();
                          d.tahun = $('#filter-tahun').val();
+                         d.status_wa = $('#filter-status-wa').val();
                  }
             },
             columns: [

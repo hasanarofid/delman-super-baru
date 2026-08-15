@@ -34,6 +34,7 @@ return [
         'endpoint' => env('WABLAS_ENDPOINT', 'https://jogja.wablas.com/api/send-message'),
         'token' => env('WABLAS_TOKEN'),
         'secret' => env('WABLAS_SECRET'),
+        'device_id' => env('WABLAS_DEVICE_ID', 0),
         'delay' => env('WABLAS_DELAY_SECONDS', 10),
         'anti_spam_suffix' => env('WABLAS_ANTI_SPAM_SUFFIX', true),
     ],

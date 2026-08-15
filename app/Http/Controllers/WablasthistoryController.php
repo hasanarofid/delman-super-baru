@@ -31,19 +31,30 @@ class WablasthistoryController extends Controller
         if ($request->ajax()) {
             $user = Auth::user();
             $query = WhatsappMessagesLog::with('rencanakerja', 'kepalasekolah')->latest();
-    
+
             $query = $this->applyStakeholderFilter($query, 'rencanakerja.pengawasnama.kabupaten_id', null, 'rencanakerja.pengawasnama');
-    
+
+            if ($request->has('status') && $request->status !== 'all') {
+                if ($request->status === 'belum_kirim') {
+                    $query->where('is_sent', 0);
+                } elseif ($request->status === 'sudah_kirim') {
+                    $query->where('is_sent', 1);
+                }
+            }
+
             // Return data for DataTables
             return Datatables::of($query->get())
                 ->addIndexColumn()
+                ->addColumn('checkbox', function($row) {
+                    return '<input type="checkbox" class="row-checkbox" value="' . $row->id . '">';
+                })
                 ->addColumn('rencana', function($row) {
                     return $row->rencanakerja->nama_program_kerja ?? '-';
                 })
                 ->addColumn('kepalasekolah', function($row) {
                     return $row->kepalasekolah->nama ?? '-';
                 })
-             
+
                 ->addColumn('status', function($row) {
                     return $row->is_sent == 1
                         ? '<span class="badge bg-label-success m-1">Sudah Kirim WA Blast</span>'
@@ -58,14 +69,47 @@ class WablasthistoryController extends Controller
                         <i class="fa fa-envelope"></i> Kirim Wa
                     </a>';
                     } else {
-                        return ''; // Tidak menampilkan tombol aksi jika bukan Super Admin
+                        return '';
                     }
-                    
                 })
-                ->rawColumns(['rencana', 'kepalasekolah', 'status', 'action'])
+                ->rawColumns(['checkbox', 'rencana', 'kepalasekolah', 'status', 'action'])
                 ->make(true);
         }
-    
-        return view('rencanakerja.index');
+
+        return view('wablasthistory.index');
+    }
+
+    public function kirimMasal(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user || $user->role != 'Super Admin') {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+
+        $logIds = $request->input('log_ids', []);
+        if (empty($logIds) || !is_array($logIds)) {
+            return response()->json(['success' => false, 'message' => 'Pilih setidaknya satu data.'], 400);
+        }
+
+        $logs = WhatsappMessagesLog::whereIn('id', $logIds)->get();
+        $rencanaTugasController = app(RencanaTugasController::class);
+        $queuedCount = 0;
+
+        foreach ($logs as $log) {
+            if ($log->rencana_kerja_id) {
+                try {
+                    $id_sekolah = $log->kepala_sekolah_id ?? 0;
+                    $rencanaTugasController->kirimWaSekolah($log->rencana_kerja_id, $id_sekolah);
+                    $queuedCount++;
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Bulk send WA error for Log ID {$log->id}: " . $e->getMessage());
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$queuedCount} pesan WA berhasil dimasukkan ke dalam antrean WA Blast."
+        ]);
     }
 }

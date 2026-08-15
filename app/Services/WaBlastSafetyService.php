@@ -146,11 +146,12 @@ class WaBlastSafetyService
             return $cached;
         }
 
-        // Daftar format auth Wablas (urut dari yang paling umum)
-        $formats = [
-            'token_dot_secret' => "{$token}.{$secret}",
+        // Daftar format auth (urut dari Bearer, token plain, dan token.secret)
+        $formats = array_filter([
+            'bearer'           => "Bearer {$token}",
             'token_only'       => $token,
-        ];
+            'token_dot_secret' => !empty($secret) ? "{$token}.{$secret}" : null,
+        ]);
 
         foreach ($formats as $name => $authHeader) {
             try {
@@ -162,8 +163,8 @@ class WaBlastSafetyService
                         'message' => 'ping',
                     ]);
 
-                // Jika tidak 403/401, format ini valid
-                if (!in_array($response->status(), [401, 403])) {
+                // Hanya cache format jika response HTTP 2xx (berhasil)
+                if ($response->successful()) {
                     Cache::put(self::AUTH_CACHE_KEY, $authHeader, now()->addMinutes(self::AUTH_CACHE_MINUTES));
                     Log::info("[WA Auth] Format '{$name}' berhasil, di-cache {" . self::AUTH_CACHE_MINUTES . "} menit.");
                     return $authHeader;
@@ -173,8 +174,8 @@ class WaBlastSafetyService
             }
         }
 
-        // Fallback: pakai format pertama, biarkan job handle error-nya
-        $fallback = "{$token}.{$secret}";
+        // Fallback: pakai Bearer atau token.secret
+        $fallback = !empty($secret) ? "{$token}.{$secret}" : "Bearer {$token}";
         Cache::put(self::AUTH_CACHE_KEY, $fallback, now()->addMinutes(30));
         return $fallback;
     }

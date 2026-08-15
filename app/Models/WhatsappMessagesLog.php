@@ -9,6 +9,8 @@ class WhatsappMessagesLog extends Model
 {
     protected $table = 'whatsapp_messages_log';
 
+    protected $guarded = [];
+
     public function rencanakerja()
     {
         return $this->hasOne(RencanaKerjaT::class, 'id', 'rencana_kerja_id');

@@ -93,6 +93,19 @@ class RencanaTugasController extends Controller
                 $query->where('tahun_ajaran', $request->tahun);
             }
 
+            // Apply filter for 'status_wa'
+            if ($request->has('status_wa') && $request->status_wa !== 'all') {
+                if ($request->status_wa === 'belum_kirim') {
+                    $query->where(function ($q) {
+                        $q->whereNull('status')->orWhereNotIn('status', [1, 2]);
+                    });
+                } elseif ($request->status_wa === 'sedang_antri') {
+                    $query->where('status', 2);
+                } elseif ($request->status_wa === 'sudah_kirim') {
+                    $query->where('status', 1);
+                }
+            }
+
             // Return data for DataTables
             return Datatables::of($query->get())
                 ->addIndexColumn()
