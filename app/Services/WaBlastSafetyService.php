@@ -153,18 +153,25 @@ class WaBlastSafetyService
             'token_dot_secret' => !empty($secret) ? "{$token}.{$secret}" : null,
         ]);
 
+        $isDikontak = str_contains($endpoint, 'dikontak.com');
+
         foreach ($formats as $name => $authHeader) {
             try {
-                $response = Http::withHeaders(['Authorization' => $authHeader])
-                    ->asForm()
-                    ->timeout(15)
-                    ->post($endpoint, [
-                        'phone'   => '6200000000000', // Dummy — tidak terkirim
-                        'message' => 'ping',
-                    ]);
+                $req = Http::withHeaders(['Authorization' => $authHeader]);
+                if ($isDikontak) {
+                    $req = $req->asJson();
+                } else {
+                    $req = $req->asForm();
+                }
 
-                // Hanya cache format jika response HTTP 2xx (berhasil)
-                if ($response->successful()) {
+                $response = $req->timeout(15)->post($endpoint, [
+                    'phone'   => '6200000000000', // Dummy — tidak terkirim
+                    'message' => 'ping',
+                ]);
+
+                $body = $response->body();
+                // Hanya cache format jika response HTTP 2xx dan bukan 'invalid request body'
+                if ($response->successful() && !str_contains($body, 'invalid request body')) {
                     Cache::put(self::AUTH_CACHE_KEY, $authHeader, now()->addMinutes(self::AUTH_CACHE_MINUTES));
                     Log::info("[WA Auth] Format '{$name}' berhasil, di-cache {" . self::AUTH_CACHE_MINUTES . "} menit.");
                     return $authHeader;

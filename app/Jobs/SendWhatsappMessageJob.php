@@ -71,7 +71,8 @@ class SendWhatsappMessageJob implements ShouldQueue
         $logEntry->job_uuid        = $this->job ? $this->job->uuid() : null;
 
         try {
-            $isWatBiz = str_contains($endpoint, 'watbiz.com');
+            $isWatBiz   = str_contains($endpoint, 'watbiz.com');
+            $isDikontak = str_contains($endpoint, 'dikontak.com');
 
             if ($isWatBiz) {
                 // WatBiz API
@@ -85,8 +86,18 @@ class SendWhatsappMessageJob implements ShouldQueue
                     'message'   => $this->message,
                     'device_id' => (int) config('services.wablas.device_id', 0),
                 ]);
+            } elseif ($isDikontak) {
+                // Dikontak API (WABA Shared / Dedicated) — membutuhkan JSON body
+                $authHeader = WaBlastSafetyService::getWorkingAuthFormat($token, $secret, $endpoint);
+                $response = Http::withHeaders(['Authorization' => $authHeader])
+                    ->asJson()
+                    ->timeout(30)
+                    ->post($endpoint, [
+                        'phone'   => $this->phone,
+                        'message' => $this->message,
+                    ]);
             } else {
-                // Legacy Wablas / Dikontak API
+                // Legacy Wablas API
                 $authHeader = WaBlastSafetyService::getWorkingAuthFormat($token, $secret, $endpoint);
                 $response = Http::withHeaders(['Authorization' => $authHeader])
                     ->asForm()
