@@ -275,7 +275,7 @@ class RencanaTugasController extends Controller
         }
     }
 
-    public function kirimWaSekolah($id, $id_user)
+    public function kirimWaSekolah($id, $id_user, $logId = null)
     {
         try {
             $model = RencanaKerjaT::with('pengawasnama')->findOrFail($id);
@@ -285,8 +285,8 @@ class RencanaTugasController extends Controller
 
             if ($model->is_mandiri == 1) {
                 $pengawas = User::with('profile')->find($model->id_pengawas);
-                $no_telp = $pengawas->no_telp;
-                if (empty($no_telp) && $pengawas->profile) {
+                $no_telp = $pengawas ? $pengawas->no_telp : null;
+                if (empty($no_telp) && $pengawas && $pengawas->profile) {
                     $no_telp = $pengawas->profile->no_telp;
                 }
 
@@ -294,10 +294,32 @@ class RencanaTugasController extends Controller
                     return response()->json(['success' => false, 'message' => 'Pengawas belum mengisi nomor HP.'], 400);
                 }
 
-                $this->buildMandiriUmpanBalik($model, $pengawas->name, $pengawas->id, $no_telp, $model->id_umpanbalik_category);
+                $this->buildMandiriUmpanBalik($model, $pengawas->name, $pengawas->id, $no_telp, $model->id_umpanbalik_category, $logId);
             } else {
-                $kepalaSekolah = GuruM::findOrFail($id_user);
-                $this->buildUmpanBalik($model, $kepalaSekolah->sekolah->nama_sekolah, $kepalaSekolah->nama, $kepalaSekolah->id, $kepalaSekolah->no_telp);
+                $id_category = $model->id_umpanbalik_category;
+                $kepalaSekolah = !empty($id_user) ? GuruM::with('sekolah')->find($id_user) : null;
+                if ($kepalaSekolah) {
+                    $namaSekolah = $kepalaSekolah->sekolah ? $kepalaSekolah->sekolah->nama_sekolah : 'Sekolah';
+                    if ($id_category == 0) {
+                        $this->buildUmpanBalik($model, $namaSekolah, $kepalaSekolah->nama, $kepalaSekolah->id, $kepalaSekolah->no_telp, $logId);
+                    } else {
+                        $this->buildDynamicUmpanBalik($model, $namaSekolah, $kepalaSekolah->nama, $kepalaSekolah->id, $kepalaSekolah->no_telp, $id_category, $logId);
+                    }
+                } else {
+                    $sekolahIds = explode(',', $model->sekolah_id);
+                    $sekolahs = SekolahM::with('kepalaSekolahSatu')->whereIn('id', $sekolahIds)->get();
+
+                    foreach ($sekolahs as $list) {
+                        $ks = $list->kepalaSekolahSatu;
+                        if ($ks) {
+                            if ($id_category == 0) {
+                                $this->buildUmpanBalik($model, $list->nama_sekolah, $ks->nama, $ks->id, $ks->no_telp, $logId);
+                            } else {
+                                $this->buildDynamicUmpanBalik($model, $list->nama_sekolah, $ks->nama, $ks->id, $ks->no_telp, $id_category, $logId);
+                            }
+                        }
+                    }
+                }
             }
 
             return response()->json(['success' => true, 'message' => 'Pesan WA sedang diantri untuk dikirim.']);
@@ -332,7 +354,7 @@ class RencanaTugasController extends Controller
         ]);
     }
 
-    public function buildMandiriUmpanBalik($model, $nama_pengawas, $id_pengawas, $no_telp, $id_category)
+    public function buildMandiriUmpanBalik($model, $nama_pengawas, $id_pengawas, $no_telp, $id_category, $logId = null)
     {
         $checkUmpanBalik = UmpanbalikT::where('id_user_pengawas', $id_pengawas)
             ->where('id_pelaporan', $model->id)
@@ -358,17 +380,17 @@ class RencanaTugasController extends Controller
             $fullUrl = route('dynamic.umpanbalik.form', ['id_category' => $id_category, 'generate_url' => $checkUmpanBalik->generate_url]);
         }
 
-        // Spintax: variasi salam agar tidak identik
-        $pesan = "{Halo|Selamat pagi|Hai} {Pak/Bu|Bapak/Ibu} {$nama_pengawas},\n"
+        $ref = date('YmdHis') . rand(100, 999);
+        $pesan = "Halo Bapak/Ibu {$nama_pengawas},\n"
             . "Anda telah membuat Rencana Kerja Mandiri: {$model->nama_program_kerja}.\n"
-            . "{Silakan|Mohon} isi umpan balik/refleksi mandiri pada link berikut: {$fullUrl}\n\n"
-            . "{Terima kasih|Terimakasih} {atas perhatiannya|}\n"
-            . "DelmanSuper Platform";
+            . "Silakan isi umpan balik/refleksi mandiri pada link berikut:{$fullUrl}\n\n"
+            . "Ref : {$ref}\n"
+            . "Terimakasih";
 
-        $this->dispatchWaJob($no_telp, $pesan, $model, null);
+        $this->dispatchWaJob($no_telp, $pesan, $model, null, $logId);
     }
 
-    public function buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp)
+    public function buildUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $logId = null)
     {
         $uniqueUrl = (string) Str::uuid();
 
@@ -396,24 +418,20 @@ class RencanaTugasController extends Controller
             $fullUrl = url('umpan-balik/' . $uniqueUrl);
         }
 
-        // Spintax: variasi salam & penutup
-        $pesan = "{Yth.|Yang terhormat} {Bapak/Ibu|Bapak atau Ibu} {$nama_kepala_sekolah}\n"
+        $nama_pengawas = $model->pengawasnama ? $model->pengawasnama->name : 'Pengawas';
+        $pesan = "Yth Bapak / Ibu {$nama_kepala_sekolah}\n"
             . "Kepala {$nama_sekolah},\n"
-            . "Pada bulan {$model->bulan} {$model->tahun_ajaran}\n"
-            . "pengawas {$model->pengawasnama->name}\n"
-            . "akan melakukan kegiatan pengawasan {$model->nama_program_kerja}\n"
-            . "ke sekolah.\n"
-            . "{Mohon dapat|Silakan} mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
+            . "Pada bulan {$model->bulan} {$model->tahun_ajaran} pengawas {$nama_pengawas} akan melakukan kegiatan pengawasan {$model->nama_program_kerja} ke sekolah.\n"
+            . "Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
             . "Berikut ini beberapa catatan yang penting:\n"
             . "1. Pastikan link diisi pada hari pengawas melakukan pengawasan.\n"
             . "2. Sertakan 1 bukti pengawasan berupa foto kegiatan bersama pengawas.\n\n"
-            . "{Terima kasih|Terimakasih} {atas perhatian dan kerja samanya|}\n"
-            . "Pesan ini digenerate otomatis oleh DelmanSuper";
+            . "Terimakasih";
 
-        $this->dispatchWaJob($no_telp, $pesan, $model, $nama_kepala_sekolah_id);
+        $this->dispatchWaJob($no_telp, $pesan, $model, $nama_kepala_sekolah_id, $logId);
     }
 
-    public function buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_category)
+    public function buildDynamicUmpanBalik($model, $nama_sekolah, $nama_kepala_sekolah, $nama_kepala_sekolah_id, $no_telp, $id_category, $logId = null)
     {
         $checkUmpanBalik = UmpanbalikT::where('id_user', $nama_kepala_sekolah_id)
             ->where('id_pelaporan', $model->id)
@@ -435,35 +453,34 @@ class RencanaTugasController extends Controller
             );
         }
 
-        // Spintax: variasi salam & penutup
-        $pesan = "{Yth.|Yang terhormat} {Bapak/Ibu|Bapak atau Ibu} {$nama_kepala_sekolah}\n"
+        $nama_pengawas = $model->pengawasnama ? $model->pengawasnama->name : 'Pengawas';
+        $pesan = "Yth Bapak / Ibu {$nama_kepala_sekolah}\n"
             . "Kepala {$nama_sekolah},\n"
-            . "Pada bulan {$model->bulan} {$model->tahun_ajaran}\n"
-            . "pengawas {$model->pengawasnama->name}\n"
-            . "akan melakukan kegiatan pengawasan {$model->nama_program_kerja}\n"
-            . "ke sekolah.\n"
-            . "{Mohon dapat|Silakan} mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
+            . "Pada bulan {$model->bulan} {$model->tahun_ajaran} pengawas {$nama_pengawas} akan melakukan kegiatan pengawasan {$model->nama_program_kerja} ke sekolah.\n"
+            . "Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
             . "Berikut ini beberapa catatan yang penting:\n"
             . "1. Pastikan link diisi pada hari pengawas melakukan pengawasan.\n"
             . "2. Sertakan 1 bukti pengawasan berupa foto kegiatan bersama pengawas.\n\n"
-            . "{Terima kasih|Terimakasih} {atas perhatian dan kerja samanya|}\n"
-            . "Pesan ini digenerate otomatis oleh DelmanSuper";
+            . "Terimakasih";
 
-        $this->dispatchWaJob($no_telp, $pesan, $model, $nama_kepala_sekolah_id);
+        $this->dispatchWaJob($no_telp, $pesan, $model, $nama_kepala_sekolah_id, $logId);
     }
 
     /**
      * Validasi nomor, siapkan pesan, lalu dispatch ke queue (async).
      * Menggantikan sendWhatsAppMessage() yang synchronous.
      */
-    protected function dispatchWaJob($phone, $message, $model, $kepalaSekolahId)
+    protected function dispatchWaJob($phone, $message, $model, $kepalaSekolahId, $logId = null)
     {
         // Validasi nomor telepon Indonesia
         $validation = WaBlastSafetyService::validatePhoneNumber($phone);
         if (!$validation['valid']) {
             Log::warning("[WA Dispatch] Nomor tidak valid ({$phone}): {$validation['reason']}");
 
-            $logEntry = new WhatsappMessagesLog();
+            $logEntry = $logId ? WhatsappMessagesLog::find($logId) : null;
+            if (!$logEntry) {
+                $logEntry = new WhatsappMessagesLog();
+            }
             $logEntry->rencana_kerja_id = $model->id;
             $logEntry->kepala_sekolah_id = $kepalaSekolahId;
             $logEntry->phone_number = $phone;
@@ -489,7 +506,8 @@ class RencanaTugasController extends Controller
             $phone,
             $message,
             $model->id,
-            $kepalaSekolahId
+            $kepalaSekolahId,
+            $logId
         );
 
         Log::info("[WA Dispatch] Job diantri untuk {$phone} (rencana_kerja_id: {$model->id})");

@@ -29,27 +29,33 @@ class SendWhatsappMessageJob implements ShouldQueue
     private string $message;
     private int    $rencanaKerjaId;
     private ?int   $kepalaSekolahId;
+    private ?int   $logId;
 
     public function __construct(
         string $phone,
         string $message,
         int    $rencanaKerjaId,
-        ?int   $kepalaSekolahId = null
+        ?int   $kepalaSekolahId = null,
+        ?int   $logId = null
     ) {
         $this->phone           = $phone;
         $this->message         = $message;
         $this->rencanaKerjaId  = $rencanaKerjaId;
         $this->kepalaSekolahId = $kepalaSekolahId;
+        $this->logId           = $logId;
 
         $this->onQueue('wa-blast');
     }
 
     public function handle()
     {
-        // Delay acak 30–90 detik agar tidak burst ke Wablas
-        $delay = rand(30, 90);
-        Log::info("[WA Job] Delay {$delay}s sebelum kirim ke {$this->phone}");
-        sleep($delay);
+        // Jika queue connection sync (inline HTTP request), gunakan delay minimal 1-2s agar tidak HTTP 503 Timeout di Hostinger
+        $isSync = config('queue.default') === 'sync';
+        $delay  = $isSync ? rand(1, 2) : rand(10, 30);
+        Log::info("[WA Job] Delay {$delay}s sebelum kirim ke {$this->phone} (Driver: " . config('queue.default') . ")");
+        if ($delay > 0) {
+            sleep($delay);
+        }
 
         // Cek daily limit dari WaBlastSafetyService
         $safetyCheck = WaBlastSafetyService::checkCanSend();
@@ -63,12 +69,34 @@ class SendWhatsappMessageJob implements ShouldQueue
         $secret   = config('services.wablas.secret');
         $endpoint = config('services.wablas.endpoint', 'https://jogja.wablas.com/api/send-message');
 
-        $logEntry                  = new WhatsappMessagesLog();
-        $logEntry->rencana_kerja_id = $this->rencanaKerjaId;
-        $logEntry->kepala_sekolah_id = $this->kepalaSekolahId;
-        $logEntry->phone_number    = $this->phone;
-        $logEntry->message         = $this->message;
-        $logEntry->job_uuid        = $this->job ? $this->job->uuid() : null;
+        $rawPhone = preg_replace('/^(\+?62|0)/', '', $this->phone);
+
+        $logEntry = null;
+        if ($this->logId) {
+            $logEntry = WhatsappMessagesLog::find($this->logId);
+        }
+
+        if (!$logEntry) {
+            $logQuery = WhatsappMessagesLog::where('rencana_kerja_id', $this->rencanaKerjaId)
+                ->where(function($q) use ($rawPhone) {
+                    $q->where('phone_number', 'LIKE', '%' . $rawPhone)
+                      ->orWhere('phone_number', $this->phone);
+                });
+            if (!empty($this->kepalaSekolahId)) {
+                $logQuery->where('kepala_sekolah_id', $this->kepalaSekolahId);
+            }
+            $logEntry = $logQuery->latest()->first();
+        }
+
+        if (!$logEntry) {
+            $logEntry = new WhatsappMessagesLog();
+            $logEntry->rencana_kerja_id  = $this->rencanaKerjaId;
+            $logEntry->kepala_sekolah_id = $this->kepalaSekolahId;
+            $logEntry->phone_number      = $this->phone;
+        }
+
+        $logEntry->message  = $this->message;
+        $logEntry->job_uuid = $this->job ? $this->job->uuid() : null;
 
         try {
             $isWatBiz   = str_contains($endpoint, 'watbiz.com');
@@ -129,8 +157,20 @@ class SendWhatsappMessageJob implements ShouldQueue
             $isSuccess = $response->successful() && ($statusVal === true || $statusVal === 'success' || (is_array($resArr) && $statusVal !== false && $statusVal !== 'error'));
 
             if ($isSuccess) {
-                $logEntry->is_sent = true;
+                $logEntry->is_sent        = true;
+                $logEntry->failure_reason = null;
                 $logEntry->save();
+
+                // Update semua variasi log untuk rencana_kerja & nomor HP ini (misal 08x vs 62x)
+                if (!empty($rawPhone)) {
+                    WhatsappMessagesLog::where('rencana_kerja_id', $this->rencanaKerjaId)
+                        ->where('phone_number', 'LIKE', '%' . $rawPhone)
+                        ->update([
+                            'is_sent'        => true,
+                            'failure_reason' => null,
+                        ]);
+                }
+
                 Log::info("[WA Job] Berhasil kirim ke {$this->phone}");
 
                 // Update status pada rencana_kerja_t menjadi 1 (Sudah Kirim WA Blast)

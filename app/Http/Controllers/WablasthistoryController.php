@@ -34,6 +34,13 @@ class WablasthistoryController extends Controller
 
             $query = $this->applyStakeholderFilter($query, 'rencanakerja.pengawasnama.kabupaten_id', null, 'rencanakerja.pengawasnama');
 
+            // Hitung ringkasan statistik (Total, Sudah Kirim, Belum Kirim)
+            $countQuery = WhatsappMessagesLog::query();
+            $countQuery = $this->applyStakeholderFilter($countQuery, 'rencanakerja.pengawasnama.kabupaten_id', null, 'rencanakerja.pengawasnama');
+            $totalCount = (clone $countQuery)->count();
+            $sudahCount = (clone $countQuery)->where('is_sent', 1)->count();
+            $belumCount = (clone $countQuery)->where('is_sent', 0)->count();
+
             if ($request->has('status') && $request->status !== 'all') {
                 if ($request->status === 'belum_kirim') {
                     $query->where('is_sent', 0);
@@ -72,6 +79,11 @@ class WablasthistoryController extends Controller
                         return '';
                     }
                 })
+                ->with([
+                    'total_count' => $totalCount,
+                    'sudah_count' => $sudahCount,
+                    'belum_count' => $belumCount,
+                ])
                 ->rawColumns(['checkbox', 'rencana', 'kepalasekolah', 'status', 'action'])
                 ->make(true);
         }
@@ -99,8 +111,19 @@ class WablasthistoryController extends Controller
             if ($log->rencana_kerja_id) {
                 try {
                     $id_sekolah = $log->kepala_sekolah_id ?? 0;
-                    $rencanaTugasController->kirimWaSekolah($log->rencana_kerja_id, $id_sekolah);
-                    $queuedCount++;
+                    $res = $rencanaTugasController->kirimWaSekolah($log->rencana_kerja_id, $id_sekolah, $log->id);
+                    if ($res instanceof \Illuminate\Http\JsonResponse) {
+                        $data = $res->getData(true);
+                        if (!empty($data['success'])) {
+                            $log->failure_reason = 'Sedang diantri ke WA Blast...';
+                            $log->save();
+                            $queuedCount++;
+                        }
+                    } else {
+                        $log->failure_reason = 'Sedang diantri ke WA Blast...';
+                        $log->save();
+                        $queuedCount++;
+                    }
                 } catch (\Exception $e) {
                     \Illuminate\Support\Facades\Log::error("Bulk send WA error for Log ID {$log->id}: " . $e->getMessage());
                 }

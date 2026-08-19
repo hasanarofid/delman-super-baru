@@ -24,16 +24,29 @@
           </div>
           <div class="app-card app-card-account shadow-sm d-flex flex-column align-items-start">
               
-              <div class="row w-100 px-4 pt-3 pb-2 align-items-end">
-                  <div class="col-md-4 mb-2 mb-md-0">
-                      <label for="filter-status-history" class="form-label fw-bold">Filter Status WA:</label>
-                      <select id="filter-status-history" class="form-select select2">
-                          <option value="all">Semua Status</option>
-                          <option value="belum_kirim">Belum Kirim WA Blast</option>
-                          <option value="sudah_kirim">Sudah Kirim WA Blast</option>
-                      </select>
+              <div class="row w-100 px-4 pt-3 pb-2 align-items-center">
+                  <div class="col-md-7 mb-2 mb-md-0 d-flex flex-wrap gap-2 align-items-center">
+                      <div class="mb-2">
+                          <label for="filter-status-history" class="form-label fw-bold mb-1">Filter Status WA:</label>
+                          <select id="filter-status-history" class="form-select select2">
+                              <option value="all">Semua Status</option>
+                              <option value="belum_kirim">Belum Kirim WA Blast</option>
+                              <option value="sudah_kirim">Sudah Kirim WA Blast</option>
+                          </select>
+                      </div>
+                      <div class="ms-md-2 d-flex flex-wrap gap-2 align-items-center mt-md-3">
+                          <span class="badge bg-primary py-2 px-3 me-1" style="font-size: 0.85rem;">
+                              <i class="fa fa-list me-1"></i> Total WA: <strong id="count-total">0</strong>
+                          </span>
+                          <span class="badge bg-danger py-2 px-3 me-1" style="font-size: 0.85rem;">
+                              <i class="fa fa-times-circle me-1"></i> Belum Kirim: <strong id="count-belum">0</strong>
+                          </span>
+                          <span class="badge bg-success py-2 px-3" style="font-size: 0.85rem;">
+                              <i class="fa fa-check-circle me-1"></i> Sudah Kirim: <strong id="count-sudah">0</strong>
+                          </span>
+                      </div>
                   </div>
-                  <div class="col-md-8 d-flex justify-content-md-end justify-content-start">
+                  <div class="col-md-5 d-flex justify-content-md-end justify-content-start align-items-center mt-2 mt-md-0">
                       @if(Auth::user() && Auth::user()->role == 'Super Admin')
                       <button type="button" id="btn-kirim-masal" class="btn btn-success me-2">
                           <i class="fa fa-paper-plane me-1"></i> Kirim WA Masal (<span id="selected-count">0</span> terpilih)
@@ -151,6 +164,15 @@ function kirimWaBlast(id,id_sekolah) {
         ]
     });
 
+    table.on('xhr', function() {
+        var json = table.ajax.json();
+        if (json) {
+            if (json.total_count !== undefined) $('#count-total').text(json.total_count);
+            if (json.sudah_count !== undefined) $('#count-sudah').text(json.sudah_count);
+            if (json.belum_count !== undefined) $('#count-belum').text(json.belum_count);
+        }
+    });
+
     $('#filter-status-history').change(function() {
         $('#check-all').prop('checked', false);
         updateSelectedCount();
@@ -220,8 +242,11 @@ function kirimWaBlast(id,id_sekolah) {
                             allowOutsideClick: false
                         }).then(() => {
                             $('#check-all').prop('checked', false);
+                            $('.row-checkbox').prop('checked', false);
                             updateSelectedCount();
-                            table.ajax.reload(null, false);
+                            if ($.fn.DataTable.isDataTable('#dataTable')) {
+                                $('#dataTable').DataTable().ajax.reload(null, false);
+                            }
                         });
                         btn.prop('disabled', false).html('<i class="fa fa-paper-plane me-1"></i> Kirim WA Masal (<span id="selected-count">0</span> terpilih)');
                     },

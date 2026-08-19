@@ -24,7 +24,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Jalankan worker antrean wa-blast setiap menit di background (tanpa memblokir HTTP request web)
+        $schedule->command('queue:work --queue=wa-blast,default --stop-when-empty')
+            ->everyMinute()
+            ->withoutOverlapping();
     }
 
     /**

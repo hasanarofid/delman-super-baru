@@ -400,11 +400,12 @@ class PerencanaanController extends Controller
             $fullUrl = route('dynamic.umpanbalik.form', ['id_category' => $id_category, 'generate_url' => $checkUmpanBalik->generate_url]);
         }
 
-        $pesan = "{Halo|Selamat pagi|Hai} {Pak/Bu|Bapak/Ibu} {$nama_pengawas},\n"
+        $ref = date('YmdHis') . rand(100, 999);
+        $pesan = "Halo Bapak/Ibu {$nama_pengawas},\n"
             . "Anda telah membuat Rencana Kerja Mandiri: {$model->nama_program_kerja}.\n"
-            . "{Silakan|Mohon} isi umpan balik/refleksi mandiri pada link berikut: {$fullUrl}\n\n"
-            . "{Terima kasih|Terimakasih} {atas perhatiannya|}\n"
-            . "DelmanSuper Platform";
+            . "Silakan isi umpan balik/refleksi mandiri pada link berikut:{$fullUrl}\n\n"
+            . "Ref : {$ref}\n"
+            . "Terimakasih";
 
         $this->dispatchWaJob($no_telp, $pesan, $model, null);
     }
@@ -437,18 +438,14 @@ class PerencanaanController extends Controller
         }
 
         $nama_pengawas = $model->pengawasnama ? $model->pengawasnama->name : 'Pengawas';
-        $pesan = "{Yth.|Yang terhormat} {Bapak/Ibu|Bapak atau Ibu} {$nama_kepala_sekolah}\n"
+        $pesan = "Yth Bapak / Ibu {$nama_kepala_sekolah}\n"
             . "Kepala {$nama_sekolah},\n"
-            . "Pada bulan {$model->bulan} {$model->tahun_ajaran}\n"
-            . "pengawas {$nama_pengawas}\n"
-            . "akan melakukan kegiatan pengawasan {$model->nama_program_kerja}\n"
-            . "ke sekolah.\n"
-            . "{Mohon dapat|Silakan} mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
+            . "Pada bulan {$model->bulan} {$model->tahun_ajaran} pengawas {$nama_pengawas} akan melakukan kegiatan pengawasan {$model->nama_program_kerja} ke sekolah.\n"
+            . "Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
             . "Berikut ini beberapa catatan yang penting:\n"
             . "1. Pastikan link diisi pada hari pengawas melakukan pengawasan.\n"
             . "2. Sertakan 1 bukti pengawasan berupa foto kegiatan bersama pengawas.\n\n"
-            . "{Terima kasih|Terimakasih} {atas perhatian dan kerja samanya|}\n"
-            . "Pesan ini digenerate otomatis oleh DelmanSuper";
+            . "Terimakasih";
 
         $this->dispatchWaJob($no_telp, $pesan, $model, $nama_kepala_sekolah_id);
     }
@@ -482,18 +479,14 @@ class PerencanaanController extends Controller
         }
 
         $nama_pengawas = $model->pengawasnama ? $model->pengawasnama->name : 'Pengawas';
-        $pesan = "{Yth.|Yang terhormat} {Bapak/Ibu|Bapak atau Ibu} {$nama_kepala_sekolah}\n"
+        $pesan = "Yth Bapak / Ibu {$nama_kepala_sekolah}\n"
             . "Kepala {$nama_sekolah},\n"
-            . "Pada bulan {$model->bulan} {$model->tahun_ajaran}\n"
-            . "pengawas {$nama_pengawas}\n"
-            . "akan melakukan kegiatan pengawasan {$model->nama_program_kerja}\n"
-            . "ke sekolah.\n"
-            . "{Mohon dapat|Silakan} mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
+            . "Pada bulan {$model->bulan} {$model->tahun_ajaran} pengawas {$nama_pengawas} akan melakukan kegiatan pengawasan {$model->nama_program_kerja} ke sekolah.\n"
+            . "Mohon dapat mengisi formulir Monev pada link berikut : {$fullUrl}\n\n"
             . "Berikut ini beberapa catatan yang penting:\n"
             . "1. Pastikan link diisi pada hari pengawas melakukan pengawasan.\n"
             . "2. Sertakan 1 bukti pengawasan berupa foto kegiatan bersama pengawas.\n\n"
-            . "{Terima kasih|Terimakasih} {atas perhatian dan kerja samanya|}\n"
-            . "Pesan ini digenerate otomatis oleh DelmanSuper";
+            . "Terimakasih";
 
         $this->dispatchWaJob($no_telp, $pesan, $model, $nama_kepala_sekolah_id);
     }
