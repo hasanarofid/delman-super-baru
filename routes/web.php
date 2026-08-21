@@ -49,12 +49,15 @@ Route::post('/kirimumpanbalik', 'UmpanbalikController@saveumpan')->name('kirimum
 Route::get('/tanggapan', 'UmpanbalikController@tanggapan')->name('tanggapan');
 
 Route::get('/', function () {
-    return redirect('/login');
+    return view('landing');
+})->name('landing');
+
+Route::get('/administrator', 'Auth\LoginController@showLoginForm')->name('administrator.login');
+Route::get('/login', function () {
+    return redirect()->route('administrator.login');
 });
 
-
 // route panel dashboard admin
-Route::get('/', 'AdminController@index')->name('admin.index')->middleware(['auth']);
 Route::get('/dashboard', 'AdminController@index')->name('admin.index')->middleware(['auth']);
 Route::get('/dashboard-monev', 'DashboardMonevBulananController@index')->name('admin.dashboard_monev')->middleware(['auth']);
 Route::get('/dashboard-monev-bosp', 'DashboardMonevBospController@index')->name('admin.dashboard_monev_bosp')->middleware(['auth']);
@@ -857,7 +860,7 @@ Route::middleware(['web', 'pengawas'])->group(function () {
     Route::get('/chart-data2-pengawas', 'PengawasController@chartData2')->name('pengawas.chartData2');
     Route::get('/chart-dynamic-data-pengawas', 'PengawasController@getDynamicChartData')->name('pengawas.chartDynamicData');
 
-    Route::get('/dashboard', 'PengawasController@dashboard')->name('pengawas.dashboard');
+    Route::get('/pengawas-dashboard', 'PengawasController@dashboard')->name('pengawas.dashboard');
     Route::post('/export-dashboard-kinerja', 'PengawasController@exportDashboardKinerja')->name('pengawas.exportDashboardKinerja');
     Route::get('/spider-web-data-pengawas', 'PengawasController@getSpiderWebDataPengawas')->name('pengawas.spiderWebData');
     Route::get('/chartTerkonfirmasi-pengawas', 'PengawasController@chartTerkonfirmasiPengawas')->name('pengawas.chartTerkonfirmasi');
@@ -993,12 +996,12 @@ Route::middleware(['web', 'pengawas'])->group(function () {
 
 
 
-    // login logout pengawas
-    Route::get('/pengawas/login', 'Auth\LoginController@showPengawasLoginForm')->name('pengawas.login');
-    Route::post('/pengawas/login', 'Auth\LoginController@superPengawasLogin')->name('superPengawasLogin');
-    Route::post('/pengawas/logout', 'Auth\LoginController@logout')->name('pengawas.logout');
-
 });
+
+// login logout pengawas
+Route::get('/pengawas/login', 'Auth\LoginController@showPengawasLoginForm')->name('pengawas.login');
+Route::post('/pengawas/login', 'Auth\LoginController@superPengawasLogin')->name('superPengawasLogin');
+Route::post('/pengawas/logout', 'Auth\LoginController@logout')->name('pengawas.logout');
 
 // login logout stakeholder
 Route::get('/stakeholder', function () {

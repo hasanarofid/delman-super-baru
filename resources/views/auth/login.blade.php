@@ -77,6 +77,10 @@
                         
                         <!-- Footer dengan informasi tambahan -->
                         <div class="text-center mt-4 pt-3 border-top">
+                            <a href="{{ url('/') }}" class="btn btn-sm btn-outline-secondary mb-2">
+                                <i class="ti ti-arrow-left me-1"></i> Kembali ke Beranda
+                            </a>
+                            <br>
                             <small class="text-muted">
                                 <i class="ti ti-shield-check me-1"></i>
                                 Sistem keamanan terjamin dengan enkripsi SSL

@@ -20,7 +20,7 @@ class Authenticate extends Middleware
                 return route('pengawas.login');
             }
             // Default redirect ke admin login
-            return route('login');
+            return route('administrator.login');
         }
     }
 }

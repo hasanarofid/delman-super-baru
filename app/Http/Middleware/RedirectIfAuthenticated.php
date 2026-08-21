@@ -22,14 +22,16 @@ class RedirectIfAuthenticated
             $user = Auth::guard($guard)->user();
             
             // Jika user sudah login dan mengakses halaman login, redirect ke dashboard yang sesuai
-            if ($request->is('pengawas/login') || $request->is('stakeholder/login') || $request->is('login')) {
+            if ($request->is('pengawas/login') || $request->is('stakeholder/login') || $request->is('login') || $request->is('administrator*')) {
                 if ($user->role == 'Pengawas') {
-                return redirect()->route('pengawas.index');
+                    return redirect()->route('pengawas.dashboard');
                 }
                 return redirect(RouteServiceProvider::HOME);
             }
             
-            // Default redirect ke home
+            if ($user->role == 'Pengawas') {
+                return redirect()->route('pengawas.dashboard');
+            }
             return redirect(RouteServiceProvider::HOME);
         }
 

@@ -53,6 +53,21 @@ class LoginController extends Controller
         return $this->sendFailedLoginResponse($request);
     }
 
+    /**
+     * The user has been authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        if ($user->role == 'Pengawas') {
+            return redirect()->route('pengawas.dashboard');
+        }
+        return redirect('/dashboard');
+    }
+
     // View untuk pengawas login
     public function showPengawasLoginForm()
     {
@@ -153,12 +168,11 @@ class LoginController extends Controller
     // protected $redirectTo = RouteServiceProvider::HOME;
     protected function redirectTo()
     {
-        // if (Auth::user()->role == 'Admin') {
-            return '/dashboard';
-        // } 
-        // else {
-        //     return '/';
-        // }
+        $user = Auth::user();
+        if ($user && $user->role == 'Pengawas') {
+            return route('pengawas.dashboard');
+        }
+        return '/dashboard';
     }
     /**
      * Create a new controller instance.
