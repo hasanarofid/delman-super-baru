@@ -124,15 +124,15 @@ class WaBlastSafetyService
             $message
         );
 
-        // Spintax: variasi pesan agar tidak identik antar-penerima (hanya jika ada delimiter {})
-        if (str_contains($message, '{')) {
+        $endpoint = config('services.wablas.endpoint', '');
+        $isDikontak = str_contains($endpoint, 'dikontak.com');
+
+        // Spintax: variasi pesan agar tidak identik antar-penerima (hanya jika ada delimiter {} dan bukan Dikontak WABA)
+        if (!$isDikontak && str_contains($message, '{')) {
             $message = SpintaxHelper::parse($message);
         }
 
         // Anti-Spam Suffix - Diberlakukan untuk Wablas legacy; untuk Dikontak.com WABA template tidak ditambahkan suffix karena pesan harus match persis dengan Meta template
-        $endpoint = config('services.wablas.endpoint', '');
-        $isDikontak = str_contains($endpoint, 'dikontak.com');
-
         if (!$isDikontak && filter_var(config('services.wablas.anti_spam_suffix', true), FILTER_VALIDATE_BOOLEAN)) {
             $message .= "\n\n[Ref: " . date('YmdHis') . "-" . rand(100, 999) . "]";
         }

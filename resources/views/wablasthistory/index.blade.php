@@ -98,14 +98,24 @@
 
 <script>
 
-function kirimWaBlast(id,id_sekolah) {
+function kirimWaBlast(id, id_sekolah, log_id) {
     let button = $('#sendWaButton-' + id);  // Reference to the specific button
 
     // Disable button and add a loading state
     button.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Sending...');
 
+    let requestUrl = '{{ route("rencanatugas.kirimWaSekolah", ["id" => ":id", "id_sekolah" => ":id_sekolah", "logId" => ":logId"]) }}'
+        .replace(':id', id)
+        .replace(':id_sekolah', id_sekolah);
+
+    if (log_id) {
+        requestUrl = requestUrl.replace(':logId', log_id);
+    } else {
+        requestUrl = requestUrl.replace('/:logId', '').replace(':logId', '');
+    }
+
     $.ajax({
-        url: '{{ route("rencanatugas.kirimWaSekolah", ["id" => ":id", "id_sekolah" => ":id_sekolah"]) }}'.replace(':id', id).replace(':id_sekolah', id_sekolah),
+        url: requestUrl,
         type: 'GET',
         success: function(response) {
             Swal.fire({
