@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'https://delmansuper.andibakhtiar.com/'),
+    'url' => env('APP_URL', 'https://delmansuper.id/'),
 
     'asset_url' => env('ASSET_URL', null),
 

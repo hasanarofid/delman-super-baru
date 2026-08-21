@@ -506,7 +506,11 @@ class PerencanaanController extends Controller
             $logEntry->message = $message;
             $logEntry->is_sent = false;
             $logEntry->failure_reason = "Nomor tidak valid: {$validation['reason']}";
-            $logEntry->save();
+            try {
+                $logEntry->save();
+            } catch (\Throwable $e) {
+                Log::error("[Perencanaan WA] Gagal menyimpan log nomor tidak valid: " . $e->getMessage());
+            }
             return;
         }
 

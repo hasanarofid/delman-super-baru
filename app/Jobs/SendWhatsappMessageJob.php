@@ -28,8 +28,8 @@ class SendWhatsappMessageJob implements ShouldQueue
     private string $phone;
     private string $message;
     private int    $rencanaKerjaId;
-    private ?int   $kepalaSekolahId;
-    private ?int   $logId;
+    private ?int   $kepalaSekolahId = null;
+    private ?int   $logId = null;
 
     public function __construct(
         string $phone,
@@ -49,6 +49,12 @@ class SendWhatsappMessageJob implements ShouldQueue
 
     public function handle()
     {
+        // Cek apakah RencanaKerjaT masih ada di database
+        if (!\App\Models\RencanaKerjaT::where('id', $this->rencanaKerjaId)->exists()) {
+            Log::warning("[WA Job] Rencana Kerja ID {$this->rencanaKerjaId} sudah tidak ada di database. Job dibatalkan.");
+            return;
+        }
+
         // Jika queue connection sync (inline HTTP request), gunakan delay minimal 1-2s agar tidak HTTP 503 Timeout di Hostinger
         $isSync = config('queue.default') === 'sync';
         $delay  = $isSync ? rand(1, 2) : rand(10, 30);
@@ -72,7 +78,7 @@ class SendWhatsappMessageJob implements ShouldQueue
         $rawPhone = preg_replace('/^(\+?62|0)/', '', $this->phone);
 
         $logEntry = null;
-        if ($this->logId) {
+        if (isset($this->logId) && $this->logId) {
             $logEntry = WhatsappMessagesLog::find($this->logId);
         }
 
@@ -82,7 +88,7 @@ class SendWhatsappMessageJob implements ShouldQueue
                     $q->where('phone_number', 'LIKE', '%' . $rawPhone)
                       ->orWhere('phone_number', $this->phone);
                 });
-            if (!empty($this->kepalaSekolahId)) {
+            if (isset($this->kepalaSekolahId) && !empty($this->kepalaSekolahId)) {
                 $logQuery->where('kepala_sekolah_id', $this->kepalaSekolahId);
             }
             $logEntry = $logQuery->latest()->first();
@@ -91,7 +97,7 @@ class SendWhatsappMessageJob implements ShouldQueue
         if (!$logEntry) {
             $logEntry = new WhatsappMessagesLog();
             $logEntry->rencana_kerja_id  = $this->rencanaKerjaId;
-            $logEntry->kepala_sekolah_id = $this->kepalaSekolahId;
+            $logEntry->kepala_sekolah_id = isset($this->kepalaSekolahId) ? $this->kepalaSekolahId : null;
             $logEntry->phone_number      = $this->phone;
         }
 
@@ -209,18 +215,25 @@ class SendWhatsappMessageJob implements ShouldQueue
     {
         Log::error("[WA Job] Job PERMANENTLY FAILED ke {$this->phone}: " . $exception->getMessage());
 
-        WhatsappMessagesLog::updateOrCreate(
-            [
-                'rencana_kerja_id'  => $this->rencanaKerjaId,
-                'kepala_sekolah_id' => $this->kepalaSekolahId,
-                'phone_number'      => $this->phone,
-            ],
-            [
-                'message'        => $this->message,
-                'is_sent'        => false,
-                'failure_reason' => substr('Job gagal permanen setelah ' . $this->tries . ' percobaan: ' . $exception->getMessage(), 0, 250),
-            ]
-        );
+        try {
+            $rkId = isset($this->rencanaKerjaId) ? $this->rencanaKerjaId : null;
+            if ($rkId && \App\Models\RencanaKerjaT::where('id', $rkId)->exists()) {
+                WhatsappMessagesLog::updateOrCreate(
+                    [
+                        'rencana_kerja_id'  => $rkId,
+                        'kepala_sekolah_id' => isset($this->kepalaSekolahId) ? $this->kepalaSekolahId : null,
+                        'phone_number'      => $this->phone,
+                    ],
+                    [
+                        'message'        => $this->message,
+                        'is_sent'        => false,
+                        'failure_reason' => substr('Job gagal permanen setelah ' . $this->tries . ' percobaan: ' . $exception->getMessage(), 0, 250),
+                    ]
+                );
+            }
+        } catch (\Throwable $e) {
+            Log::error("[WA Job failed handler] Tidak dapat menyimpan ke whatsapp_messages_log: " . $e->getMessage());
+        }
     }
 
     /**
