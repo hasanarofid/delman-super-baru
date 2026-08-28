@@ -138,24 +138,24 @@ class SendWhatsappMessageJob implements ShouldQueue
                         $p3 = !empty($m[3]) ? trim($m[3]) : 'https://delmansuper.id';
                         $p4 = !empty($m[4]) ? trim(rtrim($m[4], '.')) : date('YmdHis');
 
-                        $vars = (object) [
-                            'nama_pengawas'    => $p1,
-                            'rencana_kerja'    => $p2,
-                            'link_umpan_balik' => $p3,
-                            'ref'              => $p4,
+                        $vars = [
+                            (string) $p1,
+                            (string) $p2,
+                            (string) $p3,
+                            (string) $p4,
                         ];
                     } else {
                         // Template umpan_balik (1588095976123570) - Butuh 7 variabel
                         $templateId = config('services.wablas.template_id', '1588095976123570');
                         preg_match('/Yth Bapak \/ Ibu \*(.*?)\* Kepala \*(.*?)\*, Pada bulan \*(.*?)\* (.*?)\* pengawas \*(.*?)\* akan melakukan kegiatan pengawasan \*(.*?)\* ke sekolah\. Mohon dapat mengisi formulir Monev pada link berikut : \*(.*?)\*/i', $this->message, $m);
-                        $vars = (object) [
-                            '1' => !empty($m[1]) ? trim($m[1]) : 'Bapak/Ibu',
-                            '2' => !empty($m[2]) ? trim($m[2]) : 'Sekolah',
-                            '3' => !empty($m[3]) ? trim($m[3]) : date('F'),
-                            '4' => !empty($m[4]) ? trim($m[4]) : date('Y'),
-                            '5' => !empty($m[5]) ? trim($m[5]) : 'Pengawas',
-                            '6' => !empty($m[6]) ? trim($m[6]) : 'Pengawasan',
-                            '7' => !empty($m[7]) ? trim($m[7]) : 'https://delmansuper.id',
+                        $vars = [
+                            (string) (!empty($m[1]) ? trim($m[1]) : 'Bapak/Ibu'),
+                            (string) (!empty($m[2]) ? trim($m[2]) : 'Sekolah'),
+                            (string) (!empty($m[3]) ? trim($m[3]) : date('F')),
+                            (string) (!empty($m[4]) ? trim($m[4]) : date('Y')),
+                            (string) (!empty($m[5]) ? trim($m[5]) : 'Pengawas'),
+                            (string) (!empty($m[6]) ? trim($m[6]) : 'Pengawasan'),
+                            (string) (!empty($m[7]) ? trim($m[7]) : 'https://delmansuper.id'),
                         ];
                     }
 
