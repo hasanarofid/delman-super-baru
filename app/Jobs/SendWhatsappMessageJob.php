@@ -138,17 +138,7 @@ class SendWhatsappMessageJob implements ShouldQueue
                         $p3 = !empty($m[3]) ? trim($m[3]) : 'https://delmansuper.id';
                         $p4 = !empty($m[4]) ? trim(rtrim($m[4], '.')) : date('YmdHis');
 
-                        $vars = [
-                            'nama_pengawas'    => $p1,
-                            'rencana_kerja'    => $p2,
-                            'link_umpan_balik' => $p3,
-                            'ref'              => $p4,
-                            '1' => $p1,
-                            '2' => $p2,
-                            '3' => $p3,
-                            '4' => $p4,
-                            $p1, $p2, $p3, $p4
-                        ];
+                        $vars = [$p1, $p2, $p3, $p4];
                     } else {
                         // Template umpan_balik (1588095976123570) - Butuh 7 variabel
                         $templateId = config('services.wablas.template_id', '1588095976123570');
@@ -162,7 +152,9 @@ class SendWhatsappMessageJob implements ShouldQueue
                             !empty($m[6]) ? trim($m[6]) : 'Pengawasan',
                             !empty($m[7]) ? trim($m[7]) : 'https://delmansuper.id',
                         ];
-                    }$payload = [
+                    }
+
+                    $payload = [
                         'template_id' => (string) $templateId,
                         'phone'       => $this->phone,
                         'variables'   => $vars,
