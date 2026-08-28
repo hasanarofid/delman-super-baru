@@ -71,8 +71,8 @@ class SendWhatsappMessageJob implements ShouldQueue
             return;
         }
 
-        $token    = config('services.wablas.token');
-        $secret   = config('services.wablas.secret');
+        $token    = (string) (config('services.wablas.token') ?? '');
+        $secret   = (string) (config('services.wablas.secret') ?? '');
         $endpoint = config('services.wablas.endpoint', 'https://jogja.wablas.com/api/send-message');
 
         $rawPhone = preg_replace('/^(\+?62|0)/', '', $this->phone);

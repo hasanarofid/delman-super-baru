@@ -144,8 +144,9 @@ class WaBlastSafetyService
      * Dapatkan format auth Wablas yang berhasil (cache 6 jam).
      * Menghilangkan percobaan 3x HTTP setiap pengiriman.
      */
-    public static function getWorkingAuthFormat(string $token, string $secret, string $endpoint): string
+    public static function getWorkingAuthFormat(string $token, ?string $secret, string $endpoint): string
     {
+        $secret = $secret ?? '';
         $isDikontak = str_contains($endpoint, 'dikontak.com');
         if ($isDikontak) {
             return "Bearer {$token}";
