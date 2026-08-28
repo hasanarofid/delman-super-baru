@@ -146,19 +146,21 @@ class WaBlastSafetyService
      */
     public static function getWorkingAuthFormat(string $token, string $secret, string $endpoint): string
     {
+        $isDikontak = str_contains($endpoint, 'dikontak.com');
+        if ($isDikontak) {
+            return "Bearer {$token}";
+        }
+
         $cached = Cache::get(self::AUTH_CACHE_KEY);
         if ($cached) {
             return $cached;
         }
 
-        // Daftar format auth (urut dari Bearer, token plain, dan token.secret)
-        $formats = array_filter([
-            'bearer'           => "Bearer {$token}",
-            'token_only'       => $token,
-            'token_dot_secret' => !empty($secret) ? "{$token}.{$secret}" : null,
-        ]);
-
-        $isDikontak = str_contains($endpoint, 'dikontak.com');
+        $formats = [
+            'token_secret' => !empty($secret) ? "{$token}.{$secret}" : $token,
+            'bearer'       => "Bearer {$token}",
+            'raw_token'    => $token,
+        ];
 
         foreach ($formats as $name => $authHeader) {
             try {
@@ -169,10 +171,19 @@ class WaBlastSafetyService
                     $req = $req->asForm();
                 }
 
-                $response = $req->timeout(15)->post($endpoint, [
+                $testPayload = [
                     'phone'   => '6200000000000', // Dummy — tidak terkirim
                     'message' => 'ping',
-                ]);
+                ];
+                if ($isDikontak && (str_contains($endpoint, '/waba/message') || str_contains($endpoint, '/waba-shared/message'))) {
+                    $testPayload = [
+                        'template_id' => config('services.wablas.template_id', '2224724581603299'),
+                        'phone'       => '6200000000000',
+                        'variables'   => [],
+                    ];
+                }
+
+                $response = $req->timeout(15)->post($endpoint, $testPayload);
 
                 $body = $response->body();
                 // Hanya cache format jika response HTTP 2xx dan bukan 'invalid request body'

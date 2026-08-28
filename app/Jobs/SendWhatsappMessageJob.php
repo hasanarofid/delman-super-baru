@@ -121,15 +121,54 @@ class SendWhatsappMessageJob implements ShouldQueue
                     'device_id' => (int) config('services.wablas.device_id', 0),
                 ]);
             } elseif ($isDikontak) {
-                // Dikontak API (WABA Shared / Dedicated) — membutuhkan JSON body
+                // Dikontak API (WABA Shared / Dedicated / Text)
                 $authHeader = WaBlastSafetyService::getWorkingAuthFormat($token, $secret, $endpoint);
+                
+                $isWabaTemplate = str_contains($endpoint, '/waba/message') || str_contains($endpoint, '/waba-shared/message');
+                if ($isWabaTemplate) {
+                    // Deteksi jenis pesan: Untuk Pengawas vs Untuk Kepala Sekolah / Guru
+                    $isPengawasMsg = str_contains($this->message, 'Rencana Kerja Mandiri') || str_contains($this->message, 'refleksi mandiri');
+                    if ($isPengawasMsg) {
+                        // Template umpan_balik_pengawas (1779175166415538)
+                        $templateId = config('services.wablas.template_id_pengawas', '1779175166415538');
+                        preg_match('/Halo Bapak\/Ibu \*(.*?)\*, Anda telah membuat Rencana Kerja Mandiri: \*(.*?)\*\. Silakan isi umpan balik\/refleksi mandiri pada link berikut:\*(.*?)\*(?: _(?:ref|Ref) : (.*?)_{0,1})?/i', $this->message, $m);
+                        $vars = [
+                            $m[1] ?? 'Pengawas',
+                            $m[2] ?? '-',
+                            $m[3] ?? '',
+                            $m[4] ?? date('YmdHis'),
+                        ];
+                    } else {
+                        // Template umpan_balik (1588095976123570)
+                        $templateId = config('services.wablas.template_id', '1588095976123570');
+                        preg_match('/Yth Bapak \/ Ibu \*(.*?)\* Kepala \*(.*?)\*, Pada bulan \*(.*?)\* (.*?)\* pengawas \*(.*?)\* akan melakukan kegiatan pengawasan \*(.*?)\* ke sekolah\. Mohon dapat mengisi formulir Monev pada link berikut : \*(.*?)\*/i', $this->message, $m);
+                        $vars = [
+                            $m[1] ?? 'Bapak/Ibu',
+                            $m[2] ?? 'Sekolah',
+                            $m[3] ?? date('F'),
+                            $m[4] ?? date('Y'),
+                            $m[5] ?? 'Pengawas',
+                            $m[6] ?? 'Pengawasan',
+                            $m[7] ?? '',
+                        ];
+                    }
+
+                    $payload = [
+                        'template_id' => (string) $templateId,
+                        'phone'       => $this->phone,
+                        'variables'   => $vars,
+                    ];
+                } else {
+                    $payload = [
+                        'phone'   => $this->phone,
+                        'message' => $this->message,
+                    ];
+                }
+
                 $response = Http::withHeaders(['Authorization' => $authHeader])
                     ->asJson()
                     ->timeout(30)
-                    ->post($endpoint, [
-                        'phone'   => $this->phone,
-                        'message' => $this->message,
-                    ]);
+                    ->post($endpoint, $payload);
             } else {
                 // Legacy Wablas API
                 $authHeader = WaBlastSafetyService::getWorkingAuthFormat($token, $secret, $endpoint);
