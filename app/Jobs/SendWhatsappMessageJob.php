@@ -129,31 +129,40 @@ class SendWhatsappMessageJob implements ShouldQueue
                     // Deteksi jenis pesan: Untuk Pengawas vs Untuk Kepala Sekolah / Guru
                     $isPengawasMsg = str_contains($this->message, 'Rencana Kerja Mandiri') || str_contains($this->message, 'refleksi mandiri');
                     if ($isPengawasMsg) {
-                        // Template umpan_balik_pengawas (1779175166415538)
+                        // Template umpan_balik_pengawas (1779175166415538) - Butuh 4 variabel
                         $templateId = config('services.wablas.template_id_pengawas', '1779175166415538');
-                        preg_match('/Halo Bapak\/Ibu \*(.*?)\*, Anda telah membuat Rencana Kerja Mandiri: \*(.*?)\*\. Silakan isi umpan balik\/refleksi mandiri pada link berikut:\*(.*?)\*(?: _(?:ref|Ref) : (.*?)_{0,1})?/i', $this->message, $m);
+                        preg_match('/Halo Bapak\/Ibu \*(.*?)\*, Anda telah membuat Rencana Kerja Mandiri: \*(.*?)\*\. Silakan isi umpan balik\/refleksi mandiri pada link berikut:\*(.*?)\*(?: _(?:ref|Ref):\s*(.*?)_{0,1})?/i', $this->message, $m);
+                        
+                        $p1 = !empty($m[1]) ? trim($m[1]) : 'Pengawas';
+                        $p2 = !empty($m[2]) ? trim($m[2]) : '-';
+                        $p3 = !empty($m[3]) ? trim($m[3]) : 'https://delmansuper.id';
+                        $p4 = !empty($m[4]) ? trim(rtrim($m[4], '.')) : date('YmdHis');
+
                         $vars = [
-                            $m[1] ?? 'Pengawas',
-                            $m[2] ?? '-',
-                            $m[3] ?? '',
-                            $m[4] ?? date('YmdHis'),
+                            'nama_pengawas'    => $p1,
+                            'rencana_kerja'    => $p2,
+                            'link_umpan_balik' => $p3,
+                            'ref'              => $p4,
+                            '1' => $p1,
+                            '2' => $p2,
+                            '3' => $p3,
+                            '4' => $p4,
+                            $p1, $p2, $p3, $p4
                         ];
                     } else {
-                        // Template umpan_balik (1588095976123570)
+                        // Template umpan_balik (1588095976123570) - Butuh 7 variabel
                         $templateId = config('services.wablas.template_id', '1588095976123570');
                         preg_match('/Yth Bapak \/ Ibu \*(.*?)\* Kepala \*(.*?)\*, Pada bulan \*(.*?)\* (.*?)\* pengawas \*(.*?)\* akan melakukan kegiatan pengawasan \*(.*?)\* ke sekolah\. Mohon dapat mengisi formulir Monev pada link berikut : \*(.*?)\*/i', $this->message, $m);
                         $vars = [
-                            $m[1] ?? 'Bapak/Ibu',
-                            $m[2] ?? 'Sekolah',
-                            $m[3] ?? date('F'),
-                            $m[4] ?? date('Y'),
-                            $m[5] ?? 'Pengawas',
-                            $m[6] ?? 'Pengawasan',
-                            $m[7] ?? '',
+                            !empty($m[1]) ? trim($m[1]) : 'Bapak/Ibu',
+                            !empty($m[2]) ? trim($m[2]) : 'Sekolah',
+                            !empty($m[3]) ? trim($m[3]) : date('F'),
+                            !empty($m[4]) ? trim($m[4]) : date('Y'),
+                            !empty($m[5]) ? trim($m[5]) : 'Pengawas',
+                            !empty($m[6]) ? trim($m[6]) : 'Pengawasan',
+                            !empty($m[7]) ? trim($m[7]) : 'https://delmansuper.id',
                         ];
-                    }
-
-                    $payload = [
+                    }$payload = [
                         'template_id' => (string) $templateId,
                         'phone'       => $this->phone,
                         'variables'   => $vars,
