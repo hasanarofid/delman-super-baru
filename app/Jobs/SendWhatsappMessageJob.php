@@ -151,6 +151,16 @@ class SendWhatsappMessageJob implements ShouldQueue
                         }
 
                         $paramList = [(string) $p1, (string) $p2, (string) $p3, (string) $p4];
+                        $varsObj = [
+                            '1' => (string) $p1,
+                            '2' => (string) $p2,
+                            '3' => (string) $p3,
+                            '4' => (string) $p4,
+                            'nama_pengawas'    => (string) $p1,
+                            'rencana_kerja'    => (string) $p2,
+                            'link_umpan_balik' => (string) $p3,
+                            'ref'              => (string) $p4,
+                        ];
                     } else {
                         // Template umpan_balik (1588095976123570) - Butuh 7 variabel (nama_guru, nama_sekolah, bulan, tahun, nama_pengawas, nama_rencana_kerja, link_umpan_balik)
                         $templateId = config('services.wablas.template_id', '1588095976123570');
@@ -186,12 +196,28 @@ class SendWhatsappMessageJob implements ShouldQueue
                         }
 
                         $paramList = [(string) $p1, (string) $p2, (string) $p3, (string) $p4, (string) $p5, (string) $p6, (string) $p7];
+                        $varsObj = [
+                            '1' => (string) $p1,
+                            '2' => (string) $p2,
+                            '3' => (string) $p3,
+                            '4' => (string) $p4,
+                            '5' => (string) $p5,
+                            '6' => (string) $p6,
+                            '7' => (string) $p7,
+                            'nama_guru'          => (string) $p1,
+                            'nama_sekolah'       => (string) $p2,
+                            'bulan'              => (string) $p3,
+                            'tahun'              => (string) $p4,
+                            'nama_pengawas'      => (string) $p5,
+                            'nama_rencana_kerja' => (string) $p6,
+                            'link_umpan_balik'   => (string) $p7,
+                        ];
                     }
 
                     $payload = [
                         'template_id' => (string) $templateId,
                         'phone'       => $this->phone,
-                        'variables'   => $paramList,
+                        'variables'   => $varsObj,
                         'parameters'  => $paramList,
                         'params'      => $paramList,
                     ];
