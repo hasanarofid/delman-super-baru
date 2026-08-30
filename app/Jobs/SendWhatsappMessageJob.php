@@ -199,10 +199,14 @@ class SendWhatsappMessageJob implements ShouldQueue
                     ];
                 }
 
+                Log::info("[WA Job] Sending WABA Payload to {$endpoint}:", $payload);
+
                 $response = Http::withHeaders(['Authorization' => $authHeader])
                     ->asJson()
                     ->timeout(30)
                     ->post($endpoint, $payload);
+                    
+                Log::info("[WA Job] Raw Response from {$endpoint} (HTTP {$response->status()}): " . $response->body());
             } else {
                 // Legacy Wablas API
                 $authHeader = WaBlastSafetyService::getWorkingAuthFormat($token, $secret, $endpoint);
