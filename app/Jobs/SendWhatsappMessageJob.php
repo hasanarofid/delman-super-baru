@@ -171,7 +171,7 @@ class SendWhatsappMessageJob implements ShouldQueue
                     $payload = [
                         'template_id' => (string) $templateId,
                         'phone'       => $this->phone,
-                        'variables'   => $vars,
+                        'variables'   => array_values($vars),
                     ];
                 } else {
                     $payload = [
