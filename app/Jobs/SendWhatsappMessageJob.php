@@ -187,19 +187,24 @@ class SendWhatsappMessageJob implements ShouldQueue
                         $paramList = [(string) $p1, (string) $p2, (string) $p3, (string) $p4, (string) $p5, (string) $p6, (string) $p7];
                     }
 
-                    // Build 4 variable format payload variations for Dikontak WABA API
+                    // Build WABA variable payload formats
                     $indexedVars = array_values($paramList);
-                    $templateName = $isPengawasMsg ? 'umpan_balik_pengawas' : 'umpan_balik';
                     
+                    $format1Obj = new \stdClass();
+                    foreach ($indexedVars as $idx => $val) {
+                        $key = (string) ($idx + 1);
+                        $format1Obj->$key = (string) $val; // {"1": "val1", "2": "val2", ...}
+                    }
+
                     if ($isPengawasMsg) {
-                        $namedVars = [
+                        $namedVars = (object) [
                             'nama_pengawas'    => (string) $p1,
                             'rencana_kerja'    => (string) $p2,
                             'link_umpan_balik' => (string) $p3,
                             'ref'              => (string) $p4,
                         ];
                     } else {
-                        $namedVars = [
+                        $namedVars = (object) [
                             'nama_guru'          => (string) $p1,
                             'nama_sekolah'       => (string) $p2,
                             'bulan'              => (string) $p3,
@@ -210,20 +215,13 @@ class SendWhatsappMessageJob implements ShouldQueue
                         ];
                     }
 
-                    $format1Obj = [];
-                    foreach ($indexedVars as $idx => $val) {
-                        $format1Obj[(string)($idx + 1)] = $val; // "1" => val1, "2" => val2
-                    }
-
                     $payloadFormats = [
-                        // Format #1: Named keys object {"nama_pengawas": "val1", ...}
-                        ['template_id' => (string) $templateId, 'template_name' => $templateName, 'phone' => $this->phone, 'variables' => $namedVars],
-                        // Format #2: 1-indexed object {"1": "val1", "2": "val2", ...}
-                        ['template_id' => (string) $templateId, 'template_name' => $templateName, 'phone' => $this->phone, 'variables' => $format1Obj],
+                        // Format #1: Pure 3-key payload with 1-indexed object {"1": "val1", "2": "val2", ...}
+                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $format1Obj],
+                        // Format #2: Named keys object {"nama_pengawas": "val1", ...}
+                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $namedVars],
                         // Format #3: Indexed array ["val1", "val2", ...]
-                        ['template_id' => (string) $templateId, 'template_name' => $templateName, 'phone' => $this->phone, 'variables' => $indexedVars],
-                        // Format #4: JSON stringified array "[\"val1\", \"val2\"]"
-                        ['template_id' => (string) $templateId, 'template_name' => $templateName, 'phone' => $this->phone, 'variables' => json_encode($indexedVars)],
+                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $indexedVars],
                     ];
 
                     $response = null;
