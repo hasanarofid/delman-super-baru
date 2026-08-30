@@ -292,6 +292,13 @@ class SendWhatsappMessageJob implements ShouldQueue
                         ->asJson()
                         ->timeout(30)
                         ->post($endpoint, $payload);
+
+                    if (!$response->successful() || (isset(json_decode($response->body(), true)['status']) && json_decode($response->body(), true)['status'] === false)) {
+                        $response = Http::withHeaders(['Authorization' => $authHeader])
+                            ->asForm()
+                            ->timeout(30)
+                            ->post($endpoint, $payload);
+                    }
                 }
             } else {
                 // Legacy Wablas API
