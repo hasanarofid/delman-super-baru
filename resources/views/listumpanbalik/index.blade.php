@@ -138,22 +138,52 @@
 
 <script>
   function kirimWaRemindSingle(id) {
-      if (!confirm("Apakah Anda yakin ingin mengirim ulang WA Remind untuk data ini?")) {
-          return;
-      }
-      $.ajax({
-          url: "{{ url('superadmin/listumpanbalik/kirim-wa-remind-single') }}/" + id,
-          type: "POST",
-          data: {
-              _token: "{{ csrf_token() }}"
-          },
-          success: function(res) {
-              alert(res.message || "Berhasil mengirim WA Remind!");
-              $('#dataTable').DataTable().ajax.reload(null, false);
-          },
-          error: function(xhr) {
-              var err = xhr.responseJSON ? xhr.responseJSON.message : "Terjadi kesalahan saat mengirim WA Remind.";
-              alert("Gagal: " + err);
+      Swal.fire({
+          title: 'Konfirmasi Kirim WA Remind',
+          text: 'Apakah Anda yakin ingin mengirim ulang WA Remind untuk data ini?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#28a745',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Ya, Kirim!',
+          cancelButtonText: 'Batal'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              Swal.fire({
+                  title: 'Memproses...',
+                  text: 'Sedang mengantrikan pesan WA Remind...',
+                  allowOutsideClick: false,
+                  didOpen: () => {
+                      Swal.showLoading();
+                  }
+              });
+
+              $.ajax({
+                  url: "{{ url('superadmin/listumpanbalik/kirim-wa-remind-single') }}/" + id,
+                  type: "POST",
+                  data: {
+                      _token: "{{ csrf_token() }}"
+                  },
+                  success: function(res) {
+                      Swal.fire({
+                          icon: 'success',
+                          title: 'Berhasil!',
+                          text: res.message || "Berhasil mengirim WA Remind!",
+                          confirmButtonText: 'OK'
+                      }).then(() => {
+                          $('#dataTable').DataTable().ajax.reload(null, false);
+                      });
+                  },
+                  error: function(xhr) {
+                      var err = xhr.responseJSON ? xhr.responseJSON.message : "Terjadi kesalahan saat mengirim WA Remind.";
+                      Swal.fire({
+                          icon: 'error',
+                          title: 'Gagal!',
+                          text: err,
+                          confirmButtonText: 'OK'
+                      });
+                  }
+              });
           }
       });
   }
@@ -238,29 +268,63 @@
                     });
 
                     if (selectedIds.length === 0) {
-                        alert("Pilih setidaknya satu data berstatus 'Belum diberi tanggapan' dengan mencentang kotak di tabel.");
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Peringatan',
+                            text: "Pilih setidaknya satu data berstatus 'Belum diberi tanggapan' dengan mencentang kotak di tabel.",
+                            confirmButtonText: 'OK'
+                        });
                         return;
                     }
 
-                    if (!confirm("Kirim WA Remind massal ke " + selectedIds.length + " data terpilih?")) {
-                        return;
-                    }
+                    Swal.fire({
+                        title: 'Konfirmasi Kirim Massal',
+                        text: "Kirim WA Remind massal ke " + selectedIds.length + " data terpilih?",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#28a745',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ya, Kirim Massal!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({
+                                title: 'Memproses...',
+                                text: 'Sedang mengantrikan pesan WA Remind Massal...',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
 
-                    $.ajax({
-                        url: "{{ route('listumpanbalik.kirimWaRemindMasal') }}",
-                        type: "POST",
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            ids: selectedIds
-                        },
-                        success: function(res) {
-                            alert(res.message || "Berhasil mengirim WA Remind Massal!");
-                            $('#check-all-remind').prop('checked', false);
-                            $('#dataTable').DataTable().ajax.reload(null, false);
-                        },
-                        error: function(xhr) {
-                            var err = xhr.responseJSON ? xhr.responseJSON.message : "Terjadi kesalahan.";
-                            alert("Gagal: " + err);
+                            $.ajax({
+                                url: "{{ route('listumpanbalik.kirimWaRemindMasal') }}",
+                                type: "POST",
+                                data: {
+                                    _token: "{{ csrf_token() }}",
+                                    ids: selectedIds
+                                },
+                                success: function(res) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Berhasil!',
+                                        text: res.message || "Berhasil mengirim WA Remind Massal!",
+                                        confirmButtonText: 'OK'
+                                    }).then(() => {
+                                        $('#check-all-remind').prop('checked', false);
+                                        $('#dataTable').DataTable().ajax.reload(null, false);
+                                    });
+                                },
+                                error: function(xhr) {
+                                    var err = xhr.responseJSON ? xhr.responseJSON.message : "Terjadi kesalahan saat mengirim WA Remind Massal.";
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Gagal!',
+                                        text: err,
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            });
                         }
                     });
                 }
