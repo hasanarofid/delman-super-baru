@@ -187,26 +187,55 @@ class SendWhatsappMessageJob implements ShouldQueue
                         $paramList = [(string) $p1, (string) $p2, (string) $p3, (string) $p4, (string) $p5, (string) $p6, (string) $p7];
                     }
 
-                    $payload = [
-                        'template_id' => (string) $templateId,
-                        'phone'       => $this->phone,
-                        'variables'   => array_values($paramList),
+                    // Build 4 possible variable format payload variations for Dikontak WABA API
+                    $indexedVars = array_values($paramList);
+                    
+                    $format1Obj = [];
+                    foreach ($indexedVars as $idx => $val) {
+                        $format1Obj[(string)($idx + 1)] = $val; // "1" => val1, "2" => val2
+                    }
+
+                    $payloadFormats = [
+                        // Format #1: 1-indexed object {"1": "val1", "2": "val2", ...}
+                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $format1Obj],
+                        // Format #2: Indexed array ["val1", "val2", ...]
+                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $indexedVars],
+                        // Format #3: JSON stringified array "[\"val1\", \"val2\"]"
+                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => json_encode($indexedVars)],
+                        // Format #4: Array of text objects [{"text": "val1"}, ...]
+                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => array_map(function($v) { return ['text' => $v]; }, $indexedVars)],
                     ];
+
+                    $response = null;
+                    foreach ($payloadFormats as $fIndex => $payload) {
+                        Log::info("[WA Job] Trying WABA Payload Format #" . ($fIndex + 1) . " to {$endpoint}:", $payload);
+                        $res = Http::withHeaders(['Authorization' => $authHeader])
+                            ->asJson()
+                            ->timeout(30)
+                            ->post($endpoint, $payload);
+
+                        $body = $res->body();
+                        Log::info("[WA Job] WABA Format #" . ($fIndex + 1) . " Response (HTTP {$res->status()}): " . $body);
+
+                        $resData = json_decode($body, true);
+                        if ($res->successful() && isset($resData['status']) && ($resData['status'] === true || $resData['status'] === 'true' || $resData['status'] === 1)) {
+                            Log::info("[WA Job] WABA SUCCESS using Format #" . ($fIndex + 1));
+                            $response = $res;
+                            break;
+                        }
+
+                        $response = $res;
+                    }
                 } else {
                     $payload = [
                         'phone'   => $this->phone,
                         'message' => $this->message,
                     ];
+                    $response = Http::withHeaders(['Authorization' => $authHeader])
+                        ->asJson()
+                        ->timeout(30)
+                        ->post($endpoint, $payload);
                 }
-
-                Log::info("[WA Job] Sending WABA Payload to {$endpoint}:", $payload);
-
-                $response = Http::withHeaders(['Authorization' => $authHeader])
-                    ->asJson()
-                    ->timeout(30)
-                    ->post($endpoint, $payload);
-                    
-                Log::info("[WA Job] Raw Response from {$endpoint} (HTTP {$response->status()}): " . $response->body());
             } else {
                 // Legacy Wablas API
                 $authHeader = WaBlastSafetyService::getWorkingAuthFormat($token, $secret, $endpoint);
