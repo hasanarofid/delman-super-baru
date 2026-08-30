@@ -131,47 +131,69 @@ class SendWhatsappMessageJob implements ShouldQueue
                     if ($isPengawasMsg) {
                         // Template umpan_balik_pengawas (1779175166415538) - Butuh 4 variabel (nama_pengawas, rencana_kerja, link_umpan_balik, ref)
                         $templateId = config('services.wablas.template_id_pengawas', '1779175166415538');
-                        preg_match('/Halo Bapak\/Ibu \*?(.*?)\*?, Anda telah membuat Rencana Kerja Mandiri: \*?(.*?)\*?\. Silakan isi umpan balik\/refleksi mandiri pada link berikut:\*?(https?:\/\/[^\s_\*]+)\*?(?: _?(?:ref|Ref):\s*([^\._\*]+))?/i', $this->message, $m);
                         
-                        $p1 = !empty($m[1]) ? trim($m[1], " *\t\n\r\0\x0B") : 'Pengawas';
-                        $p2 = !empty($m[2]) ? trim($m[2], " *\t\n\r\0\x0B") : '-';
-                        $p3 = !empty($m[3]) ? trim($m[3], " *\t\n\r\0\x0B") : 'https://delmansuper.id';
-                        $p4 = !empty($m[4]) ? trim($m[4], " ._\t\n\r\0\x0B") : date('YmdHis');
+                        $p1 = 'Pengawas';
+                        $p2 = '-';
+                        $p3 = 'https://delmansuper.id';
+                        $p4 = date('YmdHis');
 
-                        $vars = [
-                            'nama_pengawas'    => (string) $p1,
-                            'rencana_kerja'    => (string) $p2,
-                            'link_umpan_balik' => (string) $p3,
-                            'ref'              => (string) $p4,
-                        ];
+                        if (preg_match('/Halo Bapak\/Ibu\s+\*?(.*?)\*?,\s*Anda telah membuat/i', $this->message, $m1)) {
+                            $p1 = trim($m1[1], " *\t\n\r\0\x0B");
+                        }
+                        if (preg_match('/Rencana Kerja Mandiri:\s+\*?(.*?)\*?\.\s*Silakan isi/i', $this->message, $m2)) {
+                            $p2 = trim($m2[1], " *\t\n\r\0\x0B");
+                        }
+                        if (preg_match('/(https?:\/\/[^\s_\*]+)/i', $this->message, $m3)) {
+                            $p3 = trim($m3[1], " *\t\n\r\0\x0B");
+                        }
+                        if (preg_match('/ref:\s*([^\s\.\_\*]+)/i', $this->message, $m4)) {
+                            $p4 = trim($m4[1], " ._\t\n\r\0\x0B");
+                        }
+
+                        $paramList = [(string) $p1, (string) $p2, (string) $p3, (string) $p4];
                     } else {
                         // Template umpan_balik (1588095976123570) - Butuh 7 variabel (nama_guru, nama_sekolah, bulan, tahun, nama_pengawas, nama_rencana_kerja, link_umpan_balik)
                         $templateId = config('services.wablas.template_id', '1588095976123570');
-                        preg_match('/Yth Bapak \/ Ibu \*?(.*?)\*? Kepala \*?(.*?)\*?, Pada bulan \*?(.*?)\*? ([0-9]{4})\*? pengawas \*?(.*?)\*? akan melakukan kegiatan pengawasan \*?(.*?)\*? ke sekolah\. Mohon dapat mengisi formulir Monev pada link berikut : \*?(https?:\/\/[^\s\*]+)\*?/i', $this->message, $m);
 
-                        $p1 = !empty($m[1]) ? trim($m[1], " *\t\n\r\0\x0B") : 'Bapak/Ibu';
-                        $p2 = !empty($m[2]) ? trim($m[2], " *\t\n\r\0\x0B") : 'Sekolah';
-                        $p3 = !empty($m[3]) ? trim($m[3], " *\t\n\r\0\x0B") : date('F');
-                        $p4 = !empty($m[4]) ? trim($m[4], " *\t\n\r\0\x0B") : date('Y');
-                        $p5 = !empty($m[5]) ? trim($m[5], " *\t\n\r\0\x0B") : 'Pengawas';
-                        $p6 = !empty($m[6]) ? trim($m[6], " *\t\n\r\0\x0B") : 'Pengawasan';
-                        $p7 = !empty($m[7]) ? trim($m[7], " *\t\n\r\0\x0B") : 'https://delmansuper.id';
+                        $p1 = 'Bapak/Ibu';
+                        $p2 = 'Sekolah';
+                        $p3 = date('F');
+                        $p4 = date('Y');
+                        $p5 = 'Pengawas';
+                        $p6 = 'Pengawasan';
+                        $p7 = 'https://delmansuper.id';
 
-                        $vars = [
-                            'nama_guru'          => (string) $p1,
-                            'nama_sekolah'       => (string) $p2,
-                            'bulan'              => (string) $p3,
-                            'tahun'              => (string) $p4,
-                            'nama_pengawas'      => (string) $p5,
-                            'nama_rencana_kerja' => (string) $p6,
-                            'link_umpan_balik'   => (string) $p7,
-                        ];
+                        if (preg_match('/Yth Bapak \/ Ibu\s+\*?(.*?)\*?\s+Kepala/i', $this->message, $m1)) {
+                            $p1 = trim($m1[1], " *\t\n\r\0\x0B");
+                        }
+                        if (preg_match('/Kepala\s+\*?(.*?)\*?,\s*Pada bulan/i', $this->message, $m2)) {
+                            $p2 = trim($m2[1], " *\t\n\r\0\x0B");
+                        }
+                        if (preg_match('/Pada bulan\s+\*?(.*?)\*?\s+\*?[0-9]/i', $this->message, $m3)) {
+                            $p3 = trim($m3[1], " *\t\n\r\0\x0B");
+                        }
+                        if (preg_match('/Pada bulan.*?\s+\*?([0-9]{4}(?:\/[0-9]{4})?)\*?\s+pengawas/i', $this->message, $m4)) {
+                            $p4 = trim($m4[1], " *\t\n\r\0\x0B");
+                        }
+                        if (preg_match('/pengawas\s+\*?(.*?)\*?\s+akan melakukan/i', $this->message, $m5)) {
+                            $p5 = trim($m5[1], " *\t\n\r\0\x0B");
+                        }
+                        if (preg_match('/kegiatan pengawasan\s+\*?(.*?)\*?\s+ke sekolah/i', $this->message, $m6)) {
+                            $p6 = trim($m6[1], " *\t\n\r\0\x0B");
+                        }
+                        if (preg_match('/(https?:\/\/[^\s\*]+)/i', $this->message, $m7)) {
+                            $p7 = trim($m7[1], " *\t\n\r\0\x0B");
+                        }
+
+                        $paramList = [(string) $p1, (string) $p2, (string) $p3, (string) $p4, (string) $p5, (string) $p6, (string) $p7];
                     }
 
                     $payload = [
                         'template_id' => (string) $templateId,
                         'phone'       => $this->phone,
-                        'variables'   => array_values($vars),
+                        'variables'   => $paramList,
+                        'parameters'  => $paramList,
+                        'params'      => $paramList,
                     ];
                 } else {
                     $payload = [
