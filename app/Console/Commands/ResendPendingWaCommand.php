@@ -32,9 +32,13 @@ class ResendPendingWaCommand extends Command
     {
         $tahun = $this->option('tahun');
         $sendAll = $this->option('all');
-        $this->info("Mulai memproses resend WA Blast rencana kerja tahun {$tahun}...");
+        $this->info("Mulai memproses resend WA Blast rencana kerja...");
 
-        $query = RencanaKerjaT::where('tahun_ajaran', 'like', "%{$tahun}%");
+        $query = RencanaKerjaT::query();
+
+        if ($tahun !== 'all') {
+            $query->where('tahun_ajaran', 'like', "%{$tahun}%");
+        }
 
         if (!$sendAll) {
             $query->where(function($q) {
