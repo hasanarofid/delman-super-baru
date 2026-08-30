@@ -189,6 +189,7 @@ class SendWhatsappMessageJob implements ShouldQueue
 
                     // Build 4 variable format payload variations for Dikontak WABA API
                     $indexedVars = array_values($paramList);
+                    $templateName = $isPengawasMsg ? 'umpan_balik_pengawas' : 'umpan_balik';
                     
                     if ($isPengawasMsg) {
                         $namedVars = [
@@ -216,13 +217,13 @@ class SendWhatsappMessageJob implements ShouldQueue
 
                     $payloadFormats = [
                         // Format #1: Named keys object {"nama_pengawas": "val1", ...}
-                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $namedVars],
+                        ['template_id' => (string) $templateId, 'template_name' => $templateName, 'phone' => $this->phone, 'variables' => $namedVars],
                         // Format #2: 1-indexed object {"1": "val1", "2": "val2", ...}
-                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $format1Obj],
+                        ['template_id' => (string) $templateId, 'template_name' => $templateName, 'phone' => $this->phone, 'variables' => $format1Obj],
                         // Format #3: Indexed array ["val1", "val2", ...]
-                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $indexedVars],
+                        ['template_id' => (string) $templateId, 'template_name' => $templateName, 'phone' => $this->phone, 'variables' => $indexedVars],
                         // Format #4: JSON stringified array "[\"val1\", \"val2\"]"
-                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => json_encode($indexedVars)],
+                        ['template_id' => (string) $templateId, 'template_name' => $templateName, 'phone' => $this->phone, 'variables' => json_encode($indexedVars)],
                     ];
 
                     $response = null;
@@ -252,18 +253,33 @@ class SendWhatsappMessageJob implements ShouldQueue
                     if (!$isSuccess) {
                         $fallbackEndpoint = 'https://dikontak.com/api/v3/send-message';
                         Log::warning("[WA Job] WABA Template API failed. Falling back to standard send-message API: {$fallbackEndpoint}");
+                        
+                        // Try asForm first for /send-message
                         $resFallback = Http::withHeaders(['Authorization' => $authHeader])
-                            ->asJson()
+                            ->asForm()
                             ->timeout(30)
                             ->post($fallbackEndpoint, [
                                 'phone'   => $this->phone,
                                 'message' => $this->message,
                             ]);
 
+                        if (!$resFallback->successful() || (isset(json_decode($resFallback->body(), true)['status']) && json_decode($resFallback->body(), true)['status'] === false)) {
+                            Log::info("[WA Job] Retrying Fallback using asJson...");
+                            $resFallback = Http::withHeaders(['Authorization' => $authHeader])
+                                ->asJson()
+                                ->timeout(30)
+                                ->post($fallbackEndpoint, [
+                                    'phone'   => $this->phone,
+                                    'message' => $this->message,
+                                ]);
+                        }
+
                         Log::info("[WA Job] Standard Fallback Response (HTTP {$resFallback->status()}): " . $resFallback->body());
                         $resDataFb = json_decode($resFallback->body(), true);
                         if ($resFallback->successful() && isset($resDataFb['status']) && ($resDataFb['status'] === true || $resDataFb['status'] === 'true' || $resDataFb['status'] === 1)) {
                             Log::info("[WA Job] SUCCESS via Standard Fallback Endpoint");
+                            $response = $resFallback;
+                        } else {
                             $response = $resFallback;
                         }
                     }
