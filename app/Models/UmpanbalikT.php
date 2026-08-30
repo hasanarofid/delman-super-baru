@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 class UmpanbalikT extends Model
 {
     protected $table = 'umpanbalik_t';
-    protected $dates = ['submitted_at', 'tgl_rtl', 'tgl_pendampingan'];
+    protected $dates = ['submitted_at', 'tgl_rtl', 'tgl_pendampingan', 'tgl_terakhir_kirim_wa'];
     protected $fillable = [
         'id_user',
         'id_user_pengawas',
@@ -26,6 +26,8 @@ class UmpanbalikT extends Model
         'tgl_rtl',
         'tgl_pendampingan',
         'catatan_rtl',
+        'jumlah_kirim_wa',
+        'tgl_terakhir_kirim_wa',
     ];
     public function pengawasnama()
     {

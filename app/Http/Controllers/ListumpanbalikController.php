@@ -214,6 +214,16 @@ class ListumpanbalikController extends Controller
                         $sekolahs = SekolahM::find($cariguru->sekolah_id);
                         return $sekolahs ? $sekolahs->nama_sekolah : '-';
                     })
+                    ->addColumn('total_kirim', function($row) {
+                        $cnt = isset($row->jumlah_kirim_wa) && $row->jumlah_kirim_wa > 0 ? $row->jumlah_kirim_wa : 1;
+                        return '<span class="badge bg-label-info">' . $cnt . 'x Kirim</span>';
+                    })
+                    ->addColumn('tgl_terakhir_kirim', function($row) {
+                        if (!empty($row->tgl_terakhir_kirim_wa)) {
+                            return Carbon::parse($row->tgl_terakhir_kirim_wa)->format('d M Y H:i:s');
+                        }
+                        return $row->created_at->format('d M Y H:i:s');
+                    })
                        ->addColumn('action', function($row){
                             $tanggapan = TanggapanUmpanbalikT::where('id_umpanbalik', $row->id)->first();
 
@@ -233,7 +243,7 @@ class ListumpanbalikController extends Controller
                             }
                             return $btn;
                        })
-                       ->rawColumns(['checkbox','action','sasaran','kategori','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl'])
+                       ->rawColumns(['checkbox','action','sasaran','kategori','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl','total_kirim','tgl_terakhir_kirim'])
                        ->make(true);
            }
     }

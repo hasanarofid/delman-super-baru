@@ -106,6 +106,8 @@
                                 <th>Program Kerja</th>
                                 <th>Kategori</th>
                                 <th>Status</th>
+                                <th>Total Kirim WA</th>
+                                <th>Terakhir Kirim WA</th>
                                 <th>Rencana Tindak Lanjut (RTL)</th>
                                 <th>Catatan RTL</th>
                                 <th>Aksi</th>
@@ -225,6 +227,8 @@
             {data: 'sasaran', name: 'sasaran'},
             {data: 'kategori', name: 'kategori'},
             {data: 'tanggapan_status', name: 'tanggapan_status', orderable: false, searchable: false},
+            {data: 'total_kirim', name: 'total_kirim', orderable: false, searchable: false},
+            {data: 'tgl_terakhir_kirim', name: 'tgl_terakhir_kirim', orderable: false, searchable: false},
             {
                 data: null,
                 name: 'rtl_status',

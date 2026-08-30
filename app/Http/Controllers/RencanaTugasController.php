@@ -364,7 +364,7 @@ class RencanaTugasController extends Controller
 
         $generate_url = (string) \Illuminate\Support\Str::uuid();
         if (!$checkUmpanBalik) {
-            UmpanbalikT::create([
+            $checkUmpanBalik = UmpanbalikT::create([
                 'id_user' => 0,
                 'id_user_pengawas' => $id_pengawas,
                 'id_pelaporan' => $model->id,
@@ -374,9 +374,16 @@ class RencanaTugasController extends Controller
                 'id_created_by' => Auth::user()->id,
                 'id_updated_by' => Auth::user()->id,
                 'tgl_rtl' => date('Y-m-d'),
+                'jumlah_kirim_wa' => 1,
+                'tgl_terakhir_kirim_wa' => now(),
             ]);
             $fullUrl = route('dynamic.umpanbalik.form', ['id_category' => $id_category, 'generate_url' => $generate_url]);
         } else {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('umpanbalik_t', 'jumlah_kirim_wa')) {
+                $checkUmpanBalik->increment('jumlah_kirim_wa');
+                $checkUmpanBalik->tgl_terakhir_kirim_wa = now();
+                $checkUmpanBalik->save();
+            }
             $fullUrl = route('dynamic.umpanbalik.form', ['id_category' => $id_category, 'generate_url' => $checkUmpanBalik->generate_url]);
         }
 
@@ -398,6 +405,10 @@ class RencanaTugasController extends Controller
         if ($checkUmpanBalik) {
             $umpanBalik = $checkUmpanBalik;
             $umpanBalik->id_updated_by = Auth::user()->id;
+            if (\Illuminate\Support\Facades\Schema::hasColumn('umpanbalik_t', 'jumlah_kirim_wa')) {
+                $umpanBalik->jumlah_kirim_wa = ($umpanBalik->jumlah_kirim_wa ?? 0) + 1;
+                $umpanBalik->tgl_terakhir_kirim_wa = now();
+            }
             $umpanBalik->save();
             $fullUrl = url('umpan-balik/' . $umpanBalik->generate_url);
         } else {
@@ -410,6 +421,10 @@ class RencanaTugasController extends Controller
             $umpanBalik->id_created_by = Auth::user()->id;
             $umpanBalik->tgl_rtl = date('Y-m-d');
             $umpanBalik->id_category = 0;
+            if (\Illuminate\Support\Facades\Schema::hasColumn('umpanbalik_t', 'jumlah_kirim_wa')) {
+                $umpanBalik->jumlah_kirim_wa = 1;
+                $umpanBalik->tgl_terakhir_kirim_wa = now();
+            }
             $umpanBalik->save();
             $fullUrl = url('umpan-balik/' . $uniqueUrl);
         }
@@ -431,6 +446,10 @@ class RencanaTugasController extends Controller
         if ($checkUmpanBalik) {
             $umpanBalik = $checkUmpanBalik;
             $umpanBalik->id_updated_by = Auth::user()->id;
+            if (\Illuminate\Support\Facades\Schema::hasColumn('umpanbalik_t', 'jumlah_kirim_wa')) {
+                $umpanBalik->jumlah_kirim_wa = ($umpanBalik->jumlah_kirim_wa ?? 0) + 1;
+                $umpanBalik->tgl_terakhir_kirim_wa = now();
+            }
             $umpanBalik->save();
             $fullUrl = url('dynamic-umpanbalik/' . $id_category . '/' . $umpanBalik->generate_url);
         } else {
@@ -440,6 +459,16 @@ class RencanaTugasController extends Controller
                 $model->id_pengawas,
                 $id_category
             );
+            $checkUmpanBalik = UmpanbalikT::where('id_user', $nama_kepala_sekolah_id)
+                ->where('id_pelaporan', $model->id)
+                ->where('id_pengawas', $model->id_pengawas)
+                ->where('id_category', $id_category)
+                ->first();
+            if ($checkUmpanBalik && \Illuminate\Support\Facades\Schema::hasColumn('umpanbalik_t', 'jumlah_kirim_wa')) {
+                $checkUmpanBalik->jumlah_kirim_wa = 1;
+                $checkUmpanBalik->tgl_terakhir_kirim_wa = now();
+                $checkUmpanBalik->save();
+            }
         }
 
         $nama_pengawas = $model->pengawasnama ? $model->pengawasnama->name : 'Pengawas';
