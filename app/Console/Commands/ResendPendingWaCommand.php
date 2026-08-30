@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\RencanaTugas;
+use App\Models\RencanaKerjaT;
 use App\Http\Controllers\RencanaTugasController;
 use Illuminate\Support\Facades\Log;
 
@@ -33,7 +33,7 @@ class ResendPendingWaCommand extends Command
         $tahun = $this->option('tahun');
         $this->info("Mulai memproses resend WA Blast rencana kerja tahun {$tahun}...");
 
-        $rencanaList = RencanaTugas::where('tahun_ajaran', 'like', "%{$tahun}%")
+        $rencanaList = RencanaKerjaT::where('tahun_ajaran', 'like', "%{$tahun}%")
             ->where(function($q) {
                 $q->whereNull('status_umpan_balik')
                   ->orWhere('status_umpan_balik', '!=', 'Sudah Diisi');
