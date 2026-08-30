@@ -187,26 +187,46 @@ class SendWhatsappMessageJob implements ShouldQueue
                         $paramList = [(string) $p1, (string) $p2, (string) $p3, (string) $p4, (string) $p5, (string) $p6, (string) $p7];
                     }
 
-                    // Build 4 possible variable format payload variations for Dikontak WABA API
+                    // Build 4 variable format payload variations for Dikontak WABA API
                     $indexedVars = array_values($paramList);
                     
+                    if ($isPengawasMsg) {
+                        $namedVars = [
+                            'nama_pengawas'    => (string) $p1,
+                            'rencana_kerja'    => (string) $p2,
+                            'link_umpan_balik' => (string) $p3,
+                            'ref'              => (string) $p4,
+                        ];
+                    } else {
+                        $namedVars = [
+                            'nama_guru'          => (string) $p1,
+                            'nama_sekolah'       => (string) $p2,
+                            'bulan'              => (string) $p3,
+                            'tahun'              => (string) $p4,
+                            'nama_pengawas'      => (string) $p5,
+                            'nama_rencana_kerja' => (string) $p6,
+                            'link_umpan_balik'   => (string) $p7,
+                        ];
+                    }
+
                     $format1Obj = [];
                     foreach ($indexedVars as $idx => $val) {
                         $format1Obj[(string)($idx + 1)] = $val; // "1" => val1, "2" => val2
                     }
 
                     $payloadFormats = [
-                        // Format #1: 1-indexed object {"1": "val1", "2": "val2", ...}
+                        // Format #1: Named keys object {"nama_pengawas": "val1", ...}
+                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $namedVars],
+                        // Format #2: 1-indexed object {"1": "val1", "2": "val2", ...}
                         ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $format1Obj],
-                        // Format #2: Indexed array ["val1", "val2", ...]
+                        // Format #3: Indexed array ["val1", "val2", ...]
                         ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $indexedVars],
-                        // Format #3: JSON stringified array "[\"val1\", \"val2\"]"
+                        // Format #4: JSON stringified array "[\"val1\", \"val2\"]"
                         ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => json_encode($indexedVars)],
-                        // Format #4: Array of text objects [{"text": "val1"}, ...]
-                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => array_map(function($v) { return ['text' => $v]; }, $indexedVars)],
                     ];
 
                     $response = null;
+                    $isSuccess = false;
                     foreach ($payloadFormats as $fIndex => $payload) {
                         Log::info("[WA Job] Trying WABA Payload Format #" . ($fIndex + 1) . " to {$endpoint}:", $payload);
                         $res = Http::withHeaders(['Authorization' => $authHeader])
@@ -221,10 +241,31 @@ class SendWhatsappMessageJob implements ShouldQueue
                         if ($res->successful() && isset($resData['status']) && ($resData['status'] === true || $resData['status'] === 'true' || $resData['status'] === 1)) {
                             Log::info("[WA Job] WABA SUCCESS using Format #" . ($fIndex + 1));
                             $response = $res;
+                            $isSuccess = true;
                             break;
                         }
 
                         $response = $res;
+                    }
+
+                    // Automatic fallback to standard Dikontak send-message API if WABA template is rejected by Meta
+                    if (!$isSuccess) {
+                        $fallbackEndpoint = 'https://dikontak.com/api/v3/send-message';
+                        Log::warning("[WA Job] WABA Template API failed. Falling back to standard send-message API: {$fallbackEndpoint}");
+                        $resFallback = Http::withHeaders(['Authorization' => $authHeader])
+                            ->asJson()
+                            ->timeout(30)
+                            ->post($fallbackEndpoint, [
+                                'phone'   => $this->phone,
+                                'message' => $this->message,
+                            ]);
+
+                        Log::info("[WA Job] Standard Fallback Response (HTTP {$resFallback->status()}): " . $resFallback->body());
+                        $resDataFb = json_decode($resFallback->body(), true);
+                        if ($resFallback->successful() && isset($resDataFb['status']) && ($resDataFb['status'] === true || $resDataFb['status'] === 'true' || $resDataFb['status'] === 1)) {
+                            Log::info("[WA Job] SUCCESS via Standard Fallback Endpoint");
+                            $response = $resFallback;
+                        }
                     }
                 } else {
                     $payload = [
