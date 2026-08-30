@@ -28,7 +28,7 @@
               <div class="app-card-body px-4 w-100">
 
                 <div class="row mb-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="filter-pengawas">Filter by Pengawas:</label>
                         <select
                         id="filter-pengawas"
@@ -44,8 +44,8 @@
 
                     </div>
 
-                    <div class="col-md-4">
-                        <label for="filter-pengawas">Filter Bulan:</label>
+                    <div class="col-md-3">
+                        <label for="filter-bln">Filter Bulan:</label>
                         <select
                         id="filter-bln"
                         name="bln"
@@ -61,7 +61,7 @@
                     </select>
 
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="filter-tahun">Filter Tahun:</label>
                         <select
                             id="filter-tahun"
@@ -78,6 +78,18 @@
                         </select>
                     </div>
 
+                    <div class="col-md-3">
+                        <label for="filter-status-tanggapan">Filter Status Tanggapan:</label>
+                        <select
+                            id="filter-status-tanggapan"
+                            name="status_tanggapan"
+                            class="select2 form-select"
+                        >
+                            <option value="all">All (Semua)</option>
+                            <option value="belum">Belum diberi tanggapan</option>
+                            <option value="sudah">Sudah diberi tanggapan</option>
+                        </select>
+                    </div>
 
                 </div>
 
@@ -85,6 +97,7 @@
                       <table class="table table-bordered table-striped" id="dataTable">
                           <thead>
                               <tr>
+                                <th><input type="checkbox" id="check-all-remind"></th>
                                 <th>No</th>
                                 <th>Tanggal</th>
                                 <th>Pengawas</th>
@@ -95,8 +108,7 @@
                                 <th>Status</th>
                                 <th>Rencana Tindak Lanjut (RTL)</th>
                                 <th>Catatan RTL</th>
-                                <th>Preview</th>
-                                {{-- <th>#</th> --}}
+                                <th>Aksi</th>
                             </tr>
                           </thead>
                       </table>
@@ -125,42 +137,56 @@
 
 
 <script>
+  function kirimWaRemindSingle(id) {
+      if (!confirm("Apakah Anda yakin ingin mengirim ulang WA Remind untuk data ini?")) {
+          return;
+      }
+      $.ajax({
+          url: "{{ url('superadmin/listumpanbalik/kirim-wa-remind-single') }}/" + id,
+          type: "POST",
+          data: {
+              _token: "{{ csrf_token() }}"
+          },
+          success: function(res) {
+              alert(res.message || "Berhasil mengirim WA Remind!");
+              $('#dataTable').DataTable().ajax.reload(null, false);
+          },
+          error: function(xhr) {
+              var err = xhr.responseJSON ? xhr.responseJSON.message : "Terjadi kesalahan saat mengirim WA Remind.";
+              alert("Gagal: " + err);
+          }
+      });
+  }
+
   $(document).ready(function () {
 
     $('#filter-pengawas').select2();
-        $('#filter-bln').select2();
-        $('#filter-tahun').select2();
-        var isExporting = false;
-        $('#filter-pengawas').change(function () {
-            $('#dataTable').DataTable().ajax.reload(); // Reload the table when filter changes
-        });
+    $('#filter-bln').select2();
+    $('#filter-tahun').select2();
+    $('#filter-status-tanggapan').select2();
 
+    $('#filter-pengawas, #filter-bln, #filter-tahun, #filter-status-tanggapan').change(function () {
+        $('#dataTable').DataTable().ajax.reload();
+    });
 
-        $('#filter-bln').change(function () {
-            $('#dataTable').DataTable().ajax.reload(); // Reload the table when filter changes
-        });
+    $('#check-all-remind').on('click', function() {
+        $('.check-remind-item').prop('checked', this.checked);
+    });
 
-
-        $('#filter-tahun').change(function () {
-            $('#dataTable').DataTable().ajax.reload(); // Reload the table when filter changes
-        });
-
-
-
-
- $('#dataTable').DataTable({
-
+    $('#dataTable').DataTable({
         processing: true,
         serverSide: true,
         ajax: {
-                url: "{{ route('listumpanbalik.getdata') }}",
-                data: function(d) {
-                         d.pengawas = $('#filter-pengawas').val();
-                         d.bln = $('#filter-bln').val();
-                         d.tahun = $('#filter-tahun').val();
-                 }
-            },
+            url: "{{ route('listumpanbalik.getdata') }}",
+            data: function(d) {
+                d.pengawas = $('#filter-pengawas').val();
+                d.bln = $('#filter-bln').val();
+                d.tahun = $('#filter-tahun').val();
+                d.status_tanggapan = $('#filter-status-tanggapan').val();
+            }
+        },
         columns: [
+            {data: 'checkbox', name: 'checkbox', orderable: false, searchable: false},
             {data: 'DT_RowIndex', name: 'DT_RowIndex'},
             {data: 'tanggal', name: 'tanggal'},
             {data: 'pengawas', name: 'pengawas'},
@@ -189,25 +215,59 @@
             },
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
-            dom: 'Bfrtip', // Enables the buttons at the top of the DataTable
-            buttons: [
-                {
-                    text: '<i class="fas fa-file-pdf"></i> Export PDF',
-                    className: 'btn btn-danger',
-                    action: function ( e, dt, node, config ) {
-                        var pengawas = $('#filter-pengawas').val();
-                        var bln = $('#filter-bln').val();
-                        var tahun = $('#filter-tahun').val();
-                        var url = "{{ route('listumpanbalik.exportPDF') }}?pengawas=" + pengawas + "&bln=" + bln + "&tahun=" + tahun;
-                        window.open(url, '_blank');
-                    }
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                text: '<i class="fas fa-file-pdf"></i> Export PDF',
+                className: 'btn btn-danger me-2',
+                action: function ( e, dt, node, config ) {
+                    var pengawas = $('#filter-pengawas').val();
+                    var bln = $('#filter-bln').val();
+                    var tahun = $('#filter-tahun').val();
+                    var url = "{{ route('listumpanbalik.exportPDF') }}?pengawas=" + pengawas + "&bln=" + bln + "&tahun=" + tahun;
+                    window.open(url, '_blank');
                 }
-            ]
+            },
+            {
+                text: '<i class="fab fa-whatsapp"></i> Kirim WA Remind Massal (Terpilih)',
+                className: 'btn btn-success',
+                action: function ( e, dt, node, config ) {
+                    var selectedIds = [];
+                    $('.check-remind-item:checked').each(function() {
+                        selectedIds.push($(this).val());
+                    });
+
+                    if (selectedIds.length === 0) {
+                        alert("Pilih setidaknya satu data berstatus 'Belum diberi tanggapan' dengan mencentang kotak di tabel.");
+                        return;
+                    }
+
+                    if (!confirm("Kirim WA Remind massal ke " + selectedIds.length + " data terpilih?")) {
+                        return;
+                    }
+
+                    $.ajax({
+                        url: "{{ route('listumpanbalik.kirimWaRemindMasal') }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            ids: selectedIds
+                        },
+                        success: function(res) {
+                            alert(res.message || "Berhasil mengirim WA Remind Massal!");
+                            $('#check-all-remind').prop('checked', false);
+                            $('#dataTable').DataTable().ajax.reload(null, false);
+                        },
+                        error: function(xhr) {
+                            var err = xhr.responseJSON ? xhr.responseJSON.message : "Terjadi kesalahan.";
+                            alert("Gagal: " + err);
+                        }
+                    });
+                }
+            }
+        ]
     });
   });
-
-
-
 </script>
 
 @endsection

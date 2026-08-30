@@ -183,6 +183,8 @@ Route::prefix('superadmin')->middleware(['auth', 'checkSuperadminOrStakeholder',
         Route::post('/update-listumpanbalik/{id}', 'ListumpanbalikController@update')->name('listumpanbalik.update');
         Route::get('/hapus-listumpanbalik{id}', 'ListumpanbalikController@hapus')->name('listumpanbalik.hapus');
         Route::get('/export-pdf', 'ListumpanbalikController@exportPDF')->name('listumpanbalik.exportPDF');
+        Route::post('/kirim-wa-remind-single/{id}', 'ListumpanbalikController@kirimWaRemindSingle')->name('listumpanbalik.kirimWaRemindSingle');
+        Route::post('/kirim-wa-remind-masal', 'ListumpanbalikController@kirimWaRemindMasal')->name('listumpanbalik.kirimWaRemindMasal');
     });
 
     Route::prefix('dokumentasipendampingan')->group(function () {

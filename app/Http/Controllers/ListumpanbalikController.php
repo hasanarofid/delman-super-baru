@@ -144,15 +144,35 @@ class ListumpanbalikController extends Controller
                 });
             }
 
+            // Filter berdasarkan status tanggapan
+            if ($request->has('status_tanggapan') && $request->status_tanggapan !== 'all') {
+                if ($request->status_tanggapan === 'belum') {
+                    $query->whereNull('submitted_at')
+                          ->whereDoesntHave('tanggapanUmpanBalik');
+                } elseif ($request->status_tanggapan === 'sudah') {
+                    $query->where(function ($q) {
+                        $q->whereNotNull('submitted_at')
+                          ->orWhereHas('tanggapanUmpanBalik');
+                    });
+                }
+            }
+
 
             return Datatables::of($query->get())
                        ->addIndexColumn()
+                       ->addColumn('checkbox', function($row){
+                           $tanggapan = TanggapanUmpanbalikT::where('id_umpanbalik', $row->id)->first();
+                           if (!$tanggapan && $row->submitted_at === null) {
+                               return '<input type="checkbox" class="check-remind-item" value="' . $row->id . '">';
+                           }
+                           return '';
+                       })
                        ->addColumn('tanggal', function($row){
                         return $row->created_at->format('d M Y h:i:s');
                     })
                     ->addColumn('pengawas', function($row){
                         $user = User::where('id',$row->id_pengawas)->first();
-                        return $user->nip.' - '.$user->name;
+                        return $user ? ($user->nip.' - '.$user->name) : '-';
                     })
                     ->addColumn('kepala_sekolah', function($row){
                         if ($row->id_user == 0 && $row->id_user_pengawas != 0) {
@@ -204,17 +224,67 @@ class ListumpanbalikController extends Controller
                                 $fullUrl = route('superadmin.dynamic.umpanbalik.view', ['category_slug' => $categorySlug, 'generate_url' => $row->generate_url]);
                             }
 
-                            // If 'Belum diberi tanggapan', disable the button
+                            // If 'Belum diberi tanggapan', enable Kirim WA Remind button
                             if (!$tanggapan && $row->submitted_at === null) {
-                                $btn = '<a href="#" class="btn btn-sm bg-warning text-white disabled" style="pointer-events: none;" > <i class="fa fa-eye"></i> Belum diberi tanggapan</a>';
+                                $btn = '<a href="#" class="btn btn-sm bg-warning text-white disabled me-1 mb-1" style="pointer-events: none;"><i class="fa fa-eye"></i> Belum diberi tanggapan</a>';
+                                $btn .= '<button type="button" onclick="kirimWaRemindSingle(' . $row->id . ')" class="btn btn-sm bg-success text-white mb-1"><i class="fa fa-paper-plane"></i> Kirim WA Remind</button>';
                             } else {
-                                $btn = '<a target="_blank" href="'.$fullUrl.'" class="btn btn-sm bg-primary text-white" > <i class="fa fa-eye"></i> View</a>';
+                                $btn = '<a target="_blank" href="'.$fullUrl.'" class="btn btn-sm bg-primary text-white mb-1"><i class="fa fa-eye"></i> View</a>';
                             }
                             return $btn;
                        })
-                       ->rawColumns(['action','sasaran','kategori','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl'])
+                       ->rawColumns(['checkbox','action','sasaran','kategori','kepala_sekolah','nama_sekolah','tanggal','pengawas','tanggapan_status','is_rtl','tgl_rtl'])
                        ->make(true);
            }
+    }
+
+    public function kirimWaRemindSingle($id)
+    {
+        try {
+            $umpanbalik = UmpanbalikT::findOrFail($id);
+            $rencanaTugasController = app(RencanaTugasController::class);
+
+            $id_sekolah = $umpanbalik->id_user ?? 0;
+            $rencanaTugasController->kirimWaSekolah($umpanbalik->id_pelaporan, $id_sekolah);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesan WA Remind berhasil diantrikan!'
+            ]);
+        } catch (\Exception $e) {
+            Log::error("[WA Remind Single Error] " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengirim WA Remind: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function kirimWaRemindMasal(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids) || !is_array($ids)) {
+            return response()->json(['success' => false, 'message' => 'Pilih setidaknya satu data.'], 400);
+        }
+
+        $items = UmpanbalikT::whereIn('id', $ids)->get();
+        $rencanaTugasController = app(RencanaTugasController::class);
+        $count = 0;
+
+        foreach ($items as $umpanbalik) {
+            try {
+                $id_sekolah = $umpanbalik->id_user ?? 0;
+                $rencanaTugasController->kirimWaSekolah($umpanbalik->id_pelaporan, $id_sekolah);
+                $count++;
+            } catch (\Exception $e) {
+                Log::error("[WA Remind Bulk Error ID {$umpanbalik->id}] " . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$count} pesan WA Remind berhasil diantrikan."
+        ]);
     }
 
     public function getdatapengawas(Request $request){
