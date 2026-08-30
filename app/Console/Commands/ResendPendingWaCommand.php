@@ -14,7 +14,7 @@ class ResendPendingWaCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'wa:resend-pending {--tahun=2026}';
+    protected $signature = 'wa:resend-pending {--tahun=2026} {--all}';
 
     /**
      * The console command description.
@@ -31,14 +31,19 @@ class ResendPendingWaCommand extends Command
     public function handle()
     {
         $tahun = $this->option('tahun');
+        $sendAll = $this->option('all');
         $this->info("Mulai memproses resend WA Blast rencana kerja tahun {$tahun}...");
 
-        $rencanaList = RencanaKerjaT::where('tahun_ajaran', 'like', "%{$tahun}%")
-            ->where(function($q) {
-                $q->whereNull('status_umpan_balik')
-                  ->orWhere('status_umpan_balik', '!=', 'Sudah Diisi');
-            })
-            ->get();
+        $query = RencanaKerjaT::where('tahun_ajaran', 'like', "%{$tahun}%");
+
+        if (!$sendAll) {
+            $query->where(function($q) {
+                $q->whereNull('status')
+                  ->orWhere('status', '!=', 1);
+            });
+        }
+
+        $rencanaList = $query->get();
 
         $controller = app(RencanaTugasController::class);
         $count = 0;
