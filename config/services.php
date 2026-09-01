@@ -37,8 +37,8 @@ return [
         'device_id' => env('WABLAS_DEVICE_ID', 0),
         'delay' => env('WABLAS_DELAY_SECONDS', 10),
         'anti_spam_suffix' => env('WABLAS_ANTI_SPAM_SUFFIX', true),
-        'template_id' => env('WABLAS_TEMPLATE_ID', '1013364065068172'),
-        'template_id_pengawas' => env('WABLAS_TEMPLATE_ID_PENGAWAS', '2245694162953337'),
+        'template_id' => env('WABLAS_TEMPLATE_ID', '1379915427092136'),
+        'template_id_pengawas' => env('WABLAS_TEMPLATE_ID_PENGAWAS', '2052379852150869'),
     ],
 
 ];

@@ -129,8 +129,8 @@ class SendWhatsappMessageJob implements ShouldQueue
                     // Deteksi jenis pesan: Untuk Pengawas vs Untuk Kepala Sekolah / Guru
                     $isPengawasMsg = str_contains($this->message, 'Rencana Kerja Mandiri') || str_contains($this->message, 'refleksi mandiri');
                     if ($isPengawasMsg) {
-                        // Template umpan_balik_pengawas_new (2245694162953337) - 6 variabel | Legacy (1779175166415538) - 4 variabel
-                        $templateId = config('services.wablas.template_id_pengawas', '2245694162953337');
+                        // Template umpan_balik_pengawas_baru (2052379852150869) - 5 variabel | umpan_balik_pengawas_new (2245694162953337) - 6 variabel | Legacy (1779175166415538) - 4 variabel
+                        $templateId = config('services.wablas.template_id_pengawas', '2052379852150869');
                         
                         $p1 = 'Pengawas';
                         $p2 = '-';
@@ -150,13 +150,24 @@ class SendWhatsappMessageJob implements ShouldQueue
                             $p4 = trim($m4[1], " ._\t\n\r\0\x0B");
                         }
 
-                        if ($templateId === '2245694162953337' || $templateId === 'umpan_balik_pengawas_new') {
+                        if ($templateId === '2052379852150869' || $templateId === 'umpan_balik_pengawas_baru') {
+                            // 5 Variabel untuk umpan_balik_pengawas_baru (Header {{1}} + Body {{2..5}} tanpa tombol URL)
+                            $headerP1 = mb_strimwidth((string) $p1, 0, 25, '');
+
+                            $paramList = [
+                                (string) $headerP1, // Header {{1}}: nama pengawas (max 25 chars agar total header < 60 chars)
+                                (string) $p1,       // Body {{2}}: nama pengawas
+                                (string) $p2,       // Body {{3}}: rencana kerja
+                                (string) $p3,       // Body {{4}}: link umpan balik
+                                (string) $p4        // Body {{5}}: ref
+                            ];
+                        } elseif ($templateId === '2245694162953337' || $templateId === 'umpan_balik_pengawas_new') {
                             // Meta WABA Header max 60 chars ("Rencana Pengembangan Kompetensi " = 33 chars -> max var = 25 chars)
                             $headerP1 = mb_strimwidth((string) $p1, 0, 25, '');
 
                             // 6 Variabel untuk umpan_balik_pengawas_new (Header {{1}} + Body {{2..5}} + Button URL Suffix {{6}})
                             $paramList = [
-                                (string) $headerP1, // Header {{1}}: nama pengawas (max 25 chars agar total header < 60 chars)
+                                (string) $headerP1, // Header {{1}}: nama pengawas
                                 (string) $p1,       // Body {{2}}: nama pengawas
                                 (string) $p2,       // Body {{3}}: rencana kerja
                                 (string) $p3,       // Body {{4}}: link umpan balik
@@ -168,8 +179,8 @@ class SendWhatsappMessageJob implements ShouldQueue
                             $paramList = [(string) $p1, (string) $p2, (string) $p3, (string) $p4];
                         }
                     } else {
-                        // Template umpan_balik_kepsek_new (1013364065068172) - 10 variabel | Legacy (1588095976123570) - 7 variabel
-                        $templateId = config('services.wablas.template_id', '1013364065068172');
+                        // Template umpan_balik_kepsek_baru (1379915427092136) - 9 variabel | umpan_balik_kepsek_new (1013364065068172) - 10 variabel | Legacy (1588095976123570) - 7 variabel
+                        $templateId = config('services.wablas.template_id', '1379915427092136');
 
                         $p1 = 'Bapak/Ibu';
                         $p2 = 'Sekolah';
@@ -205,7 +216,22 @@ class SendWhatsappMessageJob implements ShouldQueue
                             $p8 = trim($m8[1], " ._\t\n\r\0\x0B");
                         }
 
-                        if ($templateId === '1013364065068172' || $templateId === '1913364065068172' || $templateId === 'umpan_balik_kepsek_new') {
+                        if ($templateId === '1379915427092136' || $templateId === 'umpan_balik_kepsek_baru') {
+                            // 9 Variabel untuk umpan_balik_kepsek_baru (Header {{1}} + Body {{2..9}} tanpa tombol URL)
+                            $headerP5 = mb_strimwidth((string) $p5, 0, 35, '');
+
+                            $paramList = [
+                                (string) $headerP5, // Header {{1}}: nama pengawas (max 35 chars agar total header < 60 chars)
+                                (string) $p1,       // Body {{2}}: nama kepsek/guru
+                                (string) $p2,       // Body {{3}}: nama sekolah
+                                (string) $p3,       // Body {{4}}: bulan
+                                (string) $p4,       // Body {{5}}: tahun
+                                (string) $p5,       // Body {{6}}: nama pengawas
+                                (string) $p6,       // Body {{7}}: nama rencana kerja
+                                (string) $p7,       // Body {{8}}: link umpan balik
+                                (string) $p8        // Body {{9}}: ref
+                            ];
+                        } elseif ($templateId === '1013364065068172' || $templateId === '1913364065068172' || $templateId === 'umpan_balik_kepsek_new') {
                             // Meta WABA Header max 60 chars ("Rencana Pengawasan " = 19 chars -> max var = 35 chars)
                             $headerP5 = mb_strimwidth((string) $p5, 0, 35, '');
 
