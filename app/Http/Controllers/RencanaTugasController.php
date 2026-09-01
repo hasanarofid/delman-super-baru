@@ -186,6 +186,9 @@ class RencanaTugasController extends Controller
 
             if ($model->is_mandiri == 1) {
                 $pengawas = User::with('profile')->find($model->id_pengawas);
+                if (!$pengawas) {
+                    return response()->json(['success' => false, 'message' => 'Pengawas tidak ditemukan.'], 400);
+                }
                 $no_telp = $pengawas->no_telp;
                 if (empty($no_telp) && $pengawas->profile) {
                     $no_telp = $pengawas->profile->no_telp;
@@ -242,6 +245,9 @@ class RencanaTugasController extends Controller
 
             if ($model->is_mandiri == 1) {
                 $pengawas = User::with('profile')->find($model->id_pengawas);
+                if (!$pengawas) {
+                    return response()->json(['success' => false, 'message' => 'Pengawas tidak ditemukan.'], 400);
+                }
                 $no_telp = $pengawas->no_telp;
                 if (empty($no_telp) && $pengawas->profile) {
                     $no_telp = $pengawas->profile->no_telp;
@@ -371,8 +377,8 @@ class RencanaTugasController extends Controller
                 'generate_url' => $generate_url,
                 'id_pengawas' => $model->id_pengawas,
                 'id_category' => $id_category,
-                'id_created_by' => Auth::user()->id,
-                'id_updated_by' => Auth::user()->id,
+                'id_created_by' => Auth::id() ?? $model->id_pengawas ?? 0,
+                'id_updated_by' => Auth::id() ?? $model->id_pengawas ?? 0,
                 'tgl_rtl' => date('Y-m-d'),
                 'jumlah_kirim_wa' => 1,
                 'tgl_terakhir_kirim_wa' => now(),
@@ -402,9 +408,10 @@ class RencanaTugasController extends Controller
             ->where('id_pengawas', $model->id_pengawas)
             ->first();
 
+        $currentUserId = Auth::id() ?? $model->id_pengawas ?? 0;
         if ($checkUmpanBalik) {
             $umpanBalik = $checkUmpanBalik;
-            $umpanBalik->id_updated_by = Auth::user()->id;
+            $umpanBalik->id_updated_by = $currentUserId;
             if (\Illuminate\Support\Facades\Schema::hasColumn('umpanbalik_t', 'jumlah_kirim_wa')) {
                 $umpanBalik->jumlah_kirim_wa = ($umpanBalik->jumlah_kirim_wa ?? 0) + 1;
                 $umpanBalik->tgl_terakhir_kirim_wa = now();
@@ -414,11 +421,11 @@ class RencanaTugasController extends Controller
         } else {
             $umpanBalik = new UmpanbalikT();
             $umpanBalik->generate_url = $uniqueUrl;
-            $umpanBalik->id_updated_by = Auth::user()->id;
+            $umpanBalik->id_updated_by = $currentUserId;
             $umpanBalik->id_pelaporan = $model->id;
             $umpanBalik->id_user = $nama_kepala_sekolah_id;
             $umpanBalik->id_pengawas = $model->id_pengawas;
-            $umpanBalik->id_created_by = Auth::user()->id;
+            $umpanBalik->id_created_by = $currentUserId;
             $umpanBalik->tgl_rtl = date('Y-m-d');
             $umpanBalik->id_category = 0;
             if (\Illuminate\Support\Facades\Schema::hasColumn('umpanbalik_t', 'jumlah_kirim_wa')) {
@@ -443,9 +450,10 @@ class RencanaTugasController extends Controller
             ->where('id_category', $id_category)
             ->first();
 
+        $currentUserId = Auth::id() ?? $model->id_pengawas ?? 0;
         if ($checkUmpanBalik) {
             $umpanBalik = $checkUmpanBalik;
-            $umpanBalik->id_updated_by = Auth::user()->id;
+            $umpanBalik->id_updated_by = $currentUserId;
             if (\Illuminate\Support\Facades\Schema::hasColumn('umpanbalik_t', 'jumlah_kirim_wa')) {
                 $umpanBalik->jumlah_kirim_wa = ($umpanBalik->jumlah_kirim_wa ?? 0) + 1;
                 $umpanBalik->tgl_terakhir_kirim_wa = now();

@@ -129,8 +129,8 @@ class SendWhatsappMessageJob implements ShouldQueue
                     // Deteksi jenis pesan: Untuk Pengawas vs Untuk Kepala Sekolah / Guru
                     $isPengawasMsg = str_contains($this->message, 'Rencana Kerja Mandiri') || str_contains($this->message, 'refleksi mandiri');
                     if ($isPengawasMsg) {
-                        // Template umpan_balik_pengawas (1779175166415538) - Butuh 4 variabel (nama_pengawas, rencana_kerja, link_umpan_balik, ref)
-                        $templateId = config('services.wablas.template_id_pengawas', '1779175166415538');
+                        // Template umpan_balik_pengawas_new (2245694162953337) - 6 variabel | Legacy (1779175166415538) - 4 variabel
+                        $templateId = config('services.wablas.template_id_pengawas', '2245694162953337');
                         
                         $p1 = 'Pengawas';
                         $p2 = '-';
@@ -149,10 +149,27 @@ class SendWhatsappMessageJob implements ShouldQueue
                         if (preg_match('/ref:\s*([^\s\.\_\*]+)/i', $this->message, $m4)) {
                             $p4 = trim($m4[1], " ._\t\n\r\0\x0B");
                         }
-                        $paramList = [(string) $p1, (string) $p2, (string) $p3, (string) $p4];
+
+                        if ($templateId === '2245694162953337' || $templateId === 'umpan_balik_pengawas_new') {
+                            // Meta WABA Header max 60 chars ("Rencana Pengembangan Kompetensi " = 33 chars -> max var = 25 chars)
+                            $headerP1 = mb_strimwidth((string) $p1, 0, 25, '');
+
+                            // 6 Variabel untuk umpan_balik_pengawas_new (Header {{1}} + Body {{2..5}} + Button URL Suffix {{6}})
+                            $paramList = [
+                                (string) $headerP1, // Header {{1}}: nama pengawas (max 25 chars agar total header < 60 chars)
+                                (string) $p1,       // Body {{2}}: nama pengawas
+                                (string) $p2,       // Body {{3}}: rencana kerja
+                                (string) $p3,       // Body {{4}}: link umpan balik
+                                (string) $p4,       // Body {{5}}: ref
+                                (string) $p3        // Button URL suffix {{6}}
+                            ];
+                        } else {
+                            // 4 Variabel untuk template lama 1779175166415538
+                            $paramList = [(string) $p1, (string) $p2, (string) $p3, (string) $p4];
+                        }
                     } else {
-                        // Template umpan_balik (1588095976123570) - Butuh 7 variabel (nama_guru, nama_sekolah, bulan, tahun, nama_pengawas, nama_rencana_kerja, link_umpan_balik)
-                        $templateId = config('services.wablas.template_id', '1588095976123570');
+                        // Template umpan_balik_kepsek_new (1013364065068172) - 10 variabel | Legacy (1588095976123570) - 7 variabel
+                        $templateId = config('services.wablas.template_id', '1013364065068172');
 
                         $p1 = 'Bapak/Ibu';
                         $p2 = 'Sekolah';
@@ -161,6 +178,7 @@ class SendWhatsappMessageJob implements ShouldQueue
                         $p5 = 'Pengawas';
                         $p6 = 'Pengawasan';
                         $p7 = 'https://delmansuper.id';
+                        $p8 = date('YmdHis');
 
                         if (preg_match('/Yth Bapak \/ Ibu\s+\*?(.*?)\*?\s+Kepala/i', $this->message, $m1)) {
                             $p1 = trim($m1[1], " *\t\n\r\0\x0B");
@@ -183,28 +201,51 @@ class SendWhatsappMessageJob implements ShouldQueue
                         if (preg_match('/(https?:\/\/[^\s\*]+)/i', $this->message, $m7)) {
                             $p7 = trim($m7[1], " *\t\n\r\0\x0B");
                         }
+                        if (preg_match('/ref:\s*([^\s\.\_\*]+)/i', $this->message, $m8)) {
+                            $p8 = trim($m8[1], " ._\t\n\r\0\x0B");
+                        }
 
-                        $paramList = [(string) $p1, (string) $p2, (string) $p3, (string) $p4, (string) $p5, (string) $p6, (string) $p7];
+                        if ($templateId === '1013364065068172' || $templateId === '1913364065068172' || $templateId === 'umpan_balik_kepsek_new') {
+                            // Meta WABA Header max 60 chars ("Rencana Pengawasan " = 19 chars -> max var = 35 chars)
+                            $headerP5 = mb_strimwidth((string) $p5, 0, 35, '');
+
+                            // 10 Variabel untuk umpan_balik_kepsek_new (Header {{1}} + Body {{2..9}} + Button URL Suffix {{10}})
+                            $paramList = [
+                                (string) $headerP5, // Header {{1}}: nama pengawas (max 35 chars agar total header < 60 chars)
+                                (string) $p1,       // Body {{2}}: nama kepsek/guru
+                                (string) $p2,       // Body {{3}}: nama sekolah
+                                (string) $p3,       // Body {{4}}: bulan
+                                (string) $p4,       // Body {{5}}: tahun
+                                (string) $p5,       // Body {{6}}: nama pengawas
+                                (string) $p6,       // Body {{7}}: nama rencana kerja
+                                (string) $p7,       // Body {{8}}: link umpan balik
+                                (string) $p8,       // Body {{9}}: ref
+                                (string) $p7        // Button URL suffix {{10}}
+                            ];
+                        } else {
+                            // 7 Variabel untuk template lama 1588095976123570
+                            $paramList = [(string) $p1, (string) $p2, (string) $p3, (string) $p4, (string) $p5, (string) $p6, (string) $p7];
+                        }
                     }
 
                     // Build WABA variable payload formats
                     $indexedVars = array_values($paramList);
                     
-                    $format1Obj = new \stdClass();
+                    $format1Obj = [];
                     foreach ($indexedVars as $idx => $val) {
                         $key = (string) ($idx + 1);
-                        $format1Obj->$key = (string) $val; // {"1": "val1", "2": "val2", ...}
+                        $format1Obj[$key] = (string) $val; // {"1": "val1", "2": "val2", ...}
                     }
 
                     if ($isPengawasMsg) {
-                        $namedVars = (object) [
+                        $namedVars = [
                             'nama_pengawas'    => (string) $p1,
                             'rencana_kerja'    => (string) $p2,
                             'link_umpan_balik' => (string) $p3,
                             'ref'              => (string) $p4,
                         ];
                     } else {
-                        $namedVars = (object) [
+                        $namedVars = [
                             'nama_guru'          => (string) $p1,
                             'nama_sekolah'       => (string) $p2,
                             'bulan'              => (string) $p3,
@@ -215,13 +256,23 @@ class SendWhatsappMessageJob implements ShouldQueue
                         ];
                     }
 
+                    $textParamObjects = array_map(function($v) {
+                        return ['type' => 'text', 'text' => (string) $v];
+                    }, $indexedVars);
+
                     $payloadFormats = [
-                        // Format #1: Pure 3-key payload with 1-indexed object {"1": "val1", "2": "val2", ...}
-                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $format1Obj],
-                        // Format #2: Named keys object {"nama_pengawas": "val1", ...}
-                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $namedVars],
-                        // Format #3: Indexed array ["val1", "val2", ...]
+                        // Format #1 (Resmi Sesuai Dokumentasi Dikontak): Indexed array ["val1", "val2", ...]
                         ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $indexedVars],
+                        // Format #2: Named keys object {"nama_guru": "val1", ...}
+                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $namedVars],
+                        // Format #3: Pure 3-key payload with 1-indexed object {"1": "val1", "2": "val2", ...}
+                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $format1Obj],
+                        // Format #4: Meta WABA parameters array [{"type": "text", "text": "val1"}, ...]
+                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'parameters' => $textParamObjects],
+                        // Format #5: Meta WABA variables array with text objects
+                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'variables' => $textParamObjects],
+                        // Format #6: Meta WABA components format
+                        ['template_id' => (string) $templateId, 'phone' => $this->phone, 'components' => [['type' => 'body', 'parameters' => $textParamObjects]]],
                     ];
 
                     $response = null;

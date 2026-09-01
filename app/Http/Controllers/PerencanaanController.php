@@ -391,8 +391,8 @@ class PerencanaanController extends Controller
                 'generate_url' => $generate_url,
                 'id_pengawas' => $model->id_pengawas,
                 'id_category' => $id_category,
-                'id_created_by' => Auth::user()->id,
-                'id_updated_by' => Auth::user()->id,
+                'id_created_by' => Auth::id() ?? $model->id_pengawas ?? 0,
+                'id_updated_by' => Auth::id() ?? $model->id_pengawas ?? 0,
                 'tgl_rtl' => date('Y-m-d'),
             ]);
             $fullUrl = route('dynamic.umpanbalik.form', ['id_category' => $id_category, 'generate_url' => $generate_url]);
@@ -413,20 +413,21 @@ class PerencanaanController extends Controller
             ->where('id_pengawas', $model->id_pengawas)
             ->first();
 
+        $currentUserId = Auth::id() ?? $model->id_pengawas ?? 0;
         if ($checkUmpanBalik) {
             $umpanBalik = $checkUmpanBalik;
-            $umpanBalik->id_updated_by = Auth::user()->id;
+            $umpanBalik->id_updated_by = $currentUserId;
             $umpanBalik->save();
             $fullUrl = url('umpan-balik/' . $checkUmpanBalik->generate_url);
         } else {
             $uniqueUrl = Str::uuid()->getHex();
             $umpanBalik = new UmpanbalikT();
             $umpanBalik->generate_url = $uniqueUrl;
-            $umpanBalik->id_updated_by = Auth::user()->id;
+            $umpanBalik->id_updated_by = $currentUserId;
             $umpanBalik->id_pelaporan = $model->id;
             $umpanBalik->id_user = $nama_kepala_sekolah_id;
             $umpanBalik->id_pengawas = $model->id_pengawas;
-            $umpanBalik->id_created_by = Auth::user()->id;
+            $umpanBalik->id_created_by = $currentUserId;
             $umpanBalik->tgl_rtl = date('Y-m-d');
             $umpanBalik->id_category = 0;
             $umpanBalik->save();
